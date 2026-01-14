@@ -1,0 +1,31 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Bio from '../../components/Bio.astro';
+
+export function getStaticPaths() {
+  return [
+    { params: { lang: 'es' } },
+    { params: { lang: 'en' } },
+  ];
+}
+
+const { lang } = Astro.params as { lang: 'es' | 'en' };
+
+const titles = {
+  es: 'Germán Gomez - Senior Mobile Engineer',
+  en: 'Germán Gomez - Senior Mobile Engineer',
+};
+
+const descriptions = {
+  es: 'Portfolio de Germán Gomez, Senior Mobile Engineer en Buenos Aires, Argentina.',
+  en: 'Portfolio of Germán Gomez, Senior Mobile Engineer in Buenos Aires, Argentina.',
+};
+---
+
+<BaseLayout 
+  title={titles[lang]} 
+  description={descriptions[lang]}
+  lang={lang}
+>
+  <Bio lang={lang} />
+</BaseLayout>

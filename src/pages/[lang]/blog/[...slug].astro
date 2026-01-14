@@ -1,0 +1,115 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+
+export async function getStaticPaths() {
+  const blogEntries = await getCollection('blog');
+  
+  return blogEntries.map(entry => ({
+    params: { 
+      lang: entry.data.language,
+      slug: entry.slug.replace(`${entry.data.language}/`, '')
+    },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await entry.render();
+const lang = entry.data.language;
+
+const formatDate = (date: Date, locale: string) => {
+  return new Intl.DateTimeFormat(locale, {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  }).format(date);
+};
+---
+
+<BaseLayout 
+  title={entry.data.title} 
+  description={entry.data.description}
+  lang={lang}
+>
+  <article class="max-w-3xl">
+    <header class="mb-8">
+      <h1 class="text-4xl md:text-5xl font-serif font-bold mb-4">{entry.data.title}</h1>
+      <time class="opacity-60" datetime={entry.data.pubDate.toISOString()}>
+        {formatDate(entry.data.pubDate, lang)}
+      </time>
+    </header>
+    <div class="prose prose-lg max-w-none">
+      <Content />
+    </div>
+  </article>
+</BaseLayout>
+
+<style is:global>
+  .prose {
+    opacity: 0.8;
+    line-height: 1.75;
+  }
+  
+  .prose h2 {
+    font-family: var(--font-family-serif);
+    font-size: 1.875rem;
+    font-weight: 700;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    opacity: 1;
+  }
+  
+  .prose h3 {
+    font-family: var(--font-family-serif);
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+    opacity: 1;
+  }
+  
+  .prose p {
+    margin-bottom: 1rem;
+  }
+  
+  .prose a {
+    color: var(--color-text);
+    text-decoration: underline;
+    transition: opacity 0.2s;
+  }
+  
+  .prose a:hover {
+    opacity: 0.6;
+  }
+  
+  .prose ul, .prose ol {
+    margin-left: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  .prose li {
+    margin-bottom: 0.5rem;
+  }
+  
+  .prose code {
+    background-color: var(--color-code-bg);
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+  }
+  
+  .prose pre {
+    background-color: var(--color-pre-bg);
+    color: var(--color-pre-text);
+    padding: 1rem;
+    border-radius: 0.5rem;
+    overflow-x: auto;
+    margin-bottom: 1rem;
+  }
+  
+  .prose pre code {
+    background: transparent;
+    padding: 0;
+  }
+</style>

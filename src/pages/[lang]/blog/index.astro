@@ -1,0 +1,68 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+
+export function getStaticPaths() {
+  return [
+    { params: { lang: 'es' } },
+    { params: { lang: 'en' } },
+  ];
+}
+
+const { lang } = Astro.params as { lang: 'es' | 'en' };
+
+const allPosts = await getCollection('blog', ({ data }) => {
+  return data.language === lang;
+});
+
+const sortedPosts = allPosts.sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime());
+
+const titles = {
+  es: 'Blog - Germán Gomez',
+  en: 'Blog - Germán Gomez',
+};
+
+const descriptions = {
+  es: 'Artículos y reflexiones sobre desarrollo móvil.',
+  en: 'Articles and reflections on mobile development.',
+};
+
+const formatDate = (date: Date, locale: string) => {
+  return new Intl.DateTimeFormat(locale, {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  }).format(date);
+};
+---
+
+<BaseLayout 
+  title={titles[lang]} 
+  description={descriptions[lang]}
+  lang={lang}
+>
+  <div class="max-w-3xl">
+    <h1 class="text-5xl md:text-6xl font-serif font-bold mb-12">Blog</h1>
+    
+    <div class="space-y-8">
+      {sortedPosts.map((post) => {
+        const slug = post.slug.replace(`${post.data.language}/`, '');
+        return (
+          <article class="border-b pb-8 last:border-0" style="border-color: var(--color-border);">
+            <a href={`/${lang}/blog/${slug}`} class="group block">
+              <h2 class="text-3xl font-serif font-bold mb-2 group-hover:opacity-60 transition-opacity">
+                {post.data.title}
+              </h2>
+              <time class="text-sm opacity-60 mb-3 block" datetime={post.data.pubDate.toISOString()}>
+                {formatDate(post.data.pubDate, lang)}
+              </time>
+              <p class="text-lg opacity-70">
+                {post.data.description}
+              </p>
+            </a>
+          </article>
+        );
+      })}
+    </div>
+  </div>
+</BaseLayout>
