@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
+import TimelineItem from '../../../components/TimelineItem.astro';
 
 export function getStaticPaths() {
   return [
@@ -23,8 +24,8 @@ const titles = {
 };
 
 const descriptions = {
-  es: 'Artículos y reflexiones sobre desarrollo móvil.',
-  en: 'Articles and reflections on mobile development.',
+  es: 'Reflexiones sobre desarrollo.',
+  en: 'Reflections on development.',
 };
 
 const formatDate = (date: Date, locale: string) => {
@@ -41,28 +42,41 @@ const formatDate = (date: Date, locale: string) => {
   description={descriptions[lang]}
   lang={lang}
 >
-  <div class="max-w-3xl">
-    <h1 class="text-5xl md:text-6xl font-serif font-bold mb-12">Blog</h1>
+  <div class="max-w-4xl">
+    <h1 class="text-5xl md:text-6xl font-serif font-bold mb-16">Blog</h1>
     
-    <div class="space-y-8">
-      {sortedPosts.map((post) => {
+    <div class="timeline">
+      {sortedPosts.map((post, index) => {
         const slug = post.slug.replace(`${post.data.language}/`, '');
+        const isHighlighted = index % 3 === 0;
         return (
-          <article class="border-b pb-8 last:border-0" style="border-color: var(--color-border);">
-            <a href={`/${lang}/blog/${slug}`} class="group block">
-              <h2 class="text-3xl font-serif font-bold mb-2 group-hover:opacity-60 transition-opacity">
-                {post.data.title}
-              </h2>
-              <time class="text-sm opacity-60 mb-3 block" datetime={post.data.pubDate.toISOString()}>
-                {formatDate(post.data.pubDate, lang)}
-              </time>
-              <p class="text-lg opacity-70">
-                {post.data.description}
-              </p>
-            </a>
-          </article>
+          <TimelineItem
+            title={post.data.title}
+            date={formatDate(post.data.pubDate, lang)}
+            description={post.data.description}
+            href={`/${lang}/blog/${slug}`}
+            isHighlighted={isHighlighted}
+          />
         );
       })}
     </div>
   </div>
 </BaseLayout>
+
+<style>
+  .timeline {
+    position: relative;
+    padding-left: 3rem;
+    margin-left: 1rem;
+  }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background-color: var(--timeline-line);
+  }
+</style>
