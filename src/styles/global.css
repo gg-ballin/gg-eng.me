@@ -12,6 +12,15 @@
   --color-code-bg: #e5e5e5;
   --color-pre-bg: #1a1a1a;
   --color-pre-text: #ffffff;
+  
+  /* Timeline colors */
+  --timeline-item-bg: #FFFFFF;
+  --timeline-item-text: #000000;
+  --timeline-item-border: #000000;
+  --timeline-item-hover-shadow: #000000;
+  --timeline-line: #d4d4d4;
+  --timeline-dot-bg: #FFFFFF;
+  --timeline-dot-border: #000000;
 }
 
 [data-theme="dark"] {
@@ -21,6 +30,15 @@
   --color-code-bg: #1a1a1a;
   --color-pre-bg: #F5F4EF;
   --color-pre-text: #0a0a0a;
+  
+  /* Timeline colors - inverted for dark theme */
+  --timeline-item-bg: #000000;
+  --timeline-item-text: #FFFFFF;
+  --timeline-item-border: #FFFFFF;
+  --timeline-item-hover-shadow: #FFFFFF;
+  --timeline-line: #333333;
+  --timeline-dot-bg: #000000;
+  --timeline-dot-border: #FFFFFF;
 }
 
 body {

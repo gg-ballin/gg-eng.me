@@ -1,0 +1,121 @@
+---
+interface Props {
+  title: string;
+  date: string;
+  description: string;
+  href: string;
+  isHighlighted?: boolean;
+}
+
+const { title, date, description, href, isHighlighted = false } = Astro.props;
+---
+
+<article class={`timeline-item ${isHighlighted ? 'highlighted' : ''}`}>
+  <div class="timeline-dot"></div>
+  <a href={href} class="timeline-content">
+    <div class="timeline-header">
+      <h2 class="timeline-title">
+        {title}
+      </h2>
+      <time class="timeline-date">
+        {date}
+      </time>
+    </div>
+    <p class="timeline-description">
+      {description}
+    </p>
+  </a>
+</article>
+
+<style>
+  .timeline-item {
+    position: relative;
+    margin-bottom: 3rem;
+    padding-left: 2rem;
+  }
+
+  .timeline-item:last-child {
+    margin-bottom: 0;
+  }
+
+  .timeline-dot {
+    position: absolute;
+    left: calc(-2rem - 6px);
+    top: 0.5rem;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: var(--timeline-dot-bg);
+    border: 2px solid var(--timeline-dot-border);
+    z-index: 1;
+  }
+
+  .timeline-item.highlighted .timeline-dot {
+    background-color: var(--timeline-dot-border);
+  }
+
+  .timeline-content {
+    display: block;
+    border: 3px solid var(--timeline-item-border);
+    padding: 1.5rem;
+    background-color: var(--timeline-item-bg);
+    color: var(--timeline-item-text);
+    transition: all 0.2s ease;
+    text-decoration: none;
+  }
+
+  .timeline-content:hover {
+    transform: translate(4px, -4px);
+    box-shadow: -4px 4px 0 var(--timeline-item-hover-shadow);
+    background-color: #FFFFFF;
+    color: #000000;
+  }
+
+  .timeline-item.highlighted .timeline-content {
+    /* All items look the same, no special highlighted styling */
+  }
+
+  .timeline-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  @media (min-width: 640px) {
+    .timeline-header {
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+  }
+
+  .timeline-title {
+    font-family: var(--font-family-serif);
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  .timeline-date {
+    font-family: 'Courier New', monospace;
+    font-size: 0.875rem;
+    font-weight: 600;
+    white-space: nowrap;
+    letter-spacing: 0.05em;
+  }
+
+  .timeline-item.highlighted .timeline-date {
+    opacity: 0.8;
+  }
+
+  .timeline-description {
+    font-size: 1rem;
+    line-height: 1.5;
+    opacity: 0.8;
+  }
+
+  .timeline-item.highlighted .timeline-description {
+    opacity: 0.9;
+  }
+</style>
