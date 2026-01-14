@@ -1,4 +1,4 @@
-# Germán Gomez - Portfolio
+# Germán Gomez - Portfolio 
 
 A modern, bilingual portfolio site built with Astro, Tailwind CSS, and MDX.
 
@@ -6,16 +6,17 @@ A modern, bilingual portfolio site built with Astro, Tailwind CSS, and MDX.
 
 - 🌍 **i18n Support**: Native internationalization with Spanish (default) and English
 - 📝 **Blog System**: MDX-powered blog with content collections
-- 🎨 **Clean Design**: Inspired by pi.website with serif headings and sans-serif body text
+- 🎨 **Clean Design**: Inspired by [pi.website](https://www.pi.website) with serif headings and sans-serif body text
+- 🌓 **Dark/Light Theme**: Toggle with persistent preference
 - 🚀 **Fast Performance**: Built with Astro for optimal performance
 - 📱 **Responsive**: Mobile-first design that works on all devices
 
 ## Tech Stack
 
-- **Framework**: [Astro](https://astro.build)
+- **Framework**: [Astro 5](https://astro.build)
 - **Styling**: [Tailwind CSS v4](https://tailwindcss.com)
-- **Content**: [MDX](https://mdxjs.com)
-- **Typography**: Playfair Display (headings) + Inter (body)
+- **Content**: [MDX](https://mdxjs.com) via @astrojs/mdx
+- **Typography**: [Space Grotesk](https://fonts.google.com/specimen/Space+Grotesk) (body) + Playfair Display (headings)
 - **Package Manager**: Bun
 
 ## Project Structure
