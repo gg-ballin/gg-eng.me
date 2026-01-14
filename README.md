@@ -24,7 +24,7 @@ A modern, bilingual portfolio site built with Astro, Tailwind CSS, and MDX.
 ```
 /
 ├── public/
-│   └── favicon.svg
+│   └── favicon.ico
 ├── src/
 │   ├── components/
 │   │   └── Bio.astro           # Bio component
@@ -45,34 +45,6 @@ A modern, bilingual portfolio site built with Astro, Tailwind CSS, and MDX.
 │   └── styles/
 │       └── global.css          # Global styles
 └── astro.config.mjs            # Astro configuration
-```
-
-## Getting Started
-
-### Install dependencies
-
-```bash
-bun install
-```
-
-### Start development server
-
-```bash
-bun run dev
-```
-
-The site will be available at `http://localhost:4321/`
-
-### Build for production
-
-```bash
-bun run build
-```
-
-### Preview production build
-
-```bash
-bun run preview
 ```
 
 ## i18n Routes

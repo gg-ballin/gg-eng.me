@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Bio from '../../components/Bio.astro';
+import { getTranslations, type Language } from '../../i18n/translations';
 
 export function getStaticPaths() {
   return [
@@ -9,22 +10,13 @@ export function getStaticPaths() {
   ];
 }
 
-const { lang } = Astro.params as { lang: 'es' | 'en' };
-
-const titles = {
-  es: 'Germán Gomez - Senior Mobile Engineer',
-  en: 'Germán Gomez - Senior Mobile Engineer',
-};
-
-const descriptions = {
-  es: 'Portfolio de Germán Gomez, Senior Mobile Engineer en Buenos Aires, Argentina.',
-  en: 'Portfolio of Germán Gomez, Senior Mobile Engineer in Buenos Aires, Argentina.',
-};
+const { lang } = Astro.params as { lang: Language };
+const t = getTranslations(lang);
 ---
 
 <BaseLayout 
-  title={titles[lang]} 
-  description={descriptions[lang]}
+  title={t.seo.title} 
+  description={t.seo.description}
   lang={lang}
 >
   <Bio lang={lang} />

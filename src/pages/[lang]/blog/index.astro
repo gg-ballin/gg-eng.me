@@ -2,6 +2,7 @@
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import TimelineItem from '../../../components/TimelineItem.astro';
+import { getTranslations, type Language } from '../../../i18n/translations';
 
 export function getStaticPaths() {
   return [
@@ -10,23 +11,14 @@ export function getStaticPaths() {
   ];
 }
 
-const { lang } = Astro.params as { lang: 'es' | 'en' };
+const { lang } = Astro.params as { lang: Language };
+const t = getTranslations(lang).blog;
 
 const allPosts = await getCollection('blog', ({ data }) => {
   return data.language === lang;
 });
 
 const sortedPosts = allPosts.sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime());
-
-const titles = {
-  es: 'Blog - Germán Gomez',
-  en: 'Blog - Germán Gomez',
-};
-
-const descriptions = {
-  es: 'Reflexiones sobre desarrollo.',
-  en: 'Reflections on development.',
-};
 
 const formatDate = (date: Date, locale: string) => {
   return new Intl.DateTimeFormat(locale, {
@@ -38,12 +30,12 @@ const formatDate = (date: Date, locale: string) => {
 ---
 
 <BaseLayout 
-  title={titles[lang]} 
-  description={descriptions[lang]}
+  title={t.title} 
+  description={t.description}
   lang={lang}
 >
   <div class="max-w-4xl">
-    <h1 class="text-5xl md:text-6xl font-serif font-bold mb-16">Blog</h1>
+    <h1 class="text-5xl md:text-6xl font-serif font-bold mb-16">{t.heading}</h1>
     
     <div class="timeline">
       {sortedPosts.map((post, index) => {
