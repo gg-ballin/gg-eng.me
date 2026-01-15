@@ -40,7 +40,7 @@ git push -u origin main
 
 ### B. Configure Build Settings
 
-Use these exact settings:
+**CRITICAL**: Do NOT use `wrangler deploy` command. Use these settings:
 
 | Setting | Value |
 |---------|-------|
@@ -49,13 +49,15 @@ Use these exact settings:
 | **Framework preset** | `Astro` |
 | **Build command** | `npm run build` |
 | **Build output directory** | `dist` |
+| **Deploy command** | Leave empty (auto-detected) |
 | **Root directory** | `/` (leave empty) |
 | **Node.js version** | `20.x` |
 
 **Important Notes:**
-- Use `npm run build` instead of `bun run build` for Cloudflare Pages
-- Cloudflare will automatically install dependencies with npm
-- The build output directory must be `dist`
+- **DO NOT** include `wrangler.toml` in your project
+- Use `npm run build` (Cloudflare auto-installs dependencies)
+- Leave "Deploy command" field EMPTY
+- Cloudflare Pages handles deployment automatically
 
 ### C. Environment Variables
 

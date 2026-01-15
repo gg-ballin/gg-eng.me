@@ -1,6 +1,0 @@
-name = "gg-eng-me"
-compatibility_date = "2024-01-15"
-
-# Environment variables (will be overridden by Cloudflare Pages settings)
-[env.production]
-compatibility_date = "2024-01-15"
