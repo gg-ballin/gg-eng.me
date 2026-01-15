@@ -1,11 +1,6 @@
 import { Resend } from 'resend';
-import { readFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
-import { dirname, join } from 'node:path';
 import type { ContactFormData } from './validation';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+import { getCVBuffer } from './cv-data';
 
 const getPersonalEmail = (): string => {
   const encoded = 'Z29tZXpnZXIuYTlAZ21haWwuY29t';
@@ -31,9 +26,8 @@ export class EmailService {
       
       const htmlContent = this.generateEmailTemplate(data);
       
-      // Read CV file from private directory
-      const cvPath = join(__dirname, '..', 'private', 'res', cvFileName);
-      const cvBuffer = readFileSync(cvPath);
+      // Get CV buffer from bundled data
+      const cvBuffer = getCVBuffer(data.language);
       
       // Send email with CV attachment
       const response = await this.resend.emails.send({

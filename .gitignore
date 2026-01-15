@@ -26,3 +26,6 @@ pnpm-debug.log*
 # Cloudflare
 .wrangler/
 .dev.vars
+
+# Auto-generated files
+src/lib/cv-data.ts
