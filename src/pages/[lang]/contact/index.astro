@@ -1,0 +1,123 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import ContactForm from '@/components/ContactForm.astro';
+import { getTranslations, type Language } from '@/i18n/translations';
+
+export function getStaticPaths() {
+  return [
+    { params: { lang: 'es' } },
+    { params: { lang: 'en' } },
+  ];
+}
+
+const { lang } = Astro.params as { lang: Language };
+const t = getTranslations(lang);
+---
+
+<BaseLayout 
+  title={t.contact.title} 
+  description={t.contact.description}
+  lang={lang}
+>
+  <div class="max-w-4xl">
+    <h1 class="page-title">{t.contact.heading}</h1>
+    
+    <!-- Request CV Section -->
+    <section class="contact-section">
+      <h2 class="section-title">{t.contact.requestCvTitle}</h2>
+      <p class="section-description">{t.contact.requestCvDescription}</p>
+      <ContactForm lang={lang} />
+    </section>
+
+  </div>
+</BaseLayout>
+
+<style>
+  .page-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: 3rem;
+    line-height: 1.2;
+  }
+
+  .contact-section {
+    margin-bottom: 4rem;
+  }
+
+  .section-title {
+    font-family: 'Courier New', monospace;
+    font-size: 1.5rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 3px solid var(--color-text);
+  }
+
+  .section-description {
+    font-size: 1.125rem;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+    color: var(--color-text);
+    opacity: 0.9;
+  }
+
+  .contact-info {
+    border: 3px solid var(--color-text);
+    padding: 2rem;
+    background-color: var(--timeline-item-bg);
+  }
+
+  .info-item {
+    margin-bottom: 1rem;
+    font-size: 1.125rem;
+  }
+
+  .info-item:last-child {
+    margin-bottom: 0;
+  }
+
+  .info-label {
+    font-family: 'Courier New', monospace;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.875rem;
+  }
+
+  .info-link {
+    color: var(--color-text);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    transition: all 0.2s ease;
+  }
+
+  .info-link:hover {
+    text-decoration-thickness: 2px;
+  }
+
+  .info-value {
+    font-weight: 500;
+  }
+
+  @media (max-width: 768px) {
+    .page-title {
+      font-size: 2rem;
+    }
+
+    .section-title {
+      font-size: 1.25rem;
+    }
+
+    .section-description {
+      font-size: 1rem;
+    }
+
+    .contact-info,
+    .contact-form {
+      padding: 1.5rem;
+    }
+  }
+</style>

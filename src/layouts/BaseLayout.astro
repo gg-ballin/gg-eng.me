@@ -1,27 +1,15 @@
 ---
+import { getTranslations, type Language } from '@/i18n/translations';
+
 interface Props {
   title: string;
   description?: string;
-  lang: 'es' | 'en';
+  lang: Language;
 }
 
-const { title, description = '', lang } = Astro.props;
+const { title = 'Germán Gomez', description = '', lang } = Astro.props;
 const currentPath = Astro.url.pathname;
-
-const translations = {
-  es: {
-    bio: 'Bio',
-    blog: 'Blog',
-    theme: 'Tema',
-  },
-  en: {
-    bio: 'Bio',
-    blog: 'Blog',
-    theme: 'Theme',
-  }
-};
-
-const t = translations[lang];
+const t = getTranslations(lang).nav;
 
 // Language switcher logic
 const otherLang = lang === 'es' ? 'en' : 'es';
@@ -34,7 +22,7 @@ const switcherPath = currentPath.replace(`/${lang}/`, `/${otherLang}/`);
     <meta charset="UTF-8" />
     <meta name="description" content={description} />
     <meta name="viewport" content="width=device-width" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.ico" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
@@ -47,10 +35,11 @@ const switcherPath = currentPath.replace(`/${lang}/`, `/${otherLang}/`);
     </script>
   </head>
   <body class="min-h-screen">
-    <nav class="max-w-6xl mx-auto px-6 py-8 flex justify-between items-center">
+    <nav class="nav-bar max-w-6xl mx-auto px-6 py-8 flex justify-between items-center">
       <div class="flex gap-8">
         <a href={`/${lang}/`} class="hover:opacity-60 transition-opacity">{t.bio}</a>
         <a href={`/${lang}/blog`} class="hover:opacity-60 transition-opacity">{t.blog}</a>
+        <a href={`/${lang}/contact`} class="hover:opacity-60 transition-opacity">{t.contact}</a>
       </div>
       <div class="flex gap-4 items-center">
         <button 
@@ -65,7 +54,7 @@ const switcherPath = currentPath.replace(`/${lang}/`, `/${otherLang}/`);
         </a>
       </div>
     </nav>
-    <main class="max-w-6xl mx-auto px-6 py-8">
+    <main class="main-content max-w-6xl mx-auto px-6 py-8">
       <slot />
     </main>
 
@@ -98,4 +87,22 @@ const switcherPath = currentPath.replace(`/${lang}/`, `/${otherLang}/`);
 
 <style is:global>
   @import '../styles/global.css';
+  
+  /* Light theme specific backgrounds */
+  .nav-bar {
+    background-color: #F7F8FA;
+  }
+  
+  .main-content {
+    background-color: #F5F4EF;
+  }
+  
+  /* Dark theme specific backgrounds */
+  [data-theme="dark"] .nav-bar {
+    background-color: #000408;
+  }
+  
+  [data-theme="dark"] .main-content {
+    background-color: #0D1117;
+  }
 </style>

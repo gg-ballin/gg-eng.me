@@ -67,8 +67,13 @@ const { title, date, description, href, isHighlighted = false } = Astro.props;
   .timeline-content:hover {
     transform: translate(4px, -4px);
     box-shadow: -4px 4px 0 var(--timeline-item-hover-shadow);
-    background-color: #FFFFFF;
+    background-color: #F7F8FA;
     color: #000000;
+  }
+
+  [data-theme="dark"] .timeline-content:hover {
+    background-color: #000408;
+    color: #FFFFFF;
   }
 
   .timeline-item.highlighted .timeline-content {
