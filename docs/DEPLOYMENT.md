@@ -47,9 +47,15 @@ Use these exact settings:
 | **Project name** | `gg-eng-me` |
 | **Production branch** | `main` |
 | **Framework preset** | `Astro` |
-| **Build command** | `bun run build` |
+| **Build command** | `npm run build` |
 | **Build output directory** | `dist` |
 | **Root directory** | `/` (leave empty) |
+| **Node.js version** | `20.x` |
+
+**Important Notes:**
+- Use `npm run build` instead of `bun run build` for Cloudflare Pages
+- Cloudflare will automatically install dependencies with npm
+- The build output directory must be `dist`
 
 ### C. Environment Variables
 
