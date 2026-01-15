@@ -1,19 +1,33 @@
 // @ts-check
-import { defineConfig } from 'astro/config';
-import tailwindcss from '@tailwindcss/vite';
-import mdx from '@astrojs/mdx';
+import { defineConfig } from "astro/config";
+import tailwindcss from "@tailwindcss/vite";
+import mdx from "@astrojs/mdx";
+import { fileURLToPath } from "node:url";
 
 // https://astro.build/config
 export default defineConfig({
   integrations: [mdx()],
   vite: {
     plugins: [tailwindcss()],
+    resolve: {
+      alias: {
+        "@": fileURLToPath(new URL("./src", import.meta.url)),
+        "@/components": fileURLToPath(
+          new URL("./src/components", import.meta.url)
+        ),
+        "@/layouts": fileURLToPath(new URL("./src/layouts", import.meta.url)),
+        "@/pages": fileURLToPath(new URL("./src/pages", import.meta.url)),
+        "@/styles": fileURLToPath(new URL("./src/styles", import.meta.url)),
+        "@/i18n": fileURLToPath(new URL("./src/i18n", import.meta.url)),
+        "@/content": fileURLToPath(new URL("./src/content", import.meta.url)),
+      },
+    },
   },
   i18n: {
-    defaultLocale: 'es',
-    locales: ['es', 'en'],
+    defaultLocale: "es",
+    locales: ["es", "en"],
     routing: {
       prefixDefaultLocale: true,
-    }
-  }
+    },
+  },
 });

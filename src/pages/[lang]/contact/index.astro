@@ -1,6 +1,6 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import { getTranslations, type Language } from '../../i18n/translations';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { getTranslations, type Language } from '@/i18n/translations';
 
 export function getStaticPaths() {
   return [
@@ -40,7 +40,7 @@ const t = getTranslations(lang).contact;
       <div id="cv-viewer" class="cv-viewer collapsed">
         <iframe 
           id="cv-iframe"
-          src={lang === 'es' ? '/German_Gomez_es.pdf' : '/German_Gomez_en.pdf'}
+          src={lang === 'es' ? '/German_Gomez_es.pdf#view=FitH&pagemode=none' : '/German_Gomez_en.pdf#view=FitH&pagemode=none'}
           title={t.cvTitle}
           class="cv-frame"
         ></iframe>

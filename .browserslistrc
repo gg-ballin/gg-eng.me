@@ -1,0 +1,26 @@
+# Browsers that we support
+
+# Chrome (desktop & mobile)
+last 2 Chrome versions
+Chrome > 90
+
+# Safari (desktop & mobile/iOS)
+last 2 Safari versions
+Safari > 14
+iOS > 14
+
+# Edge
+last 2 Edge versions
+Edge > 90
+
+# Brave (Chromium-based, covered by Chrome rules)
+# Brave uses Chrome engine, so Chrome rules apply
+
+# General fallbacks
+last 2 versions
+> 0.5%
+not dead
+not op_mini all
+
+# Modern ES6+ support
+supports es6-module

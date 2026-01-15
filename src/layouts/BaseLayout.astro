@@ -1,5 +1,5 @@
 ---
-import { getTranslations, type Language } from '../i18n/translations';
+import { getTranslations, type Language } from '@/i18n/translations';
 
 interface Props {
   title: string;
@@ -7,7 +7,7 @@ interface Props {
   lang: Language;
 }
 
-const { title, description = '', lang } = Astro.props;
+const { title = 'Germán Gomez', description = '', lang } = Astro.props;
 const currentPath = Astro.url.pathname;
 const t = getTranslations(lang).nav;
 
