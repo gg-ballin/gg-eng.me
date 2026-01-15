@@ -24,9 +24,16 @@ export const CV_BASE64 = {
   en: '${enBase64}',
 } as const;
 
-export function getCVBuffer(language: 'es' | 'en'): Buffer {
+export function getCVBuffer(language: 'es' | 'en'): Uint8Array {
   const base64 = CV_BASE64[language];
-  return Buffer.from(base64, 'base64');
+  // Decode base64 to binary string
+  const binaryString = atob(base64);
+  // Convert to Uint8Array (works in Cloudflare Workers)
+  const bytes = new Uint8Array(binaryString.length);
+  for (let i = 0; i < binaryString.length; i++) {
+    bytes[i] = binaryString.charCodeAt(i);
+  }
+  return bytes;
 }
 `;
 
