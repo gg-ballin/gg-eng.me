@@ -7,9 +7,11 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "check-env": "node -e \"if(!process.env.RESEND_API_KEY){console.error('❌ RESEND_API_KEY not set');process.exit(1)}else{console.log('✓ Environment configured')}\""
+    "check-env": "node -e \"if(!process.env.RESEND_API_KEY){console.error('❌ RESEND_API_KEY not set');process.exit(1)}else{console.log('✓ Environment configured')}\"",
+    "deploy": "wrangler deploy"
   },
   "dependencies": {
+    "@astrojs/cloudflare": "^12.6.12",
     "@astrojs/mdx": "^4.3.13",
     "@tailwindcss/vite": "^4.1.18",
     "astro": "^5.16.9",
