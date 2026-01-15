@@ -41,21 +41,8 @@ export const POST: APIRoute = async ({ request, locals }) => {
     
     // Get Resend API key from environment
     // In Cloudflare, use runtime env; in dev, use import.meta.env
-    const resendApiKey = (locals.runtime?.env?.RESEND_API_KEY as string | undefined) 
+    const resendApiKey = (locals.env.RESEND_API_KEY as string | undefined) 
       || import.meta.env.RESEND_API_KEY;
-    
-    if (!resendApiKey) {
-      return new Response(
-        JSON.stringify({
-          success: false,
-          error: 'Email service not configured',
-        }),
-        {
-          status: 500,
-          headers: { 'Content-Type': 'application/json' },
-        }
-      );
-    }
     
     // Send email
     const emailService = new EmailService(resendApiKey);
