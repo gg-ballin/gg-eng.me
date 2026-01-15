@@ -4,7 +4,7 @@ import { EmailService } from '@/lib/emailService';
 
 export const prerender = false;
 
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async ({ request, locals }) => {
   try {
     // Parse form data
     const body = await request.json();
@@ -40,7 +40,9 @@ export const POST: APIRoute = async ({ request }) => {
     }
     
     // Get Resend API key from environment
-    const resendApiKey = import.meta.env.RESEND_API_KEY;
+    // In Cloudflare, use runtime env; in dev, use import.meta.env
+    const resendApiKey = (locals.runtime?.env?.RESEND_API_KEY as string | undefined) 
+      || import.meta.env.RESEND_API_KEY;
     
     if (!resendApiKey) {
       return new Response(
