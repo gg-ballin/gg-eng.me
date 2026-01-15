@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import ContactForm from '@/components/ContactForm.astro';
 import { getTranslations, type Language } from '@/i18n/translations';
 
 export function getStaticPaths() {
@@ -10,214 +11,113 @@ export function getStaticPaths() {
 }
 
 const { lang } = Astro.params as { lang: Language };
-const t = getTranslations(lang).contact;
+const t = getTranslations(lang);
 ---
 
 <BaseLayout 
-  title={t.title} 
-  description={t.description}
+  title={t.contact.title} 
+  description={t.contact.description}
   lang={lang}
 >
   <div class="max-w-4xl">
-    <h1 class="text-5xl md:text-6xl font-serif font-bold mb-16">{t.heading}</h1>
+    <h1 class="page-title">{t.contact.heading}</h1>
     
-    <!-- CV Section -->
-    <section class="cv-section mb-16">
-      <div class="cv-header">
-        <h2 class="text-3xl font-serif font-bold mb-6">{t.cvTitle}</h2>
-        
-        <button 
-          id="cv-toggle-btn" 
-          class="cv-toggle-btn"
-          data-show-text={t.cvToggle}
-          data-hide-text={t.cvHide}
-        >
-          <span id="cv-toggle-text">{t.cvToggle}</span>
-          <span id="cv-toggle-icon" class="toggle-icon">+</span>
-        </button>
-      </div>
-      
-      <div id="cv-viewer" class="cv-viewer collapsed">
-        <iframe 
-          id="cv-iframe"
-          src={lang === 'es' ? '/German_Gomez_es.pdf#view=FitH&pagemode=none' : '/German_Gomez_en.pdf#view=FitH&pagemode=none'}
-          title={t.cvTitle}
-          class="cv-frame"
-        ></iframe>
-      </div>
+    <!-- Request CV Section -->
+    <section class="contact-section">
+      <h2 class="section-title">{t.contact.requestCvTitle}</h2>
+      <p class="section-description">{t.contact.requestCvDescription}</p>
+      <ContactForm lang={lang} />
     </section>
 
-    <!-- Contact Info -->
-    <section class="contact-info">
-      <h2 class="text-3xl font-serif font-bold mb-8">{t.contactInfo}</h2>
-      
-      <div class="info-grid">
-        <div class="info-item">
-          <h3 class="info-label">{t.email}</h3>
-          <a href="mailto:german@example.com" class="info-value">
-            german@example.com
-          </a>
-        </div>
-        
-        <div class="info-item">
-          <h3 class="info-label">{t.location}</h3>
-          <p class="info-value">{t.locationValue}</p>
-        </div>
-      </div>
-    </section>
   </div>
 </BaseLayout>
 
 <style>
-  .cv-section {
-    border: 3px solid var(--color-text);
-    padding: 2rem;
+  .page-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: 3rem;
+    line-height: 1.2;
   }
 
-  .cv-header {
-    margin-bottom: 2rem;
+  .contact-section {
+    margin-bottom: 4rem;
   }
 
-  .cv-toggle-btn {
+  .section-title {
     font-family: 'Courier New', monospace;
-    font-size: 1rem;
+    font-size: 1.5rem;
     font-weight: 600;
-    padding: 1rem 2rem;
-    background-color: var(--timeline-item-bg);
-    color: var(--timeline-item-text);
-    border: 3px solid var(--timeline-item-border);
-    cursor: pointer;
-    transition: all 0.2s ease;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    width: 100%;
-    justify-content: space-between;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 3px solid var(--color-text);
   }
 
-  .cv-toggle-btn:hover {
-    transform: translate(4px, -4px);
-    box-shadow: -4px 4px 0 var(--timeline-item-hover-shadow);
-    background-color: #FFFFFF;
-    color: #000000;
-  }
-
-  .toggle-icon {
-    font-size: 1.5rem;
-    font-weight: 700;
-    transition: transform 0.3s ease;
-  }
-
-  .cv-toggle-btn.active .toggle-icon {
-    transform: rotate(45deg);
-  }
-
-  .cv-viewer {
-    width: 100%;
-    height: 0;
-    overflow: hidden;
-    border: 2px solid var(--color-text);
-    background-color: #f5f5f5;
-    transition: height 0.4s ease, margin-top 0.4s ease;
-  }
-
-  .cv-viewer.collapsed {
-    height: 0;
-    border: none;
-    margin-top: 0;
-  }
-
-  .cv-viewer.expanded {
-    height: 600px;
-    margin-top: 2rem;
-  }
-
-  .cv-frame {
-    width: 100%;
-    height: 100%;
-    border: none;
+  .section-description {
+    font-size: 1.125rem;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+    color: var(--color-text);
+    opacity: 0.9;
   }
 
   .contact-info {
     border: 3px solid var(--color-text);
     padding: 2rem;
-  }
-
-  .info-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 2rem;
-  }
-
-  @media (min-width: 768px) {
-    .info-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
+    background-color: var(--timeline-item-bg);
   }
 
   .info-item {
-    border: 2px solid var(--color-text);
-    padding: 1.5rem;
-    background-color: var(--timeline-item-bg);
+    margin-bottom: 1rem;
+    font-size: 1.125rem;
+  }
+
+  .info-item:last-child {
+    margin-bottom: 0;
   }
 
   .info-label {
     font-family: 'Courier New', monospace;
-    font-size: 0.875rem;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
-    margin-bottom: 0.5rem;
-    opacity: 0.7;
+    letter-spacing: 0.05em;
+    font-size: 0.875rem;
+  }
+
+  .info-link {
+    color: var(--color-text);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    transition: all 0.2s ease;
+  }
+
+  .info-link:hover {
+    text-decoration-thickness: 2px;
   }
 
   .info-value {
-    font-size: 1.125rem;
     font-weight: 500;
-    color: var(--color-text);
-    text-decoration: none;
-    transition: opacity 0.2s;
   }
 
-  .info-value:hover {
-    opacity: 0.6;
+  @media (max-width: 768px) {
+    .page-title {
+      font-size: 2rem;
+    }
+
+    .section-title {
+      font-size: 1.25rem;
+    }
+
+    .section-description {
+      font-size: 1rem;
+    }
+
+    .contact-info,
+    .contact-form {
+      padding: 1.5rem;
+    }
   }
 </style>
-
-<script>
-  function initCVToggle() {
-    const toggleBtn = document.getElementById('cv-toggle-btn') as HTMLButtonElement;
-    const cvViewer = document.getElementById('cv-viewer');
-    const toggleText = document.getElementById('cv-toggle-text');
-    
-    if (!toggleBtn || !cvViewer || !toggleText) return;
-
-    const showText = toggleBtn.getAttribute('data-show-text') || 'View';
-    const hideText = toggleBtn.getAttribute('data-hide-text') || 'Hide';
-
-    toggleBtn.addEventListener('click', () => {
-      const isExpanded = cvViewer.classList.contains('expanded');
-      
-      if (isExpanded) {
-        cvViewer.classList.remove('expanded');
-        cvViewer.classList.add('collapsed');
-        toggleBtn.classList.remove('active');
-        toggleText.textContent = showText;
-      } else {
-        cvViewer.classList.remove('collapsed');
-        cvViewer.classList.add('expanded');
-        toggleBtn.classList.add('active');
-        toggleText.textContent = hideText;
-      }
-    });
-  }
-
-  // Initialize on page load
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initCVToggle);
-  } else {
-    initCVToggle();
-  }
-</script>

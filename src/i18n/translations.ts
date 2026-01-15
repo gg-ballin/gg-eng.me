@@ -1,49 +1,6 @@
-export type Language = 'es' | 'en';
+import type { Translations } from "./interfaces";
 
-export interface Translations {
-  // SEO
-  seo: {
-    title: string;
-    description: string;
-  };
-  
-  // Navigation
-  nav: {
-    bio: string;
-    blog: string;
-    contact: string;
-    theme: string;
-  };
-  
-  // Bio page
-  bio: {
-    name: string;
-    role: string;
-    location: string;
-    description: string;
-  };
-  
-  // Blog
-  blog: {
-    title: string;
-    description: string;
-    heading: string;
-  };
-  
-  // Contact
-  contact: {
-    title: string;
-    description: string;
-    heading: string;
-    cvTitle: string;
-    cvToggle: string;
-    cvHide: string;
-    contactInfo: string;
-    email: string;
-    location: string;
-    locationValue: string;
-  };
-}
+export type Language = 'es' | 'en';
 
 export const translations: Record<Language, Translations> = {
   es: {
@@ -72,13 +29,8 @@ export const translations: Record<Language, Translations> = {
       title: 'Contacto - Germán Gomez',
       description: 'Ponte en contacto conmigo.',
       heading: 'Contacto',
-      cvTitle: 'Curriculum Vitae',
-      cvToggle: 'Ver CV',
-      cvHide: 'Ocultar CV',
-      contactInfo: 'Información de Contacto',
-      email: 'Email',
-      location: 'Ubicación',
-      locationValue: 'Buenos Aires, Argentina',
+      requestCvTitle: 'Solicitar CV',
+      requestCvDescription: 'Completa el formulario y recibirás mi CV directamente en tu email.',
     },
   },
   en: {
@@ -107,18 +59,12 @@ export const translations: Record<Language, Translations> = {
       title: 'Contact - Germán Gomez',
       description: 'Get in touch with me.',
       heading: 'Contact',
-      cvTitle: 'Resume',
-      cvToggle: 'View Resume',
-      cvHide: 'Hide Resume',
-      contactInfo: 'Contact Information',
-      email: 'Email',
-      location: 'Location',
-      locationValue: 'Buenos Aires, Argentina',
+      requestCvTitle: 'Request Resume',
+      requestCvDescription: 'Fill out the form and receive my CV directly to your email.',      
     },
   },
 };
 
-// Helper function to get translations
 export function getTranslations(lang: Language): Translations {
   return translations[lang];
 }

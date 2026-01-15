@@ -1,0 +1,286 @@
+---
+import type { Language } from '@/i18n/translations';
+
+interface Props {
+  lang: Language;
+}
+
+const { lang } = Astro.props;
+
+const labels = {
+  es: {
+    name: 'Nombre',
+    namePlaceholder: 'Tu nombre completo',
+    email: 'Email',
+    emailPlaceholder: 'tu@email.com',
+    company: 'Empresa',
+    companyPlaceholder: 'Tu empresa o institución',
+    language: 'Idioma del CV',
+    languageEs: 'Español',
+    languageEn: 'English',
+    submit: 'Solicitar CV',
+    submitting: 'Enviando...',
+    success: '✓ CV enviado a tu email',
+    error: 'Error al enviar. Intenta de nuevo.',
+  },
+  en: {
+    name: 'Name',
+    namePlaceholder: 'Your full name',
+    email: 'Email',
+    emailPlaceholder: 'your@email.com',
+    company: 'Company',
+    companyPlaceholder: 'Your company or institution',
+    language: 'CV Language',
+    languageEs: 'Español',
+    languageEn: 'English',
+    submit: 'Request Resume',
+    submitting: 'Sending...',
+    success: '✓ CV sent to your email',
+    error: 'Error sending. Please try again.',
+  },
+};
+
+const t = labels[lang];
+---
+
+<form id="contact-form" class="contact-form">
+  <div class="form-group">
+    <label for="name" class="form-label">{t.name} *</label>
+    <input
+      type="text"
+      id="name"
+      name="name"
+      placeholder={t.namePlaceholder}
+      required
+      class="form-input"
+    />
+    <span class="error-message" id="name-error"></span>
+  </div>
+
+  <div class="form-group">
+    <label for="email" class="form-label">{t.email} *</label>
+    <input
+      type="email"
+      id="email"
+      name="email"
+      placeholder={t.emailPlaceholder}
+      required
+      class="form-input"
+    />
+    <span class="error-message" id="email-error"></span>
+  </div>
+
+  <div class="form-group">
+    <label for="company" class="form-label">{t.company} *</label>
+    <input
+      type="text"
+      id="company"
+      name="company"
+      placeholder={t.companyPlaceholder}
+      required
+      class="form-input"
+    />
+    <span class="error-message" id="company-error"></span>
+  </div>
+
+  <div class="form-group">
+    <label for="language" class="form-label">{t.language} *</label>
+    <select id="language" name="language" required class="form-select">
+      <option value="es" selected={lang === 'es'}>{t.languageEs}</option>
+      <option value="en" selected={lang === 'en'}>{t.languageEn}</option>
+    </select>
+    <span class="error-message" id="language-error"></span>
+  </div>
+
+  <!-- Honeypot field -->
+  <input
+    type="text"
+    name="website"
+    id="website"
+    class="honeypot"
+    tabindex="-1"
+    autocomplete="off"
+  />
+
+  <button type="submit" class="submit-btn" id="submit-btn">
+    <span id="submit-text">{t.submit}</span>
+  </button>
+
+  <div class="form-message" id="form-message"></div>
+</form>
+
+<style>
+  .contact-form {
+    max-width: 600px;
+    border: 3px solid var(--color-text);
+    padding: 2rem;
+    background-color: var(--timeline-item-bg);
+  }
+
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+
+  .form-label {
+    display: block;
+    font-family: 'Courier New', monospace;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+  }
+
+  .form-input,
+  .form-select {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-family: var(--font-family-sans);
+    font-size: 1rem;
+    border: 2px solid var(--color-text);
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    transition: all 0.2s ease;
+  }
+
+  .form-input:focus,
+  .form-select:focus {
+    outline: none;
+    transform: translate(2px, -2px);
+    box-shadow: -2px 2px 0 var(--color-text);
+  }
+
+  .form-select {
+    cursor: pointer;
+  }
+
+  .error-message {
+    display: block;
+    font-size: 0.875rem;
+    color: #dc2626;
+    margin-top: 0.25rem;
+    min-height: 1.25rem;
+  }
+
+  .submit-btn {
+    width: 100%;
+    padding: 1rem 2rem;
+    font-family: 'Courier New', monospace;
+    font-size: 1rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background-color: var(--color-text);
+    color: var(--color-bg);
+    border: 3px solid var(--color-text);
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .submit-btn:hover:not(:disabled) {
+    transform: translate(4px, -4px);
+    box-shadow: -4px 4px 0 var(--color-text);
+  }
+
+  .submit-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .form-message {
+    margin-top: 1rem;
+    padding: 1rem;
+    font-family: 'Courier New', monospace;
+    font-size: 0.875rem;
+    text-align: center;
+    border: 2px solid transparent;
+  }
+
+  .form-message.success {
+    border-color: #16a34a;
+    background-color: #dcfce7;
+    color: #15803d;
+  }
+
+  .form-message.error {
+    border-color: #dc2626;
+    background-color: #fee2e2;
+    color: #991b1b;
+  }
+
+  .form-message:empty {
+    display: none;
+  }
+
+  /* Honeypot hidden field */
+  .honeypot {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+  }
+</style>
+
+<script define:vars={{ t }}>
+  const form = document.getElementById('contact-form');
+  const submitBtn = document.getElementById('submit-btn');
+  const submitText = document.getElementById('submit-text');
+  const formMessage = document.getElementById('form-message');
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    // Clear previous errors
+    document.querySelectorAll('.error-message').forEach(el => el.textContent = '');
+    formMessage.textContent = '';
+    formMessage.className = 'form-message';
+    
+    // Disable submit button
+    submitBtn.disabled = true;
+    submitText.textContent = t.submitting;
+    
+    // Get form data
+    const formData = new FormData(form);
+    const data = {
+      name: formData.get('name'),
+      email: formData.get('email'),
+      company: formData.get('company') || '',
+      language: formData.get('language'),
+      website: formData.get('website') || '', // Honeypot
+    };
+    
+    try {
+      const response = await fetch('/api/request-cv', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        formMessage.textContent = t.success;
+        formMessage.className = 'form-message success';
+        form.reset();
+      } else {
+        // Handle validation errors
+        if (result.errors) {
+          Object.entries(result.errors).forEach(([field, messages]) => {
+            const errorEl = document.getElementById(`${field}-error`);
+            if (errorEl && Array.isArray(messages)) {
+              errorEl.textContent = messages[0];
+            }
+          });
+        }
+        formMessage.textContent = result.error || t.error;
+        formMessage.className = 'form-message error';
+      }
+    } catch (error) {
+      formMessage.textContent = t.error;
+      formMessage.className = 'form-message error';
+    } finally {
+      submitBtn.disabled = false;
+      submitText.textContent = t.submit;
+    }
+  });
+</script>

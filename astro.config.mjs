@@ -20,6 +20,7 @@ export default defineConfig({
         "@/styles": fileURLToPath(new URL("./src/styles", import.meta.url)),
         "@/i18n": fileURLToPath(new URL("./src/i18n", import.meta.url)),
         "@/content": fileURLToPath(new URL("./src/content", import.meta.url)),
+        "@/lib": fileURLToPath(new URL("./src/lib", import.meta.url)),
       },
     },
   },

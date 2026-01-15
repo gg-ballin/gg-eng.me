@@ -1,0 +1,14 @@
+User-agent: *
+Allow: /
+
+# Block API routes
+Disallow: /api/
+
+# Block private directories
+Disallow: /private/
+Disallow: /src/
+
+# Block all PDF files
+Disallow: /*.pdf
+
+Sitemap: https://gg-eng.me/sitemap.xml
