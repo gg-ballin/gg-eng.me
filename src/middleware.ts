@@ -1,6 +1,11 @@
 import { defineMiddleware } from 'astro:middleware';
 
 export const onRequest = defineMiddleware(async (context, next) => {
+  // Expose Cloudflare runtime env to locals for API routes
+  if (context.locals.runtime?.env) {
+    context.locals.env = context.locals.runtime.env;
+  }
+  
   const response = await next();
   
   // Security Headers
