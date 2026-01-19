@@ -4,29 +4,41 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import TimelineItem from '@/components/TimelineItem.astro';
 import { getTranslations, type Language } from '@/i18n/translations';
 
-export function getStaticPaths() {
-  return [
-    { params: { lang: 'es' } },
-    { params: { lang: 'en' } },
-  ];
+const { lang } = Astro.params as { lang: Language };
+
+if (!['es', 'en'].includes(lang)) {
+  return Astro.redirect('/es/blog');
 }
 
-const { lang } = Astro.params as { lang: Language };
 const t = getTranslations(lang).blog;
 
-const allPosts = await getCollection('blog', ({ data }) => {
+type BlogPostData = {
+  language: string;
+  pubDate: Date;
+  title: string;
+  description: string;
+};
+
+type BlogPost = {
+  slug: string;
+  data: BlogPostData;
+};
+
+const allPosts: BlogPost[] = await getCollection('blog', ({ data }: { data: BlogPostData }) => {
   return data.language === lang;
 });
 
-const sortedPosts = allPosts.sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime());
+const sortedPosts: BlogPost[] = allPosts.sort(
+  (a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime()
+);
 
-const formatDate = (date: Date, locale: string) => {
+function formatDate(date: Date, locale: string): string {
   return new Intl.DateTimeFormat(locale, {
     year: 'numeric',
     month: 'long',
     day: 'numeric'
   }).format(date);
-};
+}
 ---
 
 <BaseLayout 
@@ -38,7 +50,7 @@ const formatDate = (date: Date, locale: string) => {
     <h1 class="text-5xl md:text-6xl font-serif font-bold mb-16">{t.heading}</h1>
     
     <div class="timeline">
-      {sortedPosts.map((post, index) => {
+      {sortedPosts.map((post: BlogPost, index: number) => {
         const slug = post.slug.replace(`${post.data.language}/`, '');
         const isHighlighted = index % 3 === 0;
         return (
