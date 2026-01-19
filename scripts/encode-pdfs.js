@@ -9,8 +9,8 @@ const projectRoot = join(__dirname, "..");
 const pdfDir = join(projectRoot, "src", "private", "res");
 
 // Read PDFs and convert to Base64
-const esBuffer = readFileSync(join(pdfDir, "German_Gomez_es.pdf"));
-const enBuffer = readFileSync(join(pdfDir, "German_Gomez_en.pdf"));
+const esBuffer = readFileSync(join(pdfDir, "es", "German_Gomez_es.pdf"));
+const enBuffer = readFileSync(join(pdfDir, "en", "German_Gomez_en.pdf"));
 
 const esBase64 = esBuffer.toString("base64");
 const enBase64 = enBuffer.toString("base64");
