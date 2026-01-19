@@ -5,8 +5,8 @@ export type Language = 'es' | 'en';
 export const translations: Record<Language, Translations> = {
   es: {
     seo: {
-      title: 'Germán Gomez - Senior Mobile Engineer',
-      description: 'Portfolio de Germán Gomez, Senior Mobile Engineer en Buenos Aires, Argentina.',
+      title: 'Germán Gómez - Senior Mobile Engineer',
+      description: 'Portfolio de Germán Gómez, Senior Mobile Engineer en Buenos Aires, Argentina.',
     },
     nav: {
       bio: 'Bio',
@@ -15,18 +15,18 @@ export const translations: Record<Language, Translations> = {
       theme: 'Tema',
     },
     bio: {
-      name: 'Germán Gomez',
+      name: 'Germán Gómez',
       role: 'Senior Mobile Engineer',
       location: 'Buenos Aires, Argentina',
       description: 'Ingeniero especializado en desarrollo móvil con pasión por crear experiencias de usuario excepcionales. Enfocado en arquitecturas escalables y código limpio que impulsan productos innovadores.',
     },
     blog: {
-      title: 'Blog - Germán Gomez',
+      title: 'Blog - Germán Gómez',
       description: 'Reflexiones sobre desarrollo.',
       heading: 'Blog',
     },
     contact: {
-      title: 'Contacto - Germán Gomez',
+      title: 'Contacto - Germán Gómez',
       description: 'Ponte en contacto conmigo.',
       heading: 'Contacto',
       requestCvTitle: 'Solicitar CV',
@@ -35,8 +35,8 @@ export const translations: Record<Language, Translations> = {
   },
   en: {
     seo: {
-      title: 'Germán Gomez - Senior Mobile Engineer',
-      description: 'Portfolio of Germán Gomez, Senior Mobile Engineer based in Buenos Aires, Argentina.',
+      title: 'Germán Gómez - Senior Mobile Engineer',
+      description: 'Portfolio of Germán Gómez, Senior Mobile Engineer based in Buenos Aires, Argentina.',
     },
     nav: {
       bio: 'Bio',
@@ -45,18 +45,18 @@ export const translations: Record<Language, Translations> = {
       theme: 'Theme',
     },
     bio: {
-      name: 'Germán Gomez',
+      name: 'Germán Gómez',
       role: 'Senior Mobile Engineer',
       location: 'Buenos Aires, Argentina',
       description: 'Engineer specialized in mobile development with a passion for creating exceptional user experiences. Focused on scalable architectures and clean code that drive innovative products.',
     },
     blog: {
-      title: 'Blog - Germán Gomez',
+      title: 'Blog - Germán Gómez',
       description: 'Reflections on development.',
       heading: 'Blog',
     },
     contact: {
-      title: 'Contact - Germán Gomez',
+      title: 'Contact - Germán Gómez',
       description: 'Get in touch with me.',
       heading: 'Contact',
       requestCvTitle: 'Request Resume',

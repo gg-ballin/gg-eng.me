@@ -21,8 +21,8 @@ export class EmailService {
         : 'German_Gomez_en.pdf';
       
       const subject = data.language === 'es'
-        ? 'Tu pedido de CV de Germán Gomez'
-        : 'Your resume requestfrom Germán Gomez';
+        ? 'Tu pedido de CV de Germán Gómez'
+        : 'Your resume request from Germán Gómez';
       
       const htmlContent = this.generateEmailTemplate(data);
       
@@ -31,7 +31,7 @@ export class EmailService {
       
       // Send email with CV attachment
       const response = await this.resend.emails.send({
-        from: 'German Gomez <noreply@gg-eng.me>',
+        from: 'German Gómez <noreply@gg-eng.me>',
         to: [data.email],
         replyTo: [getPersonalEmail()],
         subject,
@@ -83,13 +83,13 @@ export class EmailService {
     const signature = isSpanish
       ? `
         <p>Saludos,<br/>
-        <strong>Germán Gomez</strong><br/>
+        <strong>Germán Gómez</strong><br/>
         Senior Mobile Engineer<br/>
         Buenos Aires, Argentina</p>
       `
       : `
         <p>Best regards,<br/>
-        <strong>Germán Gomez</strong><br/>
+        <strong>Germán Gómez</strong><br/>
         Senior Mobile Engineer<br/>
         Buenos Aires, Argentina</p>
       `;
