@@ -24,7 +24,6 @@
     "zod": "^4.3.5"
   },
   "devDependencies": {
-    "@rollup/rollup-darwin-x64": "^4.55.2",
     "@types/node": "^25.0.8"
   }
 }
