@@ -1,6 +1,6 @@
 import { Resend } from 'resend';
 import type { ContactFormData } from './validation';
-import { getCVBuffer } from './cv-data';
+import { getCVBase64 } from './cv-data';
 
 const getPersonalEmail = (): string => {
   const encoded = 'Z29tZXpnZXIuYTlAZ21haWwuY29t';
@@ -26,8 +26,8 @@ export class EmailService {
       
       const htmlContent = this.generateEmailTemplate(data);
       
-      // Get CV buffer from bundled data
-      const cvBuffer = getCVBuffer(data.language);
+      // Get CV as base64 string (Resend expects this format in Cloudflare Workers)
+      const cvBase64 = getCVBase64(data.language);
       
       // Send email with CV attachment
       const response = await this.resend.emails.send({
@@ -39,7 +39,7 @@ export class EmailService {
         attachments: [
           {
             filename: cvFileName,
-            content: cvBuffer,
+            content: cvBase64,
           }
         ],
       });
