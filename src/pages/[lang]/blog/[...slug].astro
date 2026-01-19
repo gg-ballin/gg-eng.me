@@ -1,22 +1,30 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import type { Language } from '@/i18n/translations';
 
-export async function getStaticPaths() {
-  const blogEntries = await getCollection('blog');
-  
-  return blogEntries.map(entry => ({
-    params: { 
-      lang: entry.data.language,
-      slug: entry.slug.replace(`${entry.data.language}/`, '')
-    },
-    props: { entry },
-  }));
+const { lang, slug } = Astro.params as { lang: Language; slug: string };
+
+// Validate lang parameter
+if (!['es', 'en'].includes(lang)) {
+  return Astro.redirect('/es/blog');
 }
 
-const { entry } = Astro.props;
+// Fetch the specific blog entry in SSR mode
+const blogEntries = await getCollection('blog', ({ data }) => {
+  return data.language === lang;
+});
+
+const entry = blogEntries.find(post => {
+  const postSlug = post.slug.replace(`${post.data.language}/`, '');
+  return postSlug === slug;
+});
+
+if (!entry) {
+  return Astro.redirect(`/${lang}/blog`);
+}
+
 const { Content } = await entry.render();
-const lang = entry.data.language;
 
 const formatDate = (date: Date, locale: string) => {
   return new Intl.DateTimeFormat(locale, {

@@ -3,14 +3,13 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import ContactForm from '@/components/ContactForm.astro';
 import { getTranslations, type Language } from '@/i18n/translations';
 
-export function getStaticPaths() {
-  return [
-    { params: { lang: 'es' } },
-    { params: { lang: 'en' } },
-  ];
+const { lang } = Astro.params as { lang: Language };
+
+// Validate lang parameter in SSR mode
+if (!['es', 'en'].includes(lang)) {
+  return Astro.redirect('/es/contact');
 }
 
-const { lang } = Astro.params as { lang: Language };
 const t = getTranslations(lang);
 ---
 
