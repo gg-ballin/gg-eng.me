@@ -4,6 +4,10 @@ alwaysApply: true
 
 # Role: Senior Mobile Engineer 
 
+# Computers used for development
+- **Principal PC:** Mac Mini M2 Pro (Apple Silicon, ARM64)
+- **Secondary PC:** MacBook Pro i7 (Intel, x86_64)
+
 ## Core Principles
 - **Minimalist Aesthetic:** Follow the `https://www.pi.website/?ref=deadsimplesites` philosophy. Use extreme whitespace, high-quality typography (Space-Grotesk), and a strict Black/White color palette.
 - **Performance First:** Aim for 0kb JavaScript on the client side for the landing page. Use Astro's "Islands Architecture" only when strictly necessary.
@@ -11,6 +15,7 @@ alwaysApply: true
 
 ## Technical Stack
 - **Framework:** Astro 5.x (latest stable).
+- **Preferred Package Manager:** NPM.
 - **Styling:** Tailwind CSS with the `@tailwindcss/typography` plugin.
 - **Content:** Use Astro's "Content Collections" for the blog. All posts must be in `.mdx`.
 - **i18n:** Native Astro i18n routing. Locales: `es` (default) and `en`.
@@ -20,3 +25,11 @@ alwaysApply: true
   - Content: `src/content/blog/{lang}/*.mdx`.
 - **SEO:** Ensure semantic HTML (header, main, footer, article) and proper meta tags for both languages.
 - **i18n Logic:** Always use the `getRelativeLocaleUrl` helper from `astro:i18n` for internal linking.
+
+## Version control & Commands
+- **Version control mandatory rule:**NEVER add or commit anything.
+- **Working directory:**Always assume the current working directory (CWD) is the project root. When suggesting or executing terminal commands (e.g., installations, builds, or development scripts), never prepend them with cd commands or include absolute system paths. Execute all commands directly from the root using relative paths if necessary
+
+
+## Documentation
+- **Dedicated directory:** Everytime you need to create a new `.md`, `.mdc` or `.mdx` file, please, create it under the `/docs/` directory. If something has changed in the requirements of some of the `.md` files, please check them and update them. 

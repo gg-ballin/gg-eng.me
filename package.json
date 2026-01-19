@@ -3,7 +3,10 @@
   "type": "module",
   "version": "0.0.1",
   "scripts": {
-    "dev": "astro dev",
+    "setup": "node scripts/setup.js",
+    "clean": "rm -rf node_modules package-lock.json .arch-lock && npm install",
+    "clean:full": "npm run clean && npm run setup",
+    "dev": "npm run setup && astro dev",
     "prebuild": "node scripts/encode-pdfs.js",
     "build": "astro build",
     "preview": "astro preview",
@@ -21,6 +24,7 @@
     "zod": "^4.3.5"
   },
   "devDependencies": {
+    "@rollup/rollup-darwin-x64": "^4.55.2",
     "@types/node": "^25.0.8"
   }
 }

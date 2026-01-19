@@ -29,3 +29,7 @@ pnpm-debug.log*
 
 # Auto-generated files
 src/lib/cv-data.ts
+.arch-lock
+
+# Lock files (generated per architecture)
+package-lock.json
