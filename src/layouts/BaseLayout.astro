@@ -60,7 +60,7 @@ const switcherPath = currentPath.replace(`/${lang}/`, `/${otherLang}/`);
         >
           <span id="theme-icon">◐</span>
         </button>
-        <a href={switcherPath} class="nav-control nav-control-2 text-xs hover:opacity-60 transition-opacity uppercase tracking-wider">
+        <a href={switcherPath} class="nav-control nav-control-2 lang-switcher text-sm hover:opacity-80 transition-opacity uppercase tracking-wider font-bold">
           {otherLang}
         </a>
       </div>
@@ -119,6 +119,42 @@ const switcherPath = currentPath.replace(`/${lang}/`, `/${otherLang}/`);
         
         // Dispatch custom event for theme change
         window.dispatchEvent(new CustomEvent('themeChange', { detail: { theme: newTheme } }));
+        
+        // Retrigger nav animations on theme change
+        retriggerNavAnimations();
+      });
+      
+      // Function to retrigger nav animations
+      function retriggerNavAnimations() {
+        const html = document.documentElement;
+        html.classList.remove('play-nav-animation');
+        
+        // Force reflow to reset animations
+        void html.offsetWidth;
+        
+        // Re-add class to retrigger animations
+        setTimeout(() => {
+          html.classList.add('play-nav-animation');
+        }, 10);
+      }
+      
+      // Listen for theme change events (from other sources if needed)
+      window.addEventListener('themeChange', () => {
+        retriggerNavAnimations();
+      });
+      
+      // Retrigger animations when language is changed
+      const langSwitcher = document.querySelector('.lang-switcher');
+      langSwitcher?.addEventListener('click', () => {
+        // Small delay to ensure navigation is about to happen
+        setTimeout(() => {
+          retriggerNavAnimations();
+        }, 100);
+      });
+      
+      // Also retrigger on page load if URL changed (language switch)
+      window.addEventListener('popstate', () => {
+        retriggerNavAnimations();
       });
     </script>
   </body>
@@ -166,6 +202,51 @@ const switcherPath = currentPath.replace(`/${lang}/`, `/${otherLang}/`);
   #theme-icon {
     display: inline-block;
     transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+  
+  .lang-switcher {
+    color: var(--color-accent);
+    position: relative;
+    animation: pulse-glow 2s ease-in-out infinite;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+  }
+  
+  .lang-switcher::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: 0.375rem;
+    border: 1px solid var(--color-accent);
+    opacity: 0.5;
+    animation: pulse-ring 2s ease-in-out infinite;
+  }
+  
+  .lang-switcher:hover {
+    opacity: 1 !important;
+    transform: scale(1.1);
+  }
+  
+  @keyframes pulse-glow {
+    0%, 100% {
+      opacity: 0.8;
+      text-shadow: 0 0 5px var(--color-accent);
+    }
+    50% {
+      opacity: 1;
+      text-shadow: 0 0 15px var(--color-accent), 0 0 25px var(--color-accent);
+    }
+  }
+  
+  @keyframes pulse-ring {
+    0%, 100% {
+      opacity: 0.3;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.6;
+      transform: scale(1.05);
+    }
   }
   
   .social-links-container {
