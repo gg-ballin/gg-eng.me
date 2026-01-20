@@ -15,7 +15,7 @@ export const translations: Record<Language, Translations> = {
       theme: 'Tema',
     },
     bio: {
-      name: 'Germán Gómez',
+      name: 'Hola hola! Soy Germán Gómez',
       role: 'Senior Mobile Engineer',
       location: 'Buenos Aires, Argentina',
       description: 'Ingeniero especializado en desarrollo móvil con pasión por crear experiencias de usuario excepcionales. Enfocado en arquitecturas escalables y código limpio que impulsan productos innovadores.',
@@ -45,9 +45,9 @@ export const translations: Record<Language, Translations> = {
       theme: 'Theme',
     },
     bio: {
-      name: 'Germán Gómez',
+      name: 'Hello there! I\'m Germán Gómez',
       role: 'Senior Mobile Engineer',
-      location: 'Buenos Aires, Argentina',
+      location: 'based in Buenos Aires, Argentina',
       description: 'Engineer specialized in mobile development with a passion for creating exceptional user experiences. Focused on scalable architectures and clean code that drive innovative products.',
     },
     blog: {

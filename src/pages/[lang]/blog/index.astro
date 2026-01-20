@@ -47,7 +47,7 @@ function formatDate(date: Date, locale: string): string {
   lang={lang}
 >
   <div class="max-w-4xl">
-    <h1 class="text-5xl md:text-6xl font-serif font-bold mb-16">{t.heading}</h1>
+    <h1 class="text-5xl md:text-6xl font-bold mb-16" style="font-family: var(--font-family-sans);">{t.heading}</h1>
     
     <div class="timeline">
       {sortedPosts.map((post: BlogPost, index: number) => {
