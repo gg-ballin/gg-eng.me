@@ -17,6 +17,19 @@ export default function Reveal({ children, delay = 0 }: RevealProps) {
     }
   }, [isInView, maskControls]);
 
+  useEffect(() => {
+    // Listen for theme changes and retrigger animation
+    const handleThemeChange = () => {
+      maskControls.start('hidden');
+      setTimeout(() => {
+        maskControls.start('reveal');
+      }, 50);
+    };
+
+    window.addEventListener('themeChange', handleThemeChange);
+    return () => window.removeEventListener('themeChange', handleThemeChange);
+  }, [maskControls]);
+
   return (
     <div ref={ref} style={{ position: 'relative', overflow: 'hidden', width: 'fit-content' }}>
       {children}

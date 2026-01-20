@@ -75,7 +75,13 @@ const switcherPath = currentPath.replace(`/${lang}/`, `/${otherLang}/`);
       function updateThemeIcon() {
         const currentTheme = document.documentElement.getAttribute('data-theme');
         if (themeIcon) {
-          themeIcon.textContent = currentTheme === 'dark' ? '☀' : '☾';
+          // Add rotation animation
+          themeIcon.style.transform = 'rotate(360deg) scale(0.8)';
+          
+          setTimeout(() => {
+            themeIcon.textContent = currentTheme === 'dark' ? '☀' : '☾';
+            themeIcon.style.transform = 'rotate(0deg) scale(1)';
+          }, 150);
         }
       }
       
@@ -86,9 +92,18 @@ const switcherPath = currentPath.replace(`/${lang}/`, `/${otherLang}/`);
         const currentTheme = document.documentElement.getAttribute('data-theme');
         const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
         
+        // Add click animation to button
+        themeToggle.style.transform = 'scale(0.9)';
+        setTimeout(() => {
+          themeToggle.style.transform = 'scale(1)';
+        }, 100);
+        
         document.documentElement.setAttribute('data-theme', newTheme);
         localStorage.setItem('theme', newTheme);
         updateThemeIcon();
+        
+        // Dispatch custom event for theme change
+        window.dispatchEvent(new CustomEvent('themeChange', { detail: { theme: newTheme } }));
       });
     </script>
   </body>
@@ -112,10 +127,30 @@ const switcherPath = currentPath.replace(`/${lang}/`, `/${otherLang}/`);
     font-size: 0.875rem;
     letter-spacing: 0.05em;
     text-transform: lowercase;
+    font-weight: 700;
+    color: var(--color-accent);
   }
   
   .nav-control {
     /* Base styles for controls */
+  }
+  
+  #theme-toggle {
+    transition: transform 0.2s ease, opacity 0.2s ease;
+    cursor: pointer;
+  }
+  
+  #theme-toggle:hover {
+    transform: scale(1.1);
+  }
+  
+  #theme-toggle:active {
+    transform: scale(0.95);
+  }
+  
+  #theme-icon {
+    display: inline-block;
+    transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
   }
   
   /* Animation styles - only applied when flagged */
