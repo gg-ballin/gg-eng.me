@@ -2,6 +2,7 @@
 import { getCollection } from 'astro:content';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import type { Language } from '@/i18n/translations';
+import { formatDate } from '@/utils/formatDate';
 
 const { lang, slug } = Astro.params as { lang: Language; slug: string };
 
@@ -26,13 +27,6 @@ if (!entry) {
 
 const { Content } = await entry.render();
 
-const formatDate = (date: Date, locale: string) => {
-  return new Intl.DateTimeFormat(locale, {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  }).format(date);
-};
 ---
 
 <BaseLayout 
@@ -50,7 +44,7 @@ const formatDate = (date: Date, locale: string) => {
         {entry.data.description}
       </div>
     </header>
-    <div class="prose">
+    <div class="prose mt-10">
       <Content />
     </div>
   </article>
