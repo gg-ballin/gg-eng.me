@@ -19,7 +19,7 @@ const t = getTranslations(lang);
   lang={lang}
 >
   <div class="max-w-4xl">
-    <h1 class="page-title">{t.contact.heading}</h1>
+    <h1 class="text-5xl md:text-6xl page-title mt-10">{t.contact.heading}</h1>
     
     <!-- Request CV Section -->
     <section class="contact-section">
@@ -33,7 +33,7 @@ const t = getTranslations(lang);
 
 <style>
   .page-title {
-    font-family: 'Playfair Display', Georgia, serif;
+    font-family: var(--font-family-sans);
     font-size: 3rem;
     font-weight: 700;
     margin-bottom: 3rem;
@@ -45,7 +45,7 @@ const t = getTranslations(lang);
   }
 
   .section-title {
-    font-family: 'Courier New', monospace;
+    font-family: var(--font-family-sans);
     font-size: 1.5rem;
     font-weight: 600;
     text-transform: uppercase;
@@ -79,7 +79,7 @@ const t = getTranslations(lang);
   }
 
   .info-label {
-    font-family: 'Courier New', monospace;
+    font-family: var(--font-family-sans);
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.05em;

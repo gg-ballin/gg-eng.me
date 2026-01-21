@@ -3,6 +3,7 @@ import { defineConfig } from "astro/config";
 import cloudflare from "@astrojs/cloudflare";
 import tailwindcss from "@tailwindcss/vite";
 import mdx from "@astrojs/mdx";
+import react from "@astrojs/react";
 import { fileURLToPath } from "node:url";
 
 // https://astro.build/config
@@ -11,7 +12,7 @@ export default defineConfig({
   adapter: cloudflare({
     imageService: "cloudflare",
   }),
-  integrations: [mdx()],
+  integrations: [mdx(), react()],
   vite: {
     plugins: [tailwindcss()],
     resolve: {

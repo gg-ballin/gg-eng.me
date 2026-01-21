@@ -3,6 +3,7 @@ import { getCollection } from 'astro:content';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import TimelineItem from '@/components/TimelineItem.astro';
 import { getTranslations, type Language } from '@/i18n/translations';
+import { formatDate } from '@/utils/formatDate';
 
 const { lang } = Astro.params as { lang: Language };
 
@@ -32,13 +33,6 @@ const sortedPosts: BlogPost[] = allPosts.sort(
   (a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime()
 );
 
-function formatDate(date: Date, locale: string): string {
-  return new Intl.DateTimeFormat(locale, {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  }).format(date);
-}
 ---
 
 <BaseLayout 
@@ -46,8 +40,8 @@ function formatDate(date: Date, locale: string): string {
   description={t.description}
   lang={lang}
 >
-  <div class="max-w-4xl">
-    <h1 class="text-5xl md:text-6xl font-serif font-bold mb-16">{t.heading}</h1>
+  <div class="max-w-4xl ">
+    <h1 class="text-5xl md:text-6xl font-bold mb-16 mt-10" style="font-family: var(--font-family-sans);">{t.heading}</h1>
     
     <div class="timeline">
       {sortedPosts.map((post: BlogPost, index: number) => {

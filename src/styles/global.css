@@ -6,46 +6,56 @@
 }
 
 :root {
-  --color-bg: #F5F4EF;
-  --color-text: #000000;
-  --color-border: #d4d4d4;
-  --color-code-bg: #e5e5e5;
+  --color-bg: #fafafa;
+  --color-text: #1a1a1a;
+  --color-border: #e5e5e5;
+  --color-code-bg: #f4f4f4;
   --color-pre-bg: #1a1a1a;
   --color-pre-text: #ffffff;
+  --color-accent: #6366f1;
+  --color-nav-bg: #ffffff;
   
   /* Timeline colors */
   --timeline-item-bg: #FFFFFF;
-  --timeline-item-text: #000000;
-  --timeline-item-border: #000000;
-  --timeline-item-hover-shadow: #000000;
-  --timeline-line: #d4d4d4;
-  --timeline-dot-bg: #F5F4EF;
-  --timeline-dot-border: #000000;
+  --timeline-item-text: #1a1a1a;
+  --timeline-item-border: #1a1a1a;
+  --timeline-item-hover-shadow: #1a1a1a;
+  --timeline-line: #e5e5e5;
+  --timeline-dot-bg: #fafafa;
+  --timeline-dot-border: #1a1a1a;
 }
 
 [data-theme="dark"] {
-  --color-bg: #0D1117;
-  --color-text: #F5F4EF;
-  --color-border: #333333;
+  --color-bg: #0a0a0a;
+  --color-text: #fafafa;
+  --color-border: #2a2a2a;
   --color-code-bg: #1a1a1a;
-  --color-pre-bg: #F5F4EF;
+  --color-pre-bg: #fafafa;
   --color-pre-text: #0a0a0a;
+  --color-accent: #00ff88;
+  --color-nav-bg: #000000;
   
   /* Timeline colors - inverted for dark theme */
-  --timeline-item-bg: #000000;
-  --timeline-item-text: #FFFFFF;
-  --timeline-item-border: #FFFFFF;
-  --timeline-item-hover-shadow: #FFFFFF;
-  --timeline-line: #333333;
-  --timeline-dot-bg: #0D1117;
-  --timeline-dot-border: #FFFFFF;
+  --timeline-item-bg: #0a0a0a;
+  --timeline-item-text: #fafafa;
+  --timeline-item-border: #fafafa;
+  --timeline-item-hover-shadow: #00ff88;
+  --timeline-line: #2a2a2a;
+  --timeline-dot-bg: #0a0a0a;
+  --timeline-dot-border: #fafafa;
+}
+
+* {
+  transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+              color 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 body {
   background-color: var(--color-bg);
   color: var(--color-text);
   font-family: var(--font-family-sans);
-  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 h1, h2, h3, h4, h5, h6 {

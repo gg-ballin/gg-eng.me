@@ -49,7 +49,12 @@ if (needsReinstall) {
   writeFileSync(ARCH_FILE, detectedArch);
   console.log('✅ Setup complete!');
 } else {
-  console.log('📦 Running npm install...');
-  execSync('npm install', { stdio: 'inherit' });
-  console.log('✅ Dependencies up to date!');
+  // Architecture matches - only install if node_modules is missing
+  if (!existsSync('node_modules')) {
+    console.log('📦 node_modules not found, running npm install...');
+    execSync('npm install', { stdio: 'inherit' });
+    console.log('✅ Dependencies installed!');
+  } else {
+    console.log('✅ Dependencies already installed, skipping npm install');
+  }
 }

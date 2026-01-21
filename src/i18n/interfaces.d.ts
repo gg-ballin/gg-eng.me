@@ -35,5 +35,17 @@ export interface Translations {
     heading: string;
     requestCvTitle: string;
     requestCvDescription: string;
+    form: {
+      name: string;
+      namePlaceholder: string;
+      email: string;
+      emailPlaceholder: string;
+      company: string;
+      companyPlaceholder: string;
+      submit: string;
+      submitting: string;
+      success: string;
+      error: string;
+    };
   };
 }

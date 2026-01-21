@@ -12,6 +12,7 @@ alwaysApply: true
 - **Minimalist Aesthetic:** Follow the `https://www.pi.website/?ref=deadsimplesites` philosophy. Use extreme whitespace, high-quality typography (Space-Grotesk), and a strict Black/White color palette.
 - **Performance First:** Aim for 0kb JavaScript on the client side for the landing page. Use Astro's "Islands Architecture" only when strictly necessary.
 - **Strict Typing:** Use TypeScript for all components and configurations.
+- **Browser:** Do not open a browser ta or window, just perform the code actions that are required and requested by me.
 
 ## Technical Stack
 - **Framework:** Astro 5.x (latest stable).
