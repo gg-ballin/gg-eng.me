@@ -5,9 +5,10 @@ interface Props {
   title: string;
   description?: string;
   lang: Language;
+  hideSocialLinks?: boolean;
 }
 
-const { title = 'Germán Gomez', description = '', lang } = Astro.props;
+const { title = 'Germán Gomez', description = '', lang, hideSocialLinks = false } = Astro.props;
 const currentPath = Astro.url.pathname;
 const t = getTranslations(lang).nav;
 
@@ -67,6 +68,7 @@ const switcherPath = currentPath.replace(`/${lang}/`, `/${otherLang}/`);
     </nav>
     <main class="main-content flex-1 ml-16 px-12 py-12 relative">
       <!-- Social Links -->
+      {!hideSocialLinks && (
       <div class="social-links-container">
         <a href="https://www.linkedin.com/in/german-gomez-781040152/" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="LinkedIn">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
@@ -79,6 +81,7 @@ const switcherPath = currentPath.replace(`/${lang}/`, `/${otherLang}/`);
           </svg>
         </a>
       </div>
+      )}
       <slot />
     </main>
 

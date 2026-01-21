@@ -45,7 +45,7 @@ const { title, date, description, href, isHighlighted = false } = Astro.props;
     width: 12px;
     height: 12px;
     border-radius: 50%;
-    background-color: var(--timeline-dot-bg);
+    background-color: var(--color-accent);
     border: 2px solid var(--timeline-dot-border);
     z-index: 1;
   }
@@ -66,14 +66,15 @@ const { title, date, description, href, isHighlighted = false } = Astro.props;
 
   .timeline-content:hover {
     transform: translate(4px, -4px);
-    box-shadow: -4px 4px 0 var(--timeline-item-hover-shadow);
-    background-color: #F7F8FA;
-    color: #000000;
+    box-shadow: -4px 4px 0 var(--color-accent);
+    border-color: var(--color-text);
+    background-color: var(--color-accent);
+    color: var(--color-bg);
   }
 
   [data-theme="dark"] .timeline-content:hover {
-    background-color: #000408;
-    color: #FFFFFF;
+    background-color: var(--color-accent);
+    color: #000000;
   }
 
   .timeline-item.highlighted .timeline-content {
