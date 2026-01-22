@@ -49,7 +49,8 @@ export const translations: Record<Language, Translations> = {
       },
     },
     footer: {
-      copyright: '© 2025 Germán Gómez. Todos los derechos reservados.',
+      copyright: 'Germán Gómez. Todos los derechos reservados.',
+      viewSource: 'Ver código fuente de este sitio web',
     },
   },
   en: {
@@ -98,7 +99,8 @@ export const translations: Record<Language, Translations> = {
       },
     },
     footer: {
-      copyright: '© 2025 Germán Gómez. All rights reserved.',
+      copyright: 'Germán Gómez. All rights reserved.',
+      viewSource: 'View source code of this website',
     },
   },
 };
