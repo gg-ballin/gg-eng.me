@@ -20,6 +20,10 @@ export const translations: Record<Language, Translations> = {
       location: 'Buenos Aires, Argentina',
       description: 'Ingeniero especializado en desarrollo móvil con pasión por crear experiencias de usuario excepcionales. Enfocado en arquitecturas escalables y código limpio que impulsan productos innovadores.',
     },
+    yearProgress: {
+      day: 'Día',
+      left: 'restantes',
+    },
     blog: {
       title: 'Blog - Germán Gómez',
       description: 'Reflexiones sobre desarrollo.',
@@ -61,6 +65,10 @@ export const translations: Record<Language, Translations> = {
       role: 'Senior Mobile Engineer',
       location: 'based in Buenos Aires, Argentina',
       description: 'Engineer specialized in mobile development with a passion for creating exceptional user experiences. Focused on scalable architectures and clean code that drive innovative products.',
+    },
+    yearProgress: {
+      day: 'Day',
+      left: 'left',
     },
     blog: {
       title: 'Blog - Germán Gómez',

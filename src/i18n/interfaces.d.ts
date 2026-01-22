@@ -21,6 +21,12 @@ export interface Translations {
     description: string;
   };
   
+  // Year Progress
+  yearProgress: {
+    day: string;
+    left: string;
+  };
+  
   // Blog
   blog: {
     title: string;
