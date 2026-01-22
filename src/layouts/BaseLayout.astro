@@ -1,5 +1,7 @@
 ---
 import { getTranslations, type Language } from '@/i18n/translations';
+import { getCurrentYear } from '@/utils/formatDate';
+import { getFormattedVersion } from '@/utils/version';
 
 interface Props {
   title: string;
@@ -11,6 +13,8 @@ interface Props {
 const { title = 'Germán Gomez', description = '', lang, hideSocialLinks = false } = Astro.props;
 const currentPath = Astro.url.pathname;
 const t = getTranslations(lang).nav;
+const currentYear = getCurrentYear();
+const version = getFormattedVersion();
 
 // Language switcher logic
 const otherLang = lang === 'es' ? 'en' : 'es';
@@ -90,6 +94,11 @@ const switcherPath = currentPath.replace(`/${lang}/`, `/${otherLang}/`);
       )}
       <slot />
     </main>
+    
+    <footer class="footer">
+      <p class="footer-copyright">© {currentYear} Germán Gómez. {getTranslations(lang).footer.copyright}</p>
+      <p class="footer-version">{version}</p>
+    </footer>
 
     <script>
       const themeToggle = document.getElementById('theme-toggle');
@@ -481,5 +490,19 @@ const switcherPath = currentPath.replace(`/${lang}/`, `/${otherLang}/`);
       opacity: 1;
       transform: scale(1);
     }
+  }
+  
+  .footer {
+    padding: 2rem 1rem;
+    text-align: center;
+    border-top: 1px solid var(--color-border);
+    margin-top: 4rem;
+  }
+  
+  .footer-copyright {
+    font-size: 0.875rem;
+    color: var(--color-text);
+    opacity: 0.6;
+    margin: 0;
   }
 </style>
