@@ -5,15 +5,6 @@ import tailwindcss from "@tailwindcss/vite";
 import mdx from "@astrojs/mdx";
 import react from "@astrojs/react";
 import { fileURLToPath } from "node:url";
-import { readFileSync } from "node:fs";
-import { join, dirname } from "node:path";
-
-// Read package.json at build time to inject version
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-const packageJson = JSON.parse(
-  readFileSync(join(__dirname, "package.json"), "utf-8")
-);
 
 // https://astro.build/config
 export default defineConfig({
@@ -25,12 +16,6 @@ export default defineConfig({
   vite: {
     // @ts-ignore - Tailwind Vite plugin type compatibility with Astro's Vite version
     plugins: [tailwindcss()],
-    define: {
-      // Inject version at build time (accessible via import.meta.env.PUBLIC_APP_VERSION)
-      "import.meta.env.PUBLIC_APP_VERSION": JSON.stringify(
-        packageJson.version || "1.0.0"
-      ),
-    },
     resolve: {
       alias: {
         "@": fileURLToPath(new URL("./src", import.meta.url)),

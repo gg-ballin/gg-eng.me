@@ -3,7 +3,6 @@
 interface ImportMetaEnv {
   readonly RESEND_API_KEY: string;
   readonly SENDER_EMAIL?: string;
-  readonly PUBLIC_APP_VERSION?: string;
 }
 
 interface ImportMeta {
