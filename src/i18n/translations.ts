@@ -18,7 +18,7 @@ export const translations: Record<Language, Translations> = {
       name: 'Hola hola! Soy Germán Gómez',
       role: 'Senior Mobile Engineer',
       location: 'Buenos Aires, Argentina',
-      description: 'Ingeniero especializado en desarrollo móvil con pasión por crear experiencias de usuario excepcionales. Enfocado en arquitecturas escalables y código limpio que impulsan productos innovadores.',
+      description: 'Más de 8 años desarrollando aplicaciones móviles híbridas con React Native, viví la evolución completa del ecosistema: desde los inicios de `expo` (cuándo era difícil renderizar un mapa!) y de `react-native-cli` con Javascript (y sus obsoletos `PropTypes`) hasta los estándares de performance de la era de la Nueva Arquitectura, Fabric. Expo, Typescript, Swift y Kotlin, sintaxis obligatoria que un ingeniero móvil debe dominar para crear aplicaciones, performantes, mantenibles y escalables.',
     },
     yearProgress: {
       day: 'Día',
@@ -48,6 +48,9 @@ export const translations: Record<Language, Translations> = {
         error: 'Error al enviar. Intenta de nuevo.',
       },
     },
+    footer: {
+      copyright: '© 2025 Germán Gómez. Todos los derechos reservados.',
+    },
   },
   en: {
     seo: {
@@ -64,7 +67,7 @@ export const translations: Record<Language, Translations> = {
       name: 'Hello there! I\'m Germán Gómez',
       role: 'Senior Mobile Engineer',
       location: 'based in Buenos Aires, Argentina',
-      description: 'Engineer specialized in mobile development with a passion for creating exceptional user experiences. Focused on scalable architectures and clean code that drive innovative products.',
+      description: '8+ years developing hybrid mobile applications with React Native. I\'ve lived through the ecosystem\'s full evolution: from the early days of `expo` (when rendering a map was a nightmare!) and `react-native-cli` with JavaScript (and its now-obsolete `PropTypes`) to the high-performance standards of the New Architecture era, Fabric.\n\nExpo, TypeScript, Swift, and Kotlin are now the essential stack a mobile engineer must master to build high-performance, maintainable, and scalable applications.',
     },
     yearProgress: {
       day: 'Day',
@@ -93,6 +96,9 @@ export const translations: Record<Language, Translations> = {
         success: '✓ CV sent to your email',
         error: 'Error sending. Please try again.',
       },
+    },
+    footer: {
+      copyright: '© 2025 Germán Gómez. All rights reserved.',
     },
   },
 };

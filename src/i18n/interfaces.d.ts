@@ -54,4 +54,9 @@ export interface Translations {
       error: string;
     };
   };
+  
+  // Footer
+  footer: {
+    copyright: string;
+  };
 }

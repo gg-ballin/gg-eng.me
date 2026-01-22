@@ -15,3 +15,11 @@ export const formatDate = (date: Date, locale: string) => {
     day: 'numeric'
   }).format(localDate);
 };
+
+/**
+ * Get the current year as a number
+ * @returns Current year (e.g., 2026)
+ */
+export const getCurrentYear = (): number => {
+  return new Date().getFullYear();
+};

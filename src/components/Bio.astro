@@ -2,6 +2,10 @@
 import { getTranslations, type Language } from '../i18n/translations';
 import Reveal from './Reveal';
 import YearProgress from './YearProgress';
+import { marked } from 'marked';
+import createDOMPurify from 'isomorphic-dompurify';
+import { JSDOM } from 'jsdom';
+import { getFormattedVersion } from '../utils/version';
 
 interface Props {
   lang: Language;
@@ -9,6 +13,11 @@ interface Props {
 
 const { lang } = Astro.props;
 const t = getTranslations(lang).bio;
+const window = new JSDOM('').window;
+const DOMPurify = createDOMPurify(window);
+const rawHtml = marked.parse(t.description, { breaks: true }) as string;
+const descriptionHtml = DOMPurify.sanitize(rawHtml);
+
 ---
 
 <div class="relative max-w-4xl">
@@ -27,16 +36,14 @@ const t = getTranslations(lang).bio;
     </Reveal>
     
     <Reveal client:load delay={0.3}>
-      <p class="text-base md:text-lg mb-8 opacity-70">
+      <p class="text-base md:text-lg opacity-70">
         {t.location} 🇦🇷
       </p>
     </Reveal>
     
-    <Reveal client:load delay={0.4}>
-      <p class="text-lg md:text-xl max-w-2xl mb-12 leading-relaxed opacity-90">
-        {t.description}
-      </p>
-    </Reveal>
+    <div class="description-reveal">
+      <p class="text-lg md:text-xl max-w-2xl mb-12 leading-relaxed opacity-90" set:html={descriptionHtml} />
+    </div>
     
   </div>
   
@@ -95,9 +102,61 @@ const t = getTranslations(lang).bio;
     transform: translateY(20px);
     animation: yearProgressReveal 0.8s ease-out 1.2s forwards;
   }
+  
+  .version-badge {
+    display: inline-block;
+  }
+  
+  .version-text {
+    font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', 'Droid Sans Mono', 'Source Code Pro', monospace;
+    font-size: 0.75rem;
+    color: var(--color-accent);
+    opacity: 0.7;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+  }
+  
+  .description-reveal {
+    position: relative;
+    overflow: hidden;
+    width: fit-content;
+    animation: descriptionReveal 0.8s ease-out 0.4s both;
+  }
+  
+  @keyframes descriptionReveal {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 </style>
 
 <style is:global>
+  /* Inline code styling for markdown - Slack-like with accent color */
+  p code,
+  code {
+    background-color: var(--color-accent);
+    color: #ffffff;
+    padding: 0.125rem 0.5rem;
+    border-radius: 0.25rem;
+    font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', 'Droid Sans Mono', 'Source Code Pro', monospace;
+    font-size: 0.9em;
+    font-weight: 500;
+    display: inline-block;
+    line-height: 1.4;
+  }
+  
+  [data-theme="dark"] p code,
+  [data-theme="dark"] code {
+    background-color: var(--color-accent);
+    color: #000000;
+    font-weight: 600;
+  }
+  
   @keyframes yearProgressReveal {
     from {
       opacity: 0;
