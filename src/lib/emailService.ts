@@ -1,5 +1,6 @@
 import { Resend } from 'resend';
 import type { ContactFormData } from './validation';
+import type { Language } from '@/i18n/translations';
 import { getCVBase64 } from './cv-data';
 
 const getPersonalEmail = (): string => {
@@ -42,6 +43,90 @@ export class EmailService {
             content: cvBase64,
           }
         ],
+      });
+      
+      if (response.error) {
+        return { success: false, error: response.error.message };
+      }
+      
+      return { success: true };
+    } catch (error) {
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Unknown error' 
+      };
+    }
+  }
+  
+  async sendCVRequestNotification(data: ContactFormData): Promise<{ success: boolean; error?: string }> {
+    try {
+      const personalEmail = getPersonalEmail();
+      const timestamp = new Date().toISOString();
+      
+      const subject = 'New CV Request - gg-eng.me';
+      
+      const htmlContent = `
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <meta charset="UTF-8">
+            <style>
+              body { font-family: 'Space Grotesk', Arial, sans-serif; line-height: 1.6; color: #000000; }
+              .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+              h1 { font-family: 'Playfair Display', Georgia, serif; font-size: 24px; }
+              .info-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+              .info-table td { padding: 10px; border-bottom: 1px solid #ddd; }
+              .info-table td:first-child { font-weight: 600; width: 30%; }
+              .footer { margin-top: 30px; padding-top: 20px; border-top: 2px solid #000000; font-size: 14px; }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              <h1>New CV Request Received</h1>
+              <p>Someone has requested your CV through the contact form on gg-eng.me.</p>
+              
+              <table class="info-table">
+                <tr>
+                  <td>Name:</td>
+                  <td>${data.name}</td>
+                </tr>
+                <tr>
+                  <td>Email:</td>
+                  <td><a href="mailto:${data.email}">${data.email}</a></td>
+                </tr>
+                <tr>
+                  <td>Company:</td>
+                  <td>${data.company || 'Not provided'}</td>
+                </tr>
+                <tr>
+                  <td>Language:</td>
+                  <td>${data.language === 'es' ? 'Spanish' : 'English'}</td>
+                </tr>
+                <tr>
+                  <td>Requested At:</td>
+                  <td>${new Date(timestamp).toLocaleString()}</td>
+                </tr>
+                <tr>
+                  <td>Status:</td>
+                  <td style="color: #16a34a; font-weight: 600;">✓ CV Sent Successfully</td>
+                </tr>
+              </table>
+              
+              <div class="footer">
+                <p style="color: #666; font-size: 12px;">
+                  This is an automated notification from gg-eng.me
+                </p>
+              </div>
+            </div>
+          </body>
+        </html>
+      `;
+      
+      const response = await this.resend.emails.send({
+        from: 'German Gómez <noreply@gg-eng.me>',
+        to: [personalEmail],
+        subject,
+        html: htmlContent,
       });
       
       if (response.error) {
@@ -122,5 +207,106 @@ export class EmailService {
         </body>
       </html>
     `;
+  }
+  
+  async sendNewsletterConfirmation(
+    email: string,
+    token: string,
+    language: Language
+  ): Promise<{ success: boolean; error?: string }> {
+    try {
+      const isSpanish = language === 'es';
+      const baseUrl = 'https://gg-eng.me'; // Update with your domain
+      const confirmUrl = `${baseUrl}/api/newsletter/confirm?token=${token}`;
+      
+      const subject = isSpanish
+        ? 'Confirma tu suscripción al newsletter'
+        : 'Confirm your newsletter subscription';
+      
+      const htmlContent = `
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <meta charset="UTF-8">
+            <style>
+              body { font-family: 'Space Grotesk', Arial, sans-serif; line-height: 1.6; color: #000000; }
+              .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+              h1 { font-family: 'Playfair Display', Georgia, serif; font-size: 24px; }
+              .button { display: inline-block; padding: 12px 24px; background-color: var(--color-accent, #000000); color: #ffffff; text-decoration: none; border-radius: 4px; margin: 20px 0; }
+              .footer { margin-top: 30px; padding-top: 20px; border-top: 2px solid #000000; font-size: 14px; }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              <h1>${isSpanish ? 'Confirma tu suscripción' : 'Confirm your subscription'}</h1>
+              <p>${isSpanish 
+                ? `Hola,<br/><br/>Gracias por suscribirte al newsletter de Germán Gómez. Para completar tu suscripción, por favor haz clic en el siguiente enlace:`
+                : `Hello,<br/><br/>Thank you for subscribing to Germán Gómez's newsletter. To complete your subscription, please click the following link:`}</p>
+              <p style="text-align: center;">
+                <a href="${confirmUrl}" class="button">${isSpanish ? 'Confirmar suscripción' : 'Confirm subscription'}</a>
+              </p>
+              <p>${isSpanish 
+                ? 'Si no solicitaste esta suscripción, puedes ignorar este correo.'
+                : 'If you did not request this subscription, you can ignore this email.'}</p>
+              <p>${isSpanish 
+                ? 'Este enlace expirará en 24 horas.'
+                : 'This link will expire in 24 hours.'}</p>
+              <div class="footer">
+                <p style="color: #666; font-size: 12px;">
+                  ${isSpanish 
+                    ? 'Este correo fue generado automáticamente desde gg-eng.me' 
+                    : 'This email was automatically generated from gg-eng.me'}
+                </p>
+              </div>
+            </div>
+          </body>
+        </html>
+      `;
+      
+      const response = await this.resend.emails.send({
+        from: 'German Gómez <noreply@gg-eng.me>',
+        to: [email],
+        subject,
+        html: htmlContent,
+      });
+      
+      if (response.error) {
+        return { success: false, error: response.error.message };
+      }
+      
+      return { success: true };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      };
+    }
+  }
+  
+  async sendNewsletter(
+    email: string,
+    subject: string,
+    htmlContent: string,
+    language: Language
+  ): Promise<{ success: boolean; error?: string }> {
+    try {
+      const response = await this.resend.emails.send({
+        from: 'German Gómez <noreply@gg-eng.me>',
+        to: [email],
+        subject,
+        html: htmlContent,
+      });
+      
+      if (response.error) {
+        return { success: false, error: response.error.message };
+      }
+      
+      return { success: true };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      };
+    }
   }
 }

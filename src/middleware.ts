@@ -10,7 +10,8 @@ function preferSpanish(acceptLanguage: string | null): boolean {
 
 export const onRequest = defineMiddleware(async (context, next) => {
   if (context.locals.runtime?.env) {
-    context.locals.env = context.locals.runtime.env;
+    // Type assertion for Cloudflare runtime env
+    context.locals.env = context.locals.runtime.env as any;
   }
 
   const pathname = context.url.pathname;
@@ -29,8 +30,8 @@ export const onRequest = defineMiddleware(async (context, next) => {
   
   // Content Security Policy (stricter in production)
   const scriptSrc = isDev 
-    ? "script-src 'self' 'unsafe-inline' 'unsafe-eval'" 
-    : "script-src 'self' 'unsafe-inline'";
+    ? "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com" 
+    : "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com";
   
   headers.set(
     'Content-Security-Policy',
@@ -40,7 +41,8 @@ export const onRequest = defineMiddleware(async (context, next) => {
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "font-src 'self' https://fonts.gstatic.com",
       "img-src 'self' data: https:",
-      "connect-src 'self'",
+      "connect-src 'self' https://challenges.cloudflare.com https://api.resend.com",
+      "frame-src 'self' https://challenges.cloudflare.com",
       "frame-ancestors 'none'",
       "base-uri 'self'",
       "form-action 'self'",

@@ -36,3 +36,6 @@ alwaysApply: true
 
 ## Translations
 - **Use translations.ts**: Use this file under `src/i18n/translations.ts` for adding new translations and type them in `src/i18n/interfaces.d.ts`.
+
+## Theme
+- **Colors should be in global.css**: Every time a new color is introduced, it should have backward compatibility with dark-light modes, and also keep harmony between them. Red Green and Blue common colors should vary depending on the theme mode.
