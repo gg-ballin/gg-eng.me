@@ -1,4 +1,5 @@
 ---
-// Redirect to default locale
-return Astro.redirect('/es/');
+// Locale redirect handled by middleware (Accept-Language → /es/ or /en/)
+// Fallback if middleware skipped (e.g. direct edge case)
+return Astro.redirect('/en/');
 ---
