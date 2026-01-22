@@ -31,7 +31,7 @@ const switcherPath = currentPath.replace(`/${lang}/`, `/${otherLang}/`);
     <title>{title}</title>
     <script is:inline>
       // Theme initialization (runs before page render to prevent flash)
-      const theme = localStorage.getItem('theme') || 'light';
+      const theme = localStorage.getItem('theme') || 'dark';
       document.documentElement.setAttribute('data-theme', theme);
       
       // Nav animation control - play on first visit or refresh
@@ -44,29 +44,35 @@ const switcherPath = currentPath.replace(`/${lang}/`, `/${otherLang}/`);
       }
     </script>
   </head>
-  <body class="min-h-screen flex">
-    <nav class="nav-bar fixed left-0 top-0 h-screen w-16 flex flex-col items-center py-8 border-r border-[var(--color-border)]">
-      <!-- Navigation Links -->
-      <div class="flex-1 flex flex-col gap-12 mt-12 writing-mode-vertical">
-        <a href={`/${lang}/`} class="nav-link nav-link-1 hover:opacity-60 transition-opacity">{t.bio}</a>
-        <a href={`/${lang}/blog`} class="nav-link nav-link-2 hover:opacity-60 transition-opacity">{t.blog}</a>
-        <a href={`/${lang}/contact`} class="nav-link nav-link-3 hover:opacity-60 transition-opacity">{t.contact}</a>
-      </div>
-      <!-- Theme Toggle and Language Switcher -->
-      <div class="flex flex-col gap-6 items-center">
-        <button 
-          id="theme-toggle" 
-          class="nav-control nav-control-1 text-lg hover:opacity-60 transition-opacity"
-          aria-label={t.theme}
-        >
-          <span id="theme-icon">◐</span>
-        </button>
-        <a href={switcherPath} class="nav-control nav-control-2 lang-switcher text-sm hover:opacity-80 transition-opacity uppercase tracking-wider font-bold">
-          {otherLang}
+  <body class="min-h-screen">
+    <nav class="nav-bar">
+      <div class="nav-links">
+        <a href={`/${lang}/`} class="nav-link nav-link-1 hover:opacity-60 transition-opacity">
+          <span class="nav-text">{t.bio}</span>
+        </a>
+        <a href={`/${lang}/blog`} class="nav-link nav-link-2 hover:opacity-60 transition-opacity">
+          <span class="nav-text">{t.blog}</span>
+        </a>
+        <a href={`/${lang}/contact`} class="nav-link nav-link-3 hover:opacity-60 transition-opacity">
+          <span class="nav-text">{t.contact}</span>
         </a>
       </div>
+      <div class="nav-controls">
+        <button id="theme-toggle" class="nav-control nav-control-1 theme-toggle-btn" aria-label={t.theme}>
+          <span id="theme-icon" class="theme-icon-wrapper">
+            <svg id="theme-icon-sun" class="theme-icon theme-icon-sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <circle cx="12" cy="12" r="4" fill="currentColor"/>
+              <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+            </svg>
+            <svg id="theme-icon-moon" class="theme-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+            </svg>
+          </span>
+        </button>
+        <a href={switcherPath} class="nav-control nav-control-2 lang-switcher">{otherLang}</a>
+      </div>
     </nav>
-    <main class="main-content flex-1 ml-16 px-12 py-12 relative">
+    <main class="main-content">
       <!-- Social Links -->
       {!hideSocialLinks && (
       <div class="social-links-container">
@@ -86,31 +92,24 @@ const switcherPath = currentPath.replace(`/${lang}/`, `/${otherLang}/`);
     </main>
 
     <script>
-      // Theme toggle functionality
       const themeToggle = document.getElementById('theme-toggle');
-      const themeIcon = document.getElementById('theme-icon');
       
-      function updateThemeIcon() {
+      function updateThemeIcons() {
         const currentTheme = document.documentElement.getAttribute('data-theme');
-        if (themeIcon) {
-          // Add rotation animation
-          themeIcon.style.transform = 'rotate(360deg) scale(0.8)';
-          
-          setTimeout(() => {
-            themeIcon.textContent = currentTheme === 'dark' ? '☀' : '☾';
-            themeIcon.style.transform = 'rotate(0deg) scale(1)';
-          }, 150);
+        const sunEl = document.getElementById('theme-icon-sun');
+        const moonEl = document.getElementById('theme-icon-moon');
+        if (sunEl && moonEl) {
+          sunEl.style.display = currentTheme === 'dark' ? 'block' : 'none';
+          moonEl.style.display = currentTheme === 'dark' ? 'none' : 'block';
         }
       }
       
-      // Set initial icon
-      updateThemeIcon();
+      updateThemeIcons();
       
       themeToggle?.addEventListener('click', () => {
         const currentTheme = document.documentElement.getAttribute('data-theme');
         const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
         
-        // Add click animation to button
         themeToggle.style.transform = 'scale(0.9)';
         setTimeout(() => {
           themeToggle.style.transform = 'scale(1)';
@@ -118,7 +117,7 @@ const switcherPath = currentPath.replace(`/${lang}/`, `/${otherLang}/`);
         
         document.documentElement.setAttribute('data-theme', newTheme);
         localStorage.setItem('theme', newTheme);
-        updateThemeIcon();
+        updateThemeIcons();
         
         // Dispatch custom event for theme change
         window.dispatchEvent(new CustomEvent('themeChange', { detail: { theme: newTheme } }));
@@ -166,45 +165,186 @@ const switcherPath = currentPath.replace(`/${lang}/`, `/${otherLang}/`);
 <style is:global>
   @import '../styles/global.css';
   
+  /* Mobile-first: bottom tab bar */
   .nav-bar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: auto;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-around;
+    padding: 0.75rem 0.5rem;
+    padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
     background-color: var(--color-nav-bg);
-    border-right-color: var(--color-border);
+    border-top: 1px solid var(--color-border);
+    z-index: 100;
   }
   
+  .nav-links {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    gap: 0;
+  }
+  
+  .nav-controls {
+    position: fixed;
+    top: 1.5rem;
+    right: 1rem;
+    left: auto;
+    display: flex;
+    flex-direction: row;
+    gap: 0.5rem;
+    align-items: center;
+    z-index: 100;
+  }
+  
+  .nav-emoji {
+    display: inline;
+    margin-right: 0.25rem;
+  }
+  
+  /* Desktop: left sidebar (original perfect layout) */
+  @media (min-width: 768px) {
+    .nav-bar {
+      left: 0;
+      right: auto;
+      top: 0;
+      bottom: auto;
+      width: 4rem;
+      height: 100vh;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+      padding: 2rem 0;
+      border-top: none;
+      border-right: 1px solid var(--color-border);
+    }
+    
+    .nav-links {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+      gap: 3rem;
+      margin-top: 3rem;
+      width: 100%;
+    }
+    
+    .nav-link {
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      white-space: nowrap;
+      display: block;
+    }
+    
+    .nav-controls {
+      position: static;
+      flex-direction: column;
+      gap: 1.5rem;
+      align-items: center;
+    }
+    
+    .nav-control {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .nav-emoji {
+      display: none;
+    }
+  }
+  
+  /* Mobile-first: main content */
   .main-content {
+    flex: 1;
+    margin-left: 0;
+    padding: 1.5rem;
+    padding-bottom: 5rem;
+    min-height: 100vh;
     background-color: var(--color-bg);
+    position: relative;
+  }
+  
+  @media (min-width: 768px) {
+    .main-content {
+      margin-left: 4rem;
+      padding: 3rem;
+      padding-bottom: 3rem;
+    }
   }
   
   .nav-link {
-    writing-mode: vertical-rl;
-    text-orientation: mixed;
-    font-size: 0.875rem;
+    display: inline-flex;
+    align-items: center;
+    font-size: 1rem;
     letter-spacing: 0.05em;
     text-transform: lowercase;
     font-weight: 700;
     color: var(--color-accent);
+    text-decoration: none;
+  }
+  
+  @media (min-width: 768px) {
+    .nav-link {
+      font-size: 0.875rem;
+    }
   }
   
   .nav-control {
     /* Base styles for controls */
   }
   
-  #theme-toggle {
+  .theme-toggle-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-text);
     transition: transform 0.2s ease, opacity 0.2s ease;
     cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0.25rem;
   }
   
-  #theme-toggle:hover {
+  .theme-toggle-btn:hover {
     transform: scale(1.1);
+    opacity: 0.8;
   }
   
-  #theme-toggle:active {
+  .theme-toggle-btn:active {
     transform: scale(0.95);
   }
   
-  #theme-icon {
-    display: inline-block;
+  .theme-icon-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+  
+  .theme-icon {
     transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+  
+  #theme-icon-sun,
+  #theme-icon-moon {
+    display: none;
+  }
+  
+  [data-theme="dark"] #theme-icon-sun {
+    display: block;
+  }
+  
+  [data-theme="light"] #theme-icon-moon {
+    display: block;
   }
   
   .lang-switcher {
@@ -288,35 +428,37 @@ const switcherPath = currentPath.replace(`/${lang}/`, `/${otherLang}/`);
     filter: drop-shadow(0 0 8px var(--color-accent));
   }
   
-  /* Animation styles - only applied when flagged */
-  .play-nav-animation .nav-link {
-    opacity: 0;
-    animation: slideFromOutside 0.6s ease-out forwards;
-  }
-  
-  .play-nav-animation .nav-link-1 {
-    animation-delay: 0.1s;
-  }
-  
-  .play-nav-animation .nav-link-2 {
-    animation-delay: 0.25s;
-  }
-  
-  .play-nav-animation .nav-link-3 {
-    animation-delay: 0.4s;
-  }
-  
-  .play-nav-animation .nav-control {
-    opacity: 0;
-    animation: scaleFromInside 0.5s ease-out forwards;
-  }
-  
-  .play-nav-animation .nav-control-1 {
-    animation-delay: 0.55s;
-  }
-  
-  .play-nav-animation .nav-control-2 {
-    animation-delay: 0.7s;
+  /* Desktop-only nav animations (sidebar as it was) */
+  @media (min-width: 768px) {
+    .play-nav-animation .nav-link {
+      opacity: 0;
+      animation: slideFromOutside 0.6s ease-out forwards;
+    }
+    
+    .play-nav-animation .nav-link-1 {
+      animation-delay: 0.1s;
+    }
+    
+    .play-nav-animation .nav-link-2 {
+      animation-delay: 0.25s;
+    }
+    
+    .play-nav-animation .nav-link-3 {
+      animation-delay: 0.4s;
+    }
+    
+    .play-nav-animation .nav-control {
+      opacity: 0;
+      animation: scaleFromInside 0.5s ease-out forwards;
+    }
+    
+    .play-nav-animation .nav-control-1 {
+      animation-delay: 0.55s;
+    }
+    
+    .play-nav-animation .nav-control-2 {
+      animation-delay: 0.7s;
+    }
   }
   
   @keyframes slideFromOutside {

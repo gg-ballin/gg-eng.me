@@ -46,11 +46,12 @@ export default function YearProgress({ lang }: YearProgressProps) {
           {Array.from({ length: totalDays }).map((_, index) => {
             const dayNumber = index + 1;
             const isPassed = dayNumber <= diffDays;
+            const isCurrentDay = dayNumber === diffDays;
             
             return (
               <div
                 key={index}
-                className={`year-dot ${isPassed ? 'year-dot-passed' : ''}`}
+                className={`year-dot ${isPassed ? 'year-dot-passed' : ''} ${isCurrentDay ? 'year-dot-current' : ''}`}
                 style={{
                   animationDelay: `${0.8 + index * 0.003}s`,
                 }}

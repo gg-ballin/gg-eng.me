@@ -1,9 +1,23 @@
 import { defineMiddleware } from 'astro:middleware';
 
+const SPANISH_LOCALES = ['es'];
+
+function preferSpanish(acceptLanguage: string | null): boolean {
+  if (!acceptLanguage) return false;
+  const parts = acceptLanguage.split(',').map((p) => p.trim().split(';')[0].split('-')[0].toLowerCase());
+  return parts.some((code) => SPANISH_LOCALES.includes(code));
+}
+
 export const onRequest = defineMiddleware(async (context, next) => {
-  // Expose Cloudflare runtime env to locals for API routes
   if (context.locals.runtime?.env) {
     context.locals.env = context.locals.runtime.env;
+  }
+
+  const pathname = context.url.pathname;
+  if (pathname === '/' || pathname === '') {
+    const acceptLang = context.request.headers.get('Accept-Language');
+    const locale = preferSpanish(acceptLang) ? 'es' : 'en';
+    return context.redirect(`/${locale}/`);
   }
   
   const response = await next();
