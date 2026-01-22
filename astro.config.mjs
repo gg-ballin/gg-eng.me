@@ -23,6 +23,7 @@ export default defineConfig({
   }),
   integrations: [mdx(), react()],
   vite: {
+    // @ts-ignore - Tailwind Vite plugin type compatibility with Astro's Vite version
     plugins: [tailwindcss()],
     define: {
       // Inject version at build time (accessible via import.meta.env.PUBLIC_APP_VERSION)
