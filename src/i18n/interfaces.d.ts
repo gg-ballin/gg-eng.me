@@ -58,5 +58,6 @@ export interface Translations {
   // Footer
   footer: {
     copyright: string;
+    viewSource: string;
   };
 }

@@ -31,6 +31,8 @@ alwaysApply: true
 - **Version control mandatory rule:**NEVER add or commit anything.
 - **Working directory:**Always assume the current working directory (CWD) is the project root. When suggesting or executing terminal commands (e.g., installations, builds, or development scripts), never prepend them with cd commands or include absolute system paths. Execute all commands directly from the root using relative paths if necessary
 
-
 ## Documentation
 - **Dedicated directory:** Everytime you need to create a new `.md`, `.mdc` or `.mdx` file, please, create it under the `/docs/` directory. If something has changed in the requirements of some of the `.md` files, please check them and update them. 
+
+## Translations
+- **Use translations.ts**: Use this file under `src/i18n/translations.ts` for adding new translations and type them in `src/i18n/interfaces.d.ts`.

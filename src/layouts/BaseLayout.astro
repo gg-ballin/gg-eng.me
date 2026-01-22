@@ -94,7 +94,17 @@ const switcherPath = currentPath.replace(`/${lang}/`, `/${otherLang}/`);
     </main>
     
     <footer class="footer">
-      <p class="footer-copyright">© {getTranslations(lang).footer.copyright}</p>
+      <p class="footer-copyright">© {currentYear} {getTranslations(lang).footer.copyright}</p>
+      <p class="footer-source">
+        <a 
+          href="https://github.com/gg-ballin/gg-eng.me" 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          class="footer-link"
+        >
+          {getTranslations(lang).footer.viewSource} <span aria-hidden="true">→</span>
+        </a>
+      </p>
     </footer>
 
     <script>
@@ -501,5 +511,23 @@ const switcherPath = currentPath.replace(`/${lang}/`, `/${otherLang}/`);
     color: var(--color-text);
     opacity: 0.6;
     margin: 0;
+  }
+  
+  .footer-source {
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+  }
+  
+  .footer-link {
+    color: var(--color-text);
+    opacity: 0.6;
+    text-decoration: none;
+    transition: opacity 0.2s ease;
+  }
+  
+  .footer-link:hover {
+    opacity: 1;
+    text-decoration: underline;
+    text-underline-offset: 2px;
   }
 </style>
