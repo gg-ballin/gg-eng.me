@@ -1,33 +1,19 @@
-import { readFileSync } from 'fs';
-import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
 /**
- * Get the application version from package.json
- * Falls back to environment variable or default if package.json is unavailable
+ * Get the application version
+ * In Cloudflare Workers, we can't read files at runtime, so we use:
+ * 1. Build-time injected environment variable (PUBLIC_APP_VERSION)
+ * 2. Fallback to default
+ * 
+ * The version is injected at build time via astro.config.mjs
  * @returns Semantic version string (e.g., "1.0.0")
  */
 export const getVersion = (): string => {
-  // Priority 1: Environment variable (useful for CI/CD)
+  // Priority 1: Environment variable injected at build time
   if (import.meta.env.PUBLIC_APP_VERSION) {
     return import.meta.env.PUBLIC_APP_VERSION;
   }
   
-  // Priority 2: Read from package.json at build time
-  try {
-    const packagePath = join(__dirname, '../../package.json');
-    const packageJson = JSON.parse(readFileSync(packagePath, 'utf-8'));
-    if (packageJson?.version) {
-      return packageJson.version;
-    }
-  } catch (error) {
-    // Silently fall through to default
-  }
-  
-  // Fallback
+  // Fallback (this should be set via build config)
   return '1.0.0';
 };
 
