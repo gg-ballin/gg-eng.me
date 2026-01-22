@@ -3,7 +3,6 @@ import { getTranslations, type Language } from '../i18n/translations';
 import Reveal from './Reveal';
 import YearProgress from './YearProgress';
 import { marked } from 'marked';
-import createDOMPurify from 'isomorphic-dompurify';
 
 interface Props {
   lang: Language;
@@ -12,27 +11,8 @@ interface Props {
 const { lang } = Astro.props;
 const t = getTranslations(lang).bio;
 
-// Initialize DOMPurify for sanitization
-// In Node.js SSR (build time), we can use jsdom
-// In Cloudflare Workers, isomorphic-dompurify should work without it
-let DOMPurify: ReturnType<typeof createDOMPurify>;
-try {
-  // Try dynamic import of jsdom (only available in Node.js, not Workers)
-  const { JSDOM } = await import('jsdom');
-  const window = new JSDOM('').window;
-  DOMPurify = createDOMPurify(window as any);
-} catch {
-  // Fallback: create minimal window-like object for Workers
-  DOMPurify = createDOMPurify({
-    document: {
-      createElement: () => ({}),
-      createElementNS: () => ({}),
-    },
-  } as any);
-}
-
-const rawHtml = marked.parse(t.description, { breaks: true }) as string;
-const descriptionHtml = DOMPurify.sanitize(rawHtml);
+// Parse markdown - content is from trusted translations, no sanitization needed
+const descriptionHtml = marked.parse(t.description, { breaks: true }) as string;
 
 ---
 
