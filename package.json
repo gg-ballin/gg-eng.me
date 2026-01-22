@@ -5,6 +5,7 @@
   "scripts": {
     "setup": "node scripts/setup.js",
     "clean": "rm -rf node_modules package-lock.json .arch-lock && npm install",
+    "clean:run": "rm -rf node_modules package-lock.json && npm install && npm run dev",
     "clean:full": "npm run clean && npm run setup",
     "dev": "npm run setup && astro dev",
     "prebuild": "node scripts/encode-pdfs.js",
@@ -20,10 +21,7 @@
     "@astrojs/react": "^4.4.2",
     "@tailwindcss/vite": "^4.1.18",
     "astro": "^5.16.9",
-    "dompurify": "^3.2.2",
     "framer-motion": "^12.27.1",
-    "isomorphic-dompurify": "^2.15.0",
-    "jsdom": "^25.0.1",
     "marked": "^14.1.0",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",

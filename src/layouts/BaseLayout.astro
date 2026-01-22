@@ -1,7 +1,6 @@
 ---
 import { getTranslations, type Language } from '@/i18n/translations';
 import { getCurrentYear } from '@/utils/formatDate';
-import { getFormattedVersion } from '@/utils/version';
 
 interface Props {
   title: string;
@@ -14,7 +13,6 @@ const { title = 'Germán Gomez', description = '', lang, hideSocialLinks = false
 const currentPath = Astro.url.pathname;
 const t = getTranslations(lang).nav;
 const currentYear = getCurrentYear();
-const version = getFormattedVersion();
 
 // Language switcher logic
 const otherLang = lang === 'es' ? 'en' : 'es';
@@ -96,8 +94,7 @@ const switcherPath = currentPath.replace(`/${lang}/`, `/${otherLang}/`);
     </main>
     
     <footer class="footer">
-      <p class="footer-copyright">© {currentYear} Germán Gómez. {getTranslations(lang).footer.copyright}</p>
-      <p class="footer-version">{version}</p>
+      <p class="footer-copyright">© {getTranslations(lang).footer.copyright}</p>
     </footer>
 
     <script>
