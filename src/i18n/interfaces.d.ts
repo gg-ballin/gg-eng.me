@@ -77,4 +77,9 @@ export interface Translations {
   desktopPopup: {
     message: string;
   };
+  
+  // Language Switcher Hint
+  languageHint: {
+    message: string;
+  };
 }

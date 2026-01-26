@@ -65,6 +65,9 @@ export const translations: Record<Language, Translations> = {
     desktopPopup: {
       message: 'Noté que estás viendo este website desde tu computadora/laptop. Para una mejor experiencia, ¡abrí esta página desde tu teléfono! 😉',
     },
+    languageHint: {
+      message: 'Elegí el idioma en el que querés recibir el CV! 🤠',
+    },
   },
   en: {
     seo: {
@@ -127,6 +130,9 @@ export const translations: Record<Language, Translations> = {
     },
     desktopPopup: {
       message: 'Hey! Noticed that you are seeing this website from your computer. For a better experience, open this from your phone! 😉',
+    },
+    languageHint: {
+      message: 'Choose the language you want to receive the CV in! 🤠',
     },
   },
 };

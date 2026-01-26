@@ -29,6 +29,33 @@ const t = getTranslations(lang);
     </section>
 
   </div>
+  
+  <!-- Language Switcher Hint Animation -->
+  <div id="language-hint-container" class="language-hint-container" data-lang={lang}>
+    <!-- Desktop: Arrow from bottom left pointing to top right language switcher -->
+    <div class="language-hint-desktop">
+      <div class="language-hint-popup-desktop">
+        <p class="language-hint-message">{t.languageHint.message}</p>
+      </div>
+      <div class="language-hint-arrow-desktop">
+        <svg width="50" height="50" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M78.1,0v6.2c22.4,0,40.5,18.2,40.5,40.6s-18.1,40.6-40.5,40.6H17.9l27.9-28l-4.5-4.5L5.5,90.8l0,0l0,0L41.5,127l4.5-4.5L17.2,93.6h60.9c25.8,0,46.7-21,46.7-46.8S103.9,0,78.1,0z" fill="var(--color-accent)"/>
+        </svg>
+      </div>
+    </div>
+    
+    <!-- Mobile: Arrow pointing from bottom to language switcher -->
+    <div class="language-hint-mobile">
+      <div class="language-hint-arrow-mobile">
+        <svg width="32" height="32" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M78.1,0v6.2c22.4,0,40.5,18.2,40.5,40.6s-18.1,40.6-40.5,40.6H17.9l27.9-28l-4.5-4.5L5.5,90.8l0,0l0,0L41.5,127l4.5-4.5L17.2,93.6h60.9c25.8,0,46.7-21,46.7-46.8S103.9,0,78.1,0z" fill="var(--color-accent)"/>
+        </svg>
+      </div>
+      <div class="language-hint-popup-mobile">
+        <p class="language-hint-message">{t.languageHint.message}</p>
+      </div>
+    </div>
+  </div>
 </BaseLayout>
 
 <style>
@@ -119,4 +146,234 @@ const t = getTranslations(lang);
       padding: 1.5rem;
     }
   }
+  
+  /* Language Switcher Hint Animation */
+  .language-hint-container {
+    position: fixed;
+    z-index: 1001;
+    pointer-events: none;
+    display: block !important;
+  }
+  
+  .language-hint-message {
+    margin: 0;
+    font-size: 0.875rem;
+    line-height: 1.4;
+    color: var(--color-text);
+    font-weight: 500;
+  }
+  
+  /* Desktop Animation - Arrow from bottom left pointing to top right language switcher */
+  .language-hint-desktop {
+    display: none;
+  }
+  
+  @media (min-width: 768px) {
+    .language-hint-desktop {
+      display: block !important;
+      position: fixed;
+      bottom: 2rem;
+      left: calc(4rem + 2rem);
+      width: 400px;
+      height: 400px;
+    }
+    
+    .language-hint-arrow-desktop {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 45px;
+      height: 45px;
+      opacity: 0;
+      animation: arrowRevealDesktop 1s ease-out 1s forwards;
+      overflow: visible;
+      transform: rotate(135deg); /* Rotate to point from bottom-left to top-right */
+    }
+    
+    .language-hint-arrow-desktop svg {
+      width: 100%;
+      height: 100%;
+    }
+    
+    .language-hint-popup-desktop {
+      position: absolute;
+      bottom: 0rem;
+      left: 3.5rem;
+      background-color: var(--color-bg);
+      border: 2px solid var(--color-accent);
+      border-radius: 0.75rem;
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+      padding-top: 1rem;
+      padding-bottom: 1rem;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+      opacity: 0;
+      transform: translateY(10px);
+      animation: popupRevealDesktop 0.6s ease-out 1.5s forwards,
+                 popupShake 3.8s ease-in-out 2.1s infinite;
+      max-width: 220px;
+      z-index: 1;
+    }
+    
+    [data-theme="dark"] .language-hint-popup-desktop {
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 255, 136, 0.3);
+    }
+  }
+  
+  /* Mobile Animation - Arrow at top right pointing to language switcher */
+  .language-hint-mobile {
+    display: block !important;
+    position: fixed;
+    top: 1.5rem;
+    right: 1rem;
+    width: 150px;
+  }
+  
+  @media (min-width: 768px) {
+    .language-hint-mobile {
+      display: none !important;
+    }
+  }
+  
+  .language-hint-arrow-mobile {
+    display: none; /* Arrow removed for mobile */
+  }
+  
+  .language-hint-arrow-mobile svg {
+    width: 100%;
+    height: 100%;
+  }
+  
+  .language-hint-popup-mobile {
+    position: absolute;
+    right: 0;
+    top: 2.5rem;
+    background-color: var(--color-bg);
+    border: 2px solid var(--color-accent);
+    border-radius: 0.75rem;
+    padding: 0.875rem 1rem;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    transform: translateY(-10px);
+      animation: popupRevealMobile 0.6s ease-out 1.5s forwards,
+                 popupShake 2.5s ease-in-out 2.1s infinite;
+    max-width: 150px;
+  }
+  
+  [data-theme="dark"] .language-hint-popup-mobile {
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 255, 136, 0.3);
+  }
+  
+  @keyframes arrowRevealDesktop {
+    from {
+      opacity: 0;
+      transform: scale(0.8);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  
+  @keyframes popupRevealDesktop {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes arrowRevealMobile {
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes popupRevealMobile {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes popupShake {
+    0%, 20%, 100% {
+      transform: translateY(0) translateX(0);
+    }
+    2%, 6%, 10%, 14%, 18% {
+      transform: translateY(0) translateX(-3px);
+    }
+    4%, 8%, 12%, 16% {
+      transform: translateY(0) translateX(3px);
+    }
+  }
 </style>
+
+<script>
+  // Hide language hint after user interacts with language switcher or after timeout
+  (function() {
+    const hintContainer = document.getElementById('language-hint-container');
+    if (!hintContainer) {
+      console.warn('Language hint container not found');
+      return;
+    }
+    
+    console.log('Language hint container found', hintContainer);
+    
+    const langSwitcher = document.querySelector('.lang-switcher');
+    const dismissed = sessionStorage.getItem('language-hint-dismissed');
+    
+    console.log('Language hint dismissed check', { dismissed, langSwitcher: !!langSwitcher });
+    
+    // In dev mode, allow clearing dismissal status via URL parameter
+    if (import.meta.env.DEV && new URLSearchParams(window.location.search).get('clear-hint') === 'true') {
+      sessionStorage.removeItem('language-hint-dismissed');
+      console.log('Language hint dismissal cleared via URL parameter');
+    }
+    
+    // Don't show if already dismissed in this session
+    if (sessionStorage.getItem('language-hint-dismissed') === 'true') {
+      console.log('Language hint already dismissed, hiding');
+      hintContainer.style.display = 'none';
+      return;
+    }
+    
+    console.log('Language hint will be shown');
+    
+    // Hide on language switcher click
+    langSwitcher?.addEventListener('click', () => {
+      console.log('Language switcher clicked, hiding hint');
+      hintContainer.style.opacity = '0';
+      hintContainer.style.transition = 'opacity 0.3s ease';
+      setTimeout(() => {
+        hintContainer.style.display = 'none';
+      }, 300);
+      sessionStorage.setItem('language-hint-dismissed', 'true');
+    });
+    
+    // Auto-hide after 8 seconds
+    setTimeout(() => {
+      if (hintContainer.style.display !== 'none') {
+        console.log('Auto-hiding language hint after 8 seconds');
+        hintContainer.style.opacity = '0';
+        hintContainer.style.transition = 'opacity 0.3s ease';
+        setTimeout(() => {
+          hintContainer.style.display = 'none';
+        }, 300);
+        sessionStorage.setItem('language-hint-dismissed', 'true');
+      }
+    }, 8000);
+  })();
+</script>
