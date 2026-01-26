@@ -62,6 +62,9 @@ export const translations: Record<Language, Translations> = {
       success: '✓ Se ha enviado un correo de confirmación. Por favor revisa tu bandeja de entrada.',
       error: 'Error al suscribirse. Intenta de nuevo.',
     },
+    desktopPopup: {
+      message: '¡Hola! Notamos que estás viendo este sitio desde tu computadora, para una mejor experiencia, ¡ábrelo desde tu teléfono! 😉',
+    },
   },
   en: {
     seo: {
@@ -121,6 +124,9 @@ export const translations: Record<Language, Translations> = {
       submitting: 'Subscribing...',
       success: '✓ A confirmation email has been sent. Please check your inbox.',
       error: 'Error subscribing. Please try again.',
+    },
+    desktopPopup: {
+      message: 'Hey! Noticed that you are seeing this website from your computer, for better experience, open this from your phone! 😉',
     },
   },
 };

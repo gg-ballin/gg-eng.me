@@ -1,6 +1,7 @@
 ---
 import { getTranslations, type Language } from '@/i18n/translations';
 import { getCurrentYear } from '@/utils/formatDate';
+import { useUserAgent } from 'astro-useragent';
 
 interface Props {
   title: string;
@@ -17,6 +18,11 @@ const currentYear = getCurrentYear();
 // Language switcher logic
 const otherLang = lang === 'es' ? 'en' : 'es';
 const switcherPath = currentPath.replace(`/${lang}/`, `/${otherLang}/`);
+
+// Detect if user is on desktop browser (not mobile) using server-side user agent
+const uaString = Astro.request.headers.get('user-agent') ?? '';
+const userAgent = useUserAgent(uaString);
+const isDesktopBrowser = !userAgent.isMobile && !userAgent.isTablet;
 ---
 
 <!doctype html>
@@ -93,6 +99,18 @@ const switcherPath = currentPath.replace(`/${lang}/`, `/${otherLang}/`);
       <slot />
     </main>
     
+    <!-- Desktop Detection Popup -->
+    {isDesktopBrowser && (
+      <div id="desktop-popup" class="desktop-popup" role="dialog" aria-labelledby="desktop-popup-message" aria-hidden="true" data-is-desktop="true">
+        <div class="desktop-popup-content">
+          <p id="desktop-popup-message" class="desktop-popup-message">
+            {getTranslations(lang).desktopPopup.message}
+          </p>
+          <button id="desktop-popup-close" class="desktop-popup-close" aria-label="Close">×</button>
+        </div>
+      </div>
+    )}
+    
     <footer class="footer">
       <p class="footer-copyright">© {currentYear} {getTranslations(lang).footer.copyright}</p>
       <p class="footer-source">
@@ -137,9 +155,6 @@ const switcherPath = currentPath.replace(`/${lang}/`, `/${otherLang}/`);
         
         // Dispatch custom event for theme change
         window.dispatchEvent(new CustomEvent('themeChange', { detail: { theme: newTheme } }));
-        
-        // Retrigger nav animations on theme change
-        retriggerNavAnimations();
       });
       
       // Function to retrigger nav animations
@@ -156,24 +171,89 @@ const switcherPath = currentPath.replace(`/${lang}/`, `/${otherLang}/`);
         }, 10);
       }
       
-      // Listen for theme change events (from other sources if needed)
-      window.addEventListener('themeChange', () => {
-        retriggerNavAnimations();
-      });
+      // Mark nav-controls as animated after first animation completes (prevent re-animation)
+      const navControls = document.querySelectorAll('.nav-control');
+      const markControlsAnimated = () => {
+        navControls.forEach(control => {
+          control.classList.add('nav-control-animated');
+        });
+      };
       
-      // Retrigger animations when language is changed
+      // Mark as animated after max animation delay (0.7s + 0.5s = 1.2s)
+      setTimeout(() => {
+        markControlsAnimated();
+      }, 1200);
+      
+      // Retrigger animations when language is changed (only nav-links, not controls)
       const langSwitcher = document.querySelector('.lang-switcher');
       langSwitcher?.addEventListener('click', () => {
         // Small delay to ensure navigation is about to happen
+        setTimeout(() => {
+          // Use the retrigger function - nav-controls won't re-animate because they have nav-control-animated class
+          retriggerNavAnimations();
+        }, 100);
+      });
+      
+      // Also retrigger on page load if URL changed (language switch via navigation)
+      window.addEventListener('popstate', () => {
         setTimeout(() => {
           retriggerNavAnimations();
         }, 100);
       });
       
-      // Also retrigger on page load if URL changed (language switch)
-      window.addEventListener('popstate', () => {
-        retriggerNavAnimations();
-      });
+      // Desktop detection popup (using server-side detection from astro-useragent)
+      function showDesktopPopup() {
+        const popup = document.getElementById('desktop-popup');
+        const closeBtn = document.getElementById('desktop-popup-close');
+        
+        // Only show if popup exists (server-side detection confirmed it's desktop)
+        if (!popup || !closeBtn) {
+          return;
+        }
+        
+        // Check if popup has data-is-desktop attribute (server-side confirmed desktop)
+        const isDesktop = popup.getAttribute('data-is-desktop') === 'true';
+        if (!isDesktop) {
+          return;
+        }
+        
+        const dismissed = localStorage.getItem('desktop-popup-dismissed');
+        
+        // Don't show if already dismissed
+        if (dismissed === 'true') {
+          return;
+        }
+        
+        // Show popup after a short delay
+        const showTimeout = setTimeout(() => {
+          popup.setAttribute('aria-hidden', 'false');
+          popup.classList.add('desktop-popup-visible');
+        }, 1500);
+        
+        // Close button handler
+        let autoDismissTimeout: ReturnType<typeof setTimeout>;
+        const handleClose = () => {
+          popup.classList.remove('desktop-popup-visible');
+          popup.setAttribute('aria-hidden', 'true');
+          localStorage.setItem('desktop-popup-dismissed', 'true');
+          clearTimeout(showTimeout);
+          if (autoDismissTimeout) {
+            clearTimeout(autoDismissTimeout);
+          }
+        };
+        
+        closeBtn.addEventListener('click', handleClose);
+        
+        // Auto-dismiss after 8 seconds
+        autoDismissTimeout = setTimeout(() => {
+          if (popup.classList.contains('desktop-popup-visible')) {
+            handleClose();
+          }
+        }, 9500);
+      }
+      
+      // Initialize popup when DOM is ready
+      showDesktopPopup();
     </script>
   </body>
 </html>
@@ -463,17 +543,23 @@ const switcherPath = currentPath.replace(`/${lang}/`, `/${otherLang}/`);
       animation-delay: 0.4s;
     }
     
-    .play-nav-animation .nav-control {
+    .play-nav-animation .nav-control:not(.nav-control-animated) {
       opacity: 0;
       animation: scaleFromInside 0.5s ease-out forwards;
     }
     
-    .play-nav-animation .nav-control-1 {
+    .play-nav-animation .nav-control-1:not(.nav-control-animated) {
       animation-delay: 0.55s;
     }
     
-    .play-nav-animation .nav-control-2 {
+    .play-nav-animation .nav-control-2:not(.nav-control-animated) {
       animation-delay: 0.7s;
+    }
+    
+    /* Once animated, keep visible and don't re-animate */
+    .nav-control.nav-control-animated {
+      opacity: 1 !important;
+      animation: none !important;
     }
   }
   
@@ -529,5 +615,94 @@ const switcherPath = currentPath.replace(`/${lang}/`, `/${otherLang}/`);
     opacity: 1;
     text-decoration: underline;
     text-underline-offset: 2px;
+  }
+  
+  /* Desktop Popup */
+  .desktop-popup {
+    position: fixed;
+    bottom: 5rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    max-width: 90%;
+    width: 100%;
+    max-width: 500px;
+    z-index: 1000;
+    opacity: 0;
+    pointer-events: none;
+    display: block;
+    transition: opacity 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55), 
+                transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+  
+  .desktop-popup[style*="display: none"] {
+    display: none !important;
+  }
+  
+  .desktop-popup-visible {
+    opacity: 1;
+    pointer-events: all;
+    transform: translateX(-50%) translateY(0);
+  }
+  
+  .desktop-popup-content {
+    background-color: var(--color-bg);
+    border: 2px solid var(--color-accent);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  [data-theme="dark"] .desktop-popup-content {
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 255, 136, 0.3);
+  }
+  
+  .desktop-popup-message {
+    flex: 1;
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: var(--color-text);
+    font-weight: 500;
+  }
+  
+  .desktop-popup-close {
+    background: none;
+    border: none;
+    color: var(--color-text);
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    opacity: 0.6;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .desktop-popup-close:hover {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+  
+  .desktop-popup-close:active {
+    transform: scale(0.95);
+  }
+  
+  @media (min-width: 768px) {
+    .desktop-popup {
+      bottom: 2rem;
+      left: calc(4rem + 2rem);
+      transform: translateX(0) translateY(100px);
+    }
+    
+    .desktop-popup-visible {
+      transform: translateX(0) translateY(0);
+    }
   }
 </style>
