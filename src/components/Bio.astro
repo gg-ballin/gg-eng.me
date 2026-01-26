@@ -26,9 +26,16 @@ const descriptionHtml = marked.parse(t.description, { breaks: true }) as string;
     </Reveal>
     
     <Reveal client:load delay={0.2}>
-      <p class="text-2xl md:text-3xl mb-12">
-        <span class="bio-accent">{t.role.split(' ')[0]}</span> <span class="opacity-80">{t.role.split(' ').slice(1).join(' ')}</span>
-      </p>
+      <p class="text-2xl md:text-3xl mb-12" set:html={(() => {
+        const words = t.role.split(' ');
+        const parts: string[] = [];
+        words.forEach((word, index) => {
+          if (index > 0) parts.push(' ');
+          const isMobile = word === 'Mobile';
+          parts.push(`<span class="${isMobile ? 'bio-accent' : 'opacity-80'}">${word}</span>`);
+        });
+        return parts.join('');
+      })()} />
     </Reveal>
     
     <Reveal client:load delay={0.3}>
@@ -38,7 +45,7 @@ const descriptionHtml = marked.parse(t.description, { breaks: true }) as string;
     </Reveal>
      
     <div class="description-reveal">
-      <p class="text-lg md:text-xl max-w-2xl mb-12 leading-relaxed opacity-90" set:html={descriptionHtml} />
+      <div class="text-lg md:text-xl max-w-2xl mb-12 leading-relaxed opacity-90" set:html={descriptionHtml} />
     </div>
     
   </div>
@@ -104,6 +111,14 @@ const descriptionHtml = marked.parse(t.description, { breaks: true }) as string;
     overflow: hidden;
     width: fit-content;
     animation: descriptionReveal 0.8s ease-out 0.4s both;
+  }
+  
+  .description-reveal p {
+    margin-bottom: 1.5rem;
+  }
+  
+  .description-reveal p:last-child {
+    margin-bottom: 0;
   }
   
   @keyframes descriptionReveal {

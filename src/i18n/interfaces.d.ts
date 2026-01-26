@@ -72,4 +72,9 @@ export interface Translations {
     success: string;
     error: string;
   };
+  
+  // Desktop Popup
+  desktopPopup: {
+    message: string;
+  };
 }
