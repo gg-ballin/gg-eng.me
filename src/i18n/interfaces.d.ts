@@ -60,4 +60,16 @@ export interface Translations {
     copyright: string;
     viewSource: string;
   };
+  
+  // Newsletter
+  newsletter: {
+    title: string;
+    description: string;
+    emailLabel: string;
+    emailPlaceholder: string;
+    submit: string;
+    submitting: string;
+    success: string;
+    error: string;
+  };
 }

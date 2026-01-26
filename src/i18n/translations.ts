@@ -52,6 +52,16 @@ export const translations: Record<Language, Translations> = {
       copyright: 'Germán Gómez. Todos los derechos reservados.',
       viewSource: 'Ver código fuente de este sitio web',
     },
+    newsletter: {
+      title: 'Newsletter',
+      description: 'Suscríbete para recibir actualizaciones sobre nuevos posts y noticias.',
+      emailLabel: 'Email',
+      emailPlaceholder: 'tu@email.com',
+      submit: 'Suscribirse',
+      submitting: 'Suscribiendo...',
+      success: '✓ Se ha enviado un correo de confirmación. Por favor revisa tu bandeja de entrada.',
+      error: 'Error al suscribirse. Intenta de nuevo.',
+    },
   },
   en: {
     seo: {
@@ -101,6 +111,16 @@ export const translations: Record<Language, Translations> = {
     footer: {
       copyright: 'Germán Gómez. All rights reserved.',
       viewSource: 'View source code of this website',
+    },
+    newsletter: {
+      title: 'Newsletter',
+      description: 'Subscribe to receive updates about new posts and news.',
+      emailLabel: 'Email',
+      emailPlaceholder: 'your@email.com',
+      submit: 'Subscribe',
+      submitting: 'Subscribing...',
+      success: '✓ A confirmation email has been sent. Please check your inbox.',
+      error: 'Error subscribing. Please try again.',
     },
   },
 };

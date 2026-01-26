@@ -39,6 +39,38 @@ export const POST: APIRoute = async ({ request, locals }) => {
       );
     }
     
+    // Validate Cloudflare Turnstile token (only if configured)
+    const turnstileSecretKey = (locals.env?.TURNSTILE_SECRET_KEY as string | undefined)
+      || import.meta.env.TURNSTILE_SECRET_KEY;
+    
+    // Only validate if both secret key and token are provided
+    // Allow form submission without CAPTCHA if Turnstile is not configured
+    if (turnstileSecretKey && data.turnstileToken && data.turnstileToken !== 'disabled') {
+      const turnstileResponse = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          secret: turnstileSecretKey,
+          response: data.turnstileToken,
+        }),
+      });
+      
+      const turnstileResult = await turnstileResponse.json();
+      
+      if (!turnstileResult.success) {
+        return new Response(
+          JSON.stringify({
+            success: false,
+            error: 'CAPTCHA verification failed. Please try again.',
+          }),
+          {
+            status: 400,
+            headers: { 'Content-Type': 'application/json' },
+          }
+        );
+      }
+    }
+    
     // Get Resend API key from environment
     // In Cloudflare, use runtime env; in dev, use import.meta.env
     const resendApiKey = (locals.env?.RESEND_API_KEY as string | undefined) 
@@ -74,6 +106,12 @@ export const POST: APIRoute = async ({ request, locals }) => {
       );
     }
     
+    // Send notification email to owner (non-blocking)
+    // Don't fail the request if notification fails
+    emailService.sendCVRequestNotification(data).catch((error) => {
+      console.error('Failed to send notification email:', error);
+    });
+    
     return new Response(
       JSON.stringify({ success: true }),
       {
@@ -83,10 +121,17 @@ export const POST: APIRoute = async ({ request, locals }) => {
     );
     
   } catch (error) {
+    // Log error for debugging
+    console.error('CV request API error:', error);
+    
+    const errorMessage = error instanceof Error 
+      ? `Internal server error: ${error.message}` 
+      : 'Internal server error';
+    
     return new Response(
       JSON.stringify({
         success: false,
-        error: 'Internal server error',
+        error: errorMessage,
       }),
       {
         status: 500,

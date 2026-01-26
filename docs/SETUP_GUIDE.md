@@ -9,6 +9,9 @@ Create a `.env` file in the project root:
 ```bash
 RESEND_API_KEY=re_your_api_key_here
 SENDER_EMAIL=noreply@yourdomain.com
+TURNSTILE_SITE_KEY=your_turnstile_site_key
+TURNSTILE_SECRET_KEY=your_turnstile_secret_key
+NEWSLETTER_ENABLED=false  # Set to 'true' to enable newsletter feature
 ```
 
 ### 2. Get Resend API Key
@@ -20,11 +23,84 @@ SENDER_EMAIL=noreply@yourdomain.com
    - Add your domain (e.g., `gg-eng.me`)
    - Add DNS records as shown (TXT, MX, CNAME)
    - Wait for verification (usually 5-10 minutes)
+   - **Important**: After verification, go to your domain settings and set **TLS** to **"Opportunistic"** to fix STARTTLS errors
+     - This allows both encrypted and unencrypted email transmission
+     - Prevents "Remote MTA does not support STARTTLS" bounce errors
 4. Create API key:
    - Go to **API Keys** → **Create API Key**
    - Name it (e.g., "Production")
    - Set permissions to "Sending access"
    - Copy the key and add to `.env`
+
+### 2.5. Setup Cloudflare Turnstile CAPTCHA
+
+1. Go to [Cloudflare Dashboard](https://dash.cloudflare.com)
+2. Navigate to **Turnstile** → **Add Site**
+3. Configure:
+   - **Site Name**: Your site name (e.g., "gg-eng.me")
+   - **Domain**: Your domain (e.g., `gg-eng.me`)
+   - **Widget Mode**: Managed (recommended) or Invisible
+4. Copy the **Site Key** and **Secret Key**
+5. Add both to your `.env` file:
+   - `TURNSTILE_SITE_KEY` (public, used in frontend)
+   - `TURNSTILE_SECRET_KEY` (private, used in backend)
+   - `PUBLIC_TURNSTILE_SITE_KEY` (same as TURNSTILE_SITE_KEY for Astro's public env vars)
+
+### 2.6. Setup Cloudflare KV (for Newsletter - Optional)
+
+**Note**: Newsletter feature is currently disabled by default. Skip this if you don't need it.
+
+1. Go to [Cloudflare Dashboard](https://dash.cloudflare.com)
+2. Navigate to **Workers & Pages** → **KV**
+3. Click **Create a namespace**
+4. Name it (e.g., "NEWSLETTER_KV")
+5. Copy the namespace ID
+6. In your Cloudflare Pages project settings:
+   - Go to **Settings** → **Functions** → **KV Namespace Bindings**
+   - Add binding:
+     - **Variable name**: `NEWSLETTER_KV`
+     - **KV namespace**: Select your namespace
+7. Alternatively, configure in `wrangler.toml` (if using Wrangler CLI):
+   ```toml
+   [[kv_namespaces]]
+   binding = "NEWSLETTER_KV"
+   id = "your_namespace_id"
+   ```
+
+### 2.5. Setup Cloudflare Turnstile CAPTCHA
+
+1. Go to [Cloudflare Dashboard](https://dash.cloudflare.com)
+2. Navigate to **Turnstile** → **Add Site**
+3. Configure:
+   - **Site Name**: Your site name (e.g., "gg-eng.me")
+   - **Domain**: Your domain (e.g., `gg-eng.me`)
+   - **Widget Mode**: Managed (recommended) or Invisible
+4. Copy the **Site Key** and **Secret Key**
+5. Add both to your `.env` file:
+   - `TURNSTILE_SITE_KEY` (public, used in frontend)
+   - `TURNSTILE_SECRET_KEY` (private, used in backend)
+   - `PUBLIC_TURNSTILE_SITE_KEY` (same as TURNSTILE_SITE_KEY for Astro's public env vars)
+
+### 2.6. Setup Cloudflare KV (for Newsletter - Optional)
+
+**Note**: Newsletter feature is currently disabled by default. Skip this if you don't need it.
+
+1. Go to [Cloudflare Dashboard](https://dash.cloudflare.com)
+2. Navigate to **Workers & Pages** → **KV**
+3. Click **Create a namespace**
+4. Name it (e.g., "NEWSLETTER_KV")
+5. Copy the namespace ID
+6. In your Cloudflare Pages project settings:
+   - Go to **Settings** → **Functions** → **KV Namespace Bindings**
+   - Add binding:
+     - **Variable name**: `NEWSLETTER_KV`
+     - **KV namespace**: Select your namespace
+7. Alternatively, configure in `wrangler.toml` (if using Wrangler CLI):
+   ```toml
+   [[kv_namespaces]]
+   binding = "NEWSLETTER_KV"
+   id = "your_namespace_id"
+   ```
 
 ### 3. Update Email Configuration
 

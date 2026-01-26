@@ -11,6 +11,8 @@ export default defineConfig({
   output: "server",
   adapter: cloudflare({
     imageService: "cloudflare",
+    // KV namespace binding (configure in wrangler.toml or Cloudflare dashboard)
+    // The namespace will be available as locals.runtime.env.NEWSLETTER_KV
   }),
   integrations: [mdx(), react()],
   vite: {

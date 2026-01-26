@@ -21,7 +21,7 @@ A modern, bilingual portfolio site built with Astro, featuring a secure CV reque
 - **Email**: [Resend](https://resend.com) for automated CV delivery
 - **Validation**: [Zod](https://zod.dev) for form validation
 - **Typography**: [Space Grotesk](https://fonts.google.com/specimen/Space+Grotesk)
-- **Package Manager**: Bun
+- **Package Manager**: NPM
 
 ## Project Structure
 
@@ -80,7 +80,7 @@ A modern, bilingual portfolio site built with Astro, featuring a secure CV reque
 ### 1. Install Dependencies
 
 ```bash
-bun install
+npm install
 ```
 
 ### 2. Configure Environment Variables
@@ -113,7 +113,7 @@ Place your CV PDF files in the private directory:
 ## Development
 
 ```bash
-bun run dev
+npm run dev
 ```
 
 Visit `http://localhost:4321`
@@ -121,13 +121,13 @@ Visit `http://localhost:4321`
 ## Build
 
 ```bash
-bun run build
+npm run build
 ```
 
 ## Preview Production Build
 
 ```bash
-bun run preview
+npm run preview
 ```
 
 ## i18n Routes
@@ -192,7 +192,7 @@ Your content here...
 ### Netlify
 
 1. Connect your repository
-2. Build command: `bun run build`
+2. Build command: `npm run build`
 3. Publish directory: `dist`
 4. Add environment variables in site settings
 

@@ -1,0 +1,199 @@
+---
+import { getTranslations, type Language } from '@/i18n/translations';
+
+interface Props {
+  lang: Language;
+}
+
+const { lang } = Astro.props;
+const t = getTranslations(lang).newsletter;
+
+// Feature flag: Controlled via environment variable
+// Set NEWSLETTER_ENABLED='true' in .env or Cloudflare Pages to enable
+const NEWSLETTER_ENABLED = import.meta.env.NEWSLETTER_ENABLED === 'true';
+
+// Early return if feature is disabled (cleaner than conditional rendering)
+if (!NEWSLETTER_ENABLED) {
+  return; // Component renders nothing when disabled
+}
+---
+
+<form id="newsletter-form" class="newsletter-form">
+    <div class="form-group">
+      <label for="newsletter-email" class="form-label">{t.emailLabel} *</label>
+      <input
+        type="email"
+        id="newsletter-email"
+        name="email"
+        placeholder={t.emailPlaceholder}
+        required
+        class="form-input"
+      />
+      <span class="error-message" id="newsletter-email-error"></span>
+    </div>
+
+    <button type="submit" class="submit-btn" id="newsletter-submit-btn">
+      <span id="newsletter-submit-text">{t.submit}</span>
+    </button>
+
+    <div class="form-message" id="newsletter-message"></div>
+  </form>
+
+  <script define:vars={{ t, lang }}>
+    const form = document.getElementById('newsletter-form');
+    const submitBtn = document.getElementById('newsletter-submit-btn');
+    const submitText = document.getElementById('newsletter-submit-text');
+    const formMessage = document.getElementById('newsletter-message');
+
+    form?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      // Clear previous errors
+      document.querySelectorAll('#newsletter-form .error-message').forEach(el => el.textContent = '');
+      formMessage.textContent = '';
+      formMessage.className = 'form-message';
+      
+      // Disable submit button
+      submitBtn.disabled = true;
+      submitText.textContent = t.submitting;
+      
+      // Get form data
+      const formData = new FormData(form);
+      const data = {
+        email: formData.get('email'),
+        language: lang,
+      };
+      
+      try {
+        const response = await fetch('/api/newsletter/subscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          formMessage.textContent = t.success;
+          formMessage.className = 'form-message success';
+          form.reset();
+        } else {
+          // Handle validation errors
+          if (result.errors) {
+            Object.entries(result.errors).forEach(([field, messages]) => {
+              const errorEl = document.getElementById(`newsletter-${field}-error`);
+              if (errorEl && Array.isArray(messages)) {
+                errorEl.textContent = messages[0];
+              }
+            });
+          }
+          formMessage.textContent = result.error || t.error;
+          formMessage.className = 'form-message error';
+        }
+      } catch (error) {
+        formMessage.textContent = t.error;
+        formMessage.className = 'form-message error';
+      } finally {
+        submitBtn.disabled = false;
+        submitText.textContent = t.submit;
+      }
+    });
+  </script>
+
+<style>
+  .newsletter-form {
+    max-width: 600px;
+    border: 3px solid var(--color-text);
+    padding: 2rem;
+    background-color: var(--timeline-item-bg);
+  }
+
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+
+  .form-label {
+    display: block;
+    font-family: 'Courier New', monospace;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+  }
+
+  .form-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-family: var(--font-family-sans);
+    font-size: 1rem;
+    border: 2px solid var(--color-text);
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    transition: all 0.2s ease;
+  }
+
+  .form-input:focus {
+    outline: none;
+    transform: translate(2px, -2px);
+    box-shadow: -2px 2px 0 var(--color-text);
+  }
+
+  .error-message {
+    display: block;
+    font-size: 0.875rem;
+    color: #dc2626;
+    margin-top: 0.25rem;
+    min-height: 1.25rem;
+  }
+
+  .submit-btn {
+    width: 100%;
+    padding: 1rem 2rem;
+    font-family: 'Courier New', monospace;
+    font-size: 1rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background-color: var(--color-accent);
+    color: var(--color-bg);
+    border: 3px solid var(--color-text);
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .submit-btn:hover:not(:disabled) {
+    transform: translate(4px, -4px);
+    box-shadow: -4px 4px 0 var(--color-text);
+  }
+
+  .submit-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .form-message {
+    margin-top: 1rem;
+    padding: 1rem;
+    font-family: 'Courier New', monospace;
+    font-size: 0.875rem;
+    text-align: center;
+    border: 2px solid transparent;
+  }
+
+  .form-message.success {
+    border-color: #16a34a;
+    background-color: #dcfce7;
+    color: #15803d;
+  }
+
+  .form-message.error {
+    border-color: #dc2626;
+    background-color: #fee2e2;
+    color: #991b1b;
+  }
+
+  .form-message:empty {
+    display: none;
+  }
+</style>
