@@ -21,7 +21,7 @@ const descriptionHtml = marked.parse(t.description, { breaks: true }) as string;
   
   <div class="relative z-10 mt-12">
     <Reveal client:load>
-      <h2 class="text-6xl md:text-6xl font-bold mb-8 leading-tight" style="font-family: var(--font-family-sans);">{t.name}<span class="bio-accent">.</span>
+      <h2 class="bio-title font-bold mb-8 leading-tight" style="font-family: var(--font-family-sans);">{t.name}<span class="bio-accent">.</span>
       </h2>
     </Reveal>
     
@@ -39,7 +39,7 @@ const descriptionHtml = marked.parse(t.description, { breaks: true }) as string;
     </Reveal>
     
     <Reveal client:load delay={0.3}>
-      <p class="text-base md:text-lg opacity-70">
+      <p class="text-base md:text-lg opacity-70 mb-8 md:mb-12">
         {t.location} 🇦🇷
       </p>
     </Reveal>
@@ -57,7 +57,7 @@ const descriptionHtml = marked.parse(t.description, { breaks: true }) as string;
 
 <style>
   .bio-accent {
-    color: var(--color-accent);
+    color: var(--color-accent) !important;
   }
   
   .bio-cta {
@@ -113,12 +113,32 @@ const descriptionHtml = marked.parse(t.description, { breaks: true }) as string;
     animation: descriptionReveal 0.8s ease-out 0.4s both;
   }
   
+  .bio-title {
+    font-size: 2.5rem;
+  }
+  
+  @media (min-width: 768px) {
+    .bio-title {
+      font-size: 3.75rem;
+    }
+  }
+  
   .description-reveal p {
     margin-bottom: 1.5rem;
   }
   
   .description-reveal p:last-child {
     margin-bottom: 0;
+  }
+  
+  @media (max-width: 767px) {
+    .description-reveal p {
+      margin-bottom: 1.5rem;
+    }
+    
+    .description-reveal p:last-child {
+      margin-bottom: 0;
+    }
   }
   
   @keyframes descriptionReveal {
@@ -134,6 +154,11 @@ const descriptionHtml = marked.parse(t.description, { breaks: true }) as string;
 </style>
 
 <style is:global>
+  /* Bio accent color for Mobile word */
+  .bio-accent {
+    color: var(--color-accent) !important;
+  }
+  
   /* Inline code styling for markdown - Slack-like with accent color */
   p code,
   code {
