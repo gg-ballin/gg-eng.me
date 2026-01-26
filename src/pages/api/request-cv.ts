@@ -108,7 +108,12 @@ export const POST: APIRoute = async ({ request, locals }) => {
     
     // Send notification email to owner (non-blocking)
     // Don't fail the request if notification fails
-    emailService.sendCVRequestNotification(data)
+    console.log('Attempting to send notification email...', {
+      requesterEmail: data.email,
+      timestamp: new Date().toISOString(),
+    });
+    
+    const notificationPromise = emailService.sendCVRequestNotification(data)
       .then((result) => {
         if (!result.success) {
           // Log error with more context for Cloudflare Workers
@@ -135,6 +140,13 @@ export const POST: APIRoute = async ({ request, locals }) => {
           timestamp: new Date().toISOString(),
         });
       });
+    
+    // Ensure the promise completes in Cloudflare Workers
+    // Use waitUntil to prevent the execution context from terminating early
+    // In Astro with Cloudflare adapter, ctx is on locals.runtime.ctx
+    if (locals.runtime?.ctx?.waitUntil) {
+      locals.runtime.ctx.waitUntil(notificationPromise);
+    }
     
     return new Response(
       JSON.stringify({ success: true }),
