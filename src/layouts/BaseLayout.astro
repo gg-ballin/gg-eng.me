@@ -21,8 +21,28 @@ const switcherPath = currentPath.replace(`/${lang}/`, `/${otherLang}/`);
 
 // Detect if user is on desktop browser (not mobile) using server-side user agent
 const uaString = Astro.request.headers.get('user-agent') ?? '';
-const userAgent = useUserAgent(uaString);
-const isDesktopBrowser = !userAgent.isMobile && !userAgent.isTablet;
+let isDesktopBrowser = false;
+
+// In dev mode, always show popup for testing (unless explicitly disabled)
+if (import.meta.env.DEV) {
+  isDesktopBrowser = true;
+} else if (uaString) {
+  // In production, use actual user-agent detection
+  const userAgent = useUserAgent(uaString);
+  isDesktopBrowser = !userAgent.isMobile && !userAgent.isTablet;
+} else {
+  // Fallback: if no user-agent in production, assume desktop (safer default)
+  isDesktopBrowser = true;
+}
+
+// Debug log (only in dev)
+if (import.meta.env.DEV) {
+  console.log('[Server] Desktop detection:', { 
+    isDesktopBrowser, 
+    uaString: uaString.substring(0, 50) + '...',
+    env: import.meta.env.DEV ? 'dev' : 'prod'
+  });
+}
 ---
 
 <!doctype html>
@@ -100,16 +120,14 @@ const isDesktopBrowser = !userAgent.isMobile && !userAgent.isTablet;
     </main>
     
     <!-- Desktop Detection Popup -->
-    {isDesktopBrowser && (
-      <div id="desktop-popup" class="desktop-popup" role="dialog" aria-labelledby="desktop-popup-message" aria-hidden="true" data-is-desktop="true">
-        <div class="desktop-popup-content">
-          <p id="desktop-popup-message" class="desktop-popup-message">
-            {getTranslations(lang).desktopPopup.message}
-          </p>
-          <button id="desktop-popup-close" class="desktop-popup-close" aria-label="Close">×</button>
-        </div>
+    <div id="desktop-popup" class="desktop-popup" role="dialog" aria-labelledby="desktop-popup-message" aria-hidden="true" data-is-desktop={isDesktopBrowser ? 'true' : 'false'} style={!isDesktopBrowser ? 'display: none;' : ''}>
+      <div class="desktop-popup-content">
+        <p id="desktop-popup-message" class="desktop-popup-message">
+          {getTranslations(lang).desktopPopup.message}
+        </p>
+        <button id="desktop-popup-close" class="desktop-popup-close" aria-label="Close">×</button>
       </div>
-    )}
+    </div>
     
     <footer class="footer">
       <p class="footer-copyright">© {currentYear} {getTranslations(lang).footer.copyright}</p>
@@ -222,54 +240,88 @@ const isDesktopBrowser = !userAgent.isMobile && !userAgent.isTablet;
         const popup = document.getElementById('desktop-popup');
         const closeBtn = document.getElementById('desktop-popup-close');
         
-        // Only show if popup exists (server-side detection confirmed it's desktop)
+        console.log('showDesktopPopup called', { 
+          popup: !!popup, 
+          closeBtn: !!closeBtn,
+          popupDisplay: popup ? window.getComputedStyle(popup).display : 'N/A'
+        });
+        
+        // Only show if popup exists
         if (!popup || !closeBtn) {
+          console.error('Popup elements not found in DOM');
           return;
         }
         
         // Check if popup has data-is-desktop attribute (server-side confirmed desktop)
         const isDesktop = popup.getAttribute('data-is-desktop') === 'true';
+        console.log('Desktop check', { 
+          isDesktop, 
+          dataAttr: popup.getAttribute('data-is-desktop'),
+          inlineStyle: popup.getAttribute('style')
+        });
+        
         if (!isDesktop) {
+          console.log('Not desktop, skipping popup');
           return;
+        }
+        
+        // Remove inline display:none if present
+        if (popup.style.display === 'none') {
+          popup.style.display = '';
         }
         
         const dismissed = localStorage.getItem('desktop-popup-dismissed');
+        console.log('Dismissed check', { dismissed });
+        
+        // In dev mode, allow clearing dismissal status via URL parameter
+        if (import.meta.env.DEV && new URLSearchParams(window.location.search).get('clear-popup') === 'true') {
+          localStorage.removeItem('desktop-popup-dismissed');
+          console.log('Popup dismissal cleared via URL parameter');
+        }
         
         // Don't show if already dismissed
-        if (dismissed === 'true') {
+        if (localStorage.getItem('desktop-popup-dismissed') === 'true') {
+          console.log('Popup already dismissed');
           return;
         }
         
+        console.log('Showing popup in 1.5 seconds...');
+        
         // Show popup after a short delay
         const showTimeout = setTimeout(() => {
+          console.log('Showing popup now');
+          console.log('Popup before:', {
+            hasVisibleClass: popup.classList.contains('desktop-popup-visible'),
+            opacity: window.getComputedStyle(popup).opacity,
+            display: window.getComputedStyle(popup).display
+          });
           popup.setAttribute('aria-hidden', 'false');
           popup.classList.add('desktop-popup-visible');
+          console.log('Popup after:', {
+            hasVisibleClass: popup.classList.contains('desktop-popup-visible'),
+            opacity: window.getComputedStyle(popup).opacity,
+            display: window.getComputedStyle(popup).display
+          });
         }, 1500);
         
         // Close button handler
-        let autoDismissTimeout: ReturnType<typeof setTimeout>;
         const handleClose = () => {
+          console.log('Closing popup');
           popup.classList.remove('desktop-popup-visible');
           popup.setAttribute('aria-hidden', 'true');
           localStorage.setItem('desktop-popup-dismissed', 'true');
           clearTimeout(showTimeout);
-          if (autoDismissTimeout) {
-            clearTimeout(autoDismissTimeout);
-          }
         };
         
         closeBtn.addEventListener('click', handleClose);
-        
-        // Auto-dismiss after 8 seconds
-        autoDismissTimeout = setTimeout(() => {
-          if (popup.classList.contains('desktop-popup-visible')) {
-            handleClose();
-          }
-        }, 9500);
       }
       
       // Initialize popup when DOM is ready
-      showDesktopPopup();
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', showDesktopPopup);
+      } else {
+        showDesktopPopup();
+      }
     </script>
   </body>
 </html>
@@ -652,9 +704,10 @@ const isDesktopBrowser = !userAgent.isMobile && !userAgent.isTablet;
     z-index: 1000;
     opacity: 0;
     pointer-events: none;
-    display: block;
+    display: block !important;
     transition: opacity 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55), 
                 transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    visibility: hidden;
   }
   
   .desktop-popup[style*="display: none"] {
@@ -662,9 +715,10 @@ const isDesktopBrowser = !userAgent.isMobile && !userAgent.isTablet;
   }
   
   .desktop-popup-visible {
-    opacity: 1;
+    opacity: 1 !important;
     pointer-events: all;
     transform: translateX(-50%) translateY(0);
+    visibility: visible !important;
   }
   
   .desktop-popup-content {

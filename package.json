@@ -7,6 +7,7 @@
     "clean": "rm -rf node_modules package-lock.json .arch-lock && npm install",
     "clean:run": "rm -rf node_modules package-lock.json && npm install && npm run dev",
     "clean:full": "npm run clean && npm run setup",
+    "cache:clear": "rm -rf .astro dist node_modules/.cache",
     "dev": "npm run setup && astro dev",
     "prebuild": "node scripts/encode-pdfs.js",
     "build": "astro build",
