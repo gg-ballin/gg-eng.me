@@ -317,11 +317,41 @@ if (import.meta.env.DEV) {
       }
       
       // Initialize popup when DOM is ready
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', showDesktopPopup);
-      } else {
-        showDesktopPopup();
+      function initPopup() {
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', showDesktopPopup);
+        } else {
+          showDesktopPopup();
+        }
       }
+      
+      // Initialize on page load
+      initPopup();
+      
+      // Re-initialize on route changes (Astro view transitions or navigation)
+      // Listen for navigation events to show popup on new pages if not dismissed
+      let popupInitialized = false;
+      const observer = new MutationObserver(() => {
+        const popup = document.getElementById('desktop-popup');
+        if (popup && !popupInitialized) {
+          const dismissed = localStorage.getItem('desktop-popup-dismissed');
+          if (dismissed !== 'true') {
+            popupInitialized = true;
+            showDesktopPopup();
+          }
+        }
+      });
+      
+      // Observe body for changes (route navigation)
+      observer.observe(document.body, { childList: true, subtree: true });
+      
+      // Also listen for Astro navigation events
+      document.addEventListener('astro:page-load', () => {
+        popupInitialized = false;
+        setTimeout(() => {
+          showDesktopPopup();
+        }, 100);
+      });
     </script>
   </body>
 </html>
@@ -696,11 +726,11 @@ if (import.meta.env.DEV) {
   .desktop-popup {
     position: fixed;
     bottom: 5rem;
-    left: 50%;
-    transform: translateX(-50%) translateY(100px);
+    right: 1rem;
+    transform: translateY(100px);
     max-width: 90%;
     width: 100%;
-    max-width: 500px;
+    max-width: 400px;
     z-index: 1000;
     opacity: 0;
     pointer-events: none;
@@ -717,7 +747,7 @@ if (import.meta.env.DEV) {
   .desktop-popup-visible {
     opacity: 1 !important;
     pointer-events: all;
-    transform: translateX(-50%) translateY(0);
+    transform: translateY(0);
     visibility: visible !important;
   }
   
@@ -774,12 +804,13 @@ if (import.meta.env.DEV) {
   @media (min-width: 768px) {
     .desktop-popup {
       bottom: 2rem;
-      left: calc(4rem + 2rem);
-      transform: translateX(0) translateY(100px);
+      right: 2rem;
+      transform: translateY(100px);
+      max-width: 400px;
     }
     
     .desktop-popup-visible {
-      transform: translateX(0) translateY(0);
+      transform: translateY(0);
     }
   }
 </style>

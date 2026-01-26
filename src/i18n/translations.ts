@@ -63,7 +63,7 @@ export const translations: Record<Language, Translations> = {
       error: 'Error al suscribirse. Intenta de nuevo.',
     },
     desktopPopup: {
-      message: '¡Hola! Notamos que estás viendo este sitio desde tu computadora, para una mejor experiencia, ¡ábrelo desde tu teléfono! 😉',
+      message: 'Noté que estás viendo este website desde tu computadora/laptop. Para una mejor experiencia, ¡abrí esta página desde tu teléfono! 😉',
     },
   },
   en: {
@@ -126,7 +126,7 @@ export const translations: Record<Language, Translations> = {
       error: 'Error subscribing. Please try again.',
     },
     desktopPopup: {
-      message: 'Hey! Noticed that you are seeing this website from your computer, for better experience, open this from your phone! 😉',
+      message: 'Hey! Noticed that you are seeing this website from your computer. For a better experience, open this from your phone! 😉',
     },
   },
 };
