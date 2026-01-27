@@ -8,7 +8,6 @@ import Reveal from '@/components/Reveal';
 import { getTranslations, type Language } from '@/i18n/translations';
 import { getExperienceEntries, getSkillsData, getCategoryDisplayName } from '@/lib/experience-data';
 import type { ExperienceTechCategory } from '@/lib/experience/technologies';
-import * as Icon from '@astropub/icons';
 
 const { lang } = Astro.params as { lang: Language };
 
@@ -81,7 +80,10 @@ const categoriesWithSkills = (Object.keys(skillsData.hardSkillsByCategory) as Ex
     <button id="skills-modal-toggle" class="skills-toggle-btn" aria-label="View Skills" aria-expanded="false">
       <span class="skills-toggle-text">Skills</span>
       <span class="skills-toggle-animated-icon">
-        <Icon.DoubleArrowUp width={20} height={20} />
+        <svg width="20" height="20" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M3.85355 2.14645C3.65829 1.95118 3.34171 1.95118 3.14645 2.14645C2.95118 2.34171 2.95118 2.65829 3.14645 2.85355L7.14645 6.85355C7.34171 7.04882 7.65829 7.04882 7.85355 6.85355L11.8536 2.85355C12.0488 2.65829 12.0488 2.34171 11.8536 2.14645C11.6583 1.95118 11.3417 1.95118 11.1464 2.14645L7.5 5.79289L3.85355 2.14645Z" fill="currentColor" fill-rule="evenodd" clip-rule="evenodd"/>
+          <path d="M3.85355 7.14645C3.65829 6.95118 3.34171 6.95118 3.14645 7.14645C2.95118 7.34171 2.95118 7.65829 3.14645 7.85355L7.14645 11.8536C7.34171 12.0488 7.65829 12.0488 7.85355 11.8536L11.8536 7.85355C12.0488 7.65829 12.0488 7.34171 11.8536 7.14645C11.6583 6.95118 11.3417 6.95118 11.1464 7.14645L7.5 10.7929L3.85355 7.14645Z" fill="currentColor" fill-rule="evenodd" clip-rule="evenodd"/>
+        </svg>
       </span>
     </button>
   </div>
