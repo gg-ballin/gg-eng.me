@@ -147,6 +147,10 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
     cursor: pointer;
     transition: all 0.2s ease;
   }
+  
+  #submit-text {
+    font-weight: bold;
+  }
 
   .submit-btn:hover:not(:disabled) {
     transform: translate(4px, -4px);
@@ -240,6 +244,74 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
     if (!submitBtn || !submitText || !formMessage) {
       console.error('Form elements not found!', { submitBtn, submitText, formMessage });
       return;
+    }
+    
+    // Form data persistence across language changes
+    const FORM_STORAGE_KEY = 'contact-form-data';
+    
+    // Save form data to sessionStorage
+    const saveFormData = () => {
+      const nameInput = document.getElementById('name');
+      const emailInput = document.getElementById('email');
+      const companyInput = document.getElementById('company');
+      
+      const formData = {
+        name: nameInput?.value || '',
+        email: emailInput?.value || '',
+        company: companyInput?.value || '',
+      };
+      sessionStorage.setItem(FORM_STORAGE_KEY, JSON.stringify(formData));
+    };
+    
+    // Restore form data from sessionStorage
+    const restoreFormData = () => {
+      try {
+        const savedData = sessionStorage.getItem(FORM_STORAGE_KEY);
+        if (savedData) {
+          const formData = JSON.parse(savedData);
+          const nameInput = document.getElementById('name');
+          const emailInput = document.getElementById('email');
+          const companyInput = document.getElementById('company');
+          
+          if (nameInput && formData.name) nameInput.value = formData.name;
+          if (emailInput && formData.email) emailInput.value = formData.email;
+          if (companyInput && formData.company) companyInput.value = formData.company;
+        }
+      } catch (e) {
+        console.error('Failed to restore form data:', e);
+      }
+    };
+    
+    // Clear form data from sessionStorage (after successful submission)
+    const clearFormData = () => {
+      sessionStorage.removeItem(FORM_STORAGE_KEY);
+    };
+    
+    // Save form data on input changes
+    const formInputs = form.querySelectorAll('input[type="text"], input[type="email"]');
+    formInputs.forEach(input => {
+      input.addEventListener('input', saveFormData);
+      input.addEventListener('change', saveFormData);
+    });
+    
+    // Save form data before language change
+    const langSwitcher = document.querySelector('.lang-switcher');
+    if (langSwitcher) {
+      langSwitcher.addEventListener('click', () => {
+        saveFormData();
+        // Set a flag to indicate language change
+        sessionStorage.setItem('language-changing', 'true');
+      });
+    }
+    
+    // Restore form data on page load (if coming from language change)
+    const isLanguageChange = sessionStorage.getItem('language-changing') === 'true';
+    if (isLanguageChange) {
+      // Small delay to ensure DOM is ready
+      setTimeout(() => {
+        restoreFormData();
+        sessionStorage.removeItem('language-changing');
+      }, 100);
     }
     
     // Rather than a type annotation, which is invalid in .astro, use JSDoc or leave untyped:
@@ -553,6 +625,9 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
           formMessage.className = 'form-message success';
           formMessage.style.display = 'block';
           form.reset();
+          
+          // Clear saved form data after successful submission
+          clearFormData();
           
           // Reset Turnstile widget
           if (turnstileWidgetId !== null && window.turnstile) {

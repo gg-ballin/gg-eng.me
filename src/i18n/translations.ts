@@ -9,13 +9,13 @@ export const translations: Record<Language, Translations> = {
       description: 'Portfolio de Germán Gómez, Senior Mobile Engineer en Buenos Aires, Argentina.',
     },
     nav: {
-      bio: 'Bio',
-      blog: 'Blog',
-      contact: 'Contacto',
-      theme: 'Tema',
+      bio: 'bio',
+      blog: 'blog',
+      contact: 'contacto',
+      theme: 'Theme',
     },
     bio: {
-      name: 'Hola hola! Soy Germán Gómez',
+      name: 'hola hola! soy Germán Gómez',
       role: 'Senior Mobile Engineer',
       location: 'Buenos Aires, Argentina',
       description: 'Más de 8 años desarrollando aplicaciones móviles híbridas con React Native, viví la evolución completa del ecosistema: desde los inicios de `expo` (cuándo era difícil renderizar un mapa!) y de `react-native-cli` con Javascript (y sus obsoletos `PropTypes`) hasta los estándares de performance de la era de la Nueva Arquitectura, Fabric. Expo, Typescript, Swift y Kotlin, sintaxis obligatoria que un ingeniero móvil debe dominar para crear aplicaciones, performantes, mantenibles y escalables.',
@@ -27,12 +27,12 @@ export const translations: Record<Language, Translations> = {
     blog: {
       title: 'Blog - Germán Gómez',
       description: 'Reflexiones sobre desarrollo.',
-      heading: 'Blog',
+      heading: 'blog',
     },
     contact: {
       title: 'Contacto - Germán Gómez',
       description: 'Ponte en contacto conmigo.',
-      heading: 'Contacto',
+      heading: 'contacto',
       requestCvTitle: 'Solicitar CV',
       requestCvDescription: 'Completa el formulario y vas a recibir mi CV directamente en tu email.',
       form: {
@@ -72,13 +72,13 @@ export const translations: Record<Language, Translations> = {
       description: 'Portfolio of Germán Gómez, Senior Mobile Engineer based in Buenos Aires, Argentina.',
     },
     nav: {
-      bio: 'Bio',
-      blog: 'Blog',
-      contact: 'Contact',
+      bio: 'bio',
+      blog: 'blog',
+      contact: 'contact',
       theme: 'Theme',
     },
     bio: {
-      name: 'Hello there! I\'m Germán Gómez',
+      name: 'hello there! i\'m Germán Gómez',
       role: 'Senior Mobile Engineer',
       location: 'based in Buenos Aires, Argentina',
       description: '8+ years developing hybrid mobile applications with React Native. I\'ve lived through the ecosystem\'s full evolution: from the early days of `expo` (when rendering a map was a nightmare!) and `react-native-cli` with JavaScript (and its now-obsolete `PropTypes`) to the high-performance standards of the New Architecture era, Fabric.\n\nExpo, TypeScript, Swift, and Kotlin are now the essential stack a mobile engineer must master to build high-performance, maintainable, and scalable applications.',
@@ -90,12 +90,12 @@ export const translations: Record<Language, Translations> = {
     blog: {
       title: 'Blog - Germán Gómez',
       description: 'Reflections on development.',
-      heading: 'Blog',
+      heading: 'blog',
     },
     contact: {
       title: 'Contact - Germán Gómez',
       description: 'Get in touch with me.',
-      heading: 'Contact',
+      heading: 'contact',
       requestCvTitle: 'Request Resume',
       requestCvDescription: 'Fill out the form and receive my CV directly to your email.',
       form: {
