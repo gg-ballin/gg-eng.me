@@ -3,6 +3,7 @@ import { getTranslations, type Language } from '../i18n/translations';
 import Reveal from './Reveal';
 import YearProgress from './YearProgress';
 import TechIconLink from './TechIconLink.astro';
+import { TECH_ICONS, type TechCategory } from '../lib/tech-icons';
 import { marked } from 'marked';
 
 interface Props {
@@ -60,39 +61,18 @@ const descriptionHtml = marked.parse(t.description, { breaks: true }) as string;
           <div class="tech-category mb-6">
             <h4 class="tech-category-title">{t.techExplanation.categories.frontend}</h4>
             <div class="tech-icons">
-              <TechIconLink  
-                href="https://astro.build"
-                title={t.techExplanation.technologies.astro}
-                iconLight="/assets/astro_logo_dark.svg"
-                iconDark="/assets/astro_logo_light.svg"
-                width={65}
-              />
-              <TechIconLink 
-                href="https://www.framer.com/motion/"
-                title={t.techExplanation.technologies.framerMotion}
-                iconLight="/assets/motion_logo_light.svg"
-                iconDark="/assets/motion_logo_dark.svg"
-                text={t.techExplanation.technologies.framerMotion}
-              />
-              <TechIconLink 
-                href="https://www.typescriptlang.org/"
-                title={t.techExplanation.technologies.typescript}
-                iconLight="/assets/typescript_logo.svg"
-                text={t.techExplanation.technologies.typescript}
-              />
-              <TechIconLink 
-                href="https://tailwindcss.com"
-                title={t.techExplanation.technologies.tailwind}
-                iconLight="/assets/tailwindcss_logo_light.svg"
-                iconDark="/assets/tailwindcss_logo_dark.svg"
-                width={105}
-              />
-              <TechIconLink 
-                href="https://zod.dev"
-                title={t.techExplanation.technologies.zod}
-                iconLight="/assets/zod_logo.svg"
-                text={t.techExplanation.technologies.zod}
-              />
+              {TECH_ICONS.frontend.map((icon) => {
+                return (
+                  <TechIconLink
+                    href={icon.href}
+                    title={t.techExplanation.technologies[icon.titleKey]}
+                    iconLight={icon.iconLight}
+                    iconDark={icon.iconDark}
+                    width={icon.width}
+                    text={icon.showText ? t.techExplanation.technologies[icon.titleKey] : undefined}
+                  />
+                );
+              })}
             </div>
           </div>
           
@@ -100,18 +80,18 @@ const descriptionHtml = marked.parse(t.description, { breaks: true }) as string;
           <div class="tech-category mb-6">
             <h4 class="tech-category-title">{t.techExplanation.categories.deployment}</h4>
             <div class="tech-icons">
-              <TechIconLink 
-                href="https://www.cloudflare.com"
-                title={t.techExplanation.technologies.cloudflare}
-                iconLight="/assets/Cloudflare_Logo.svg"
-                width={85}
-              />
-              <TechIconLink 
-                href="https://developers.cloudflare.com/kv"
-                title={t.techExplanation.technologies.cloudflareKV}
-                iconLight="/assets/cloudflare_workers.svg"
-                text={t.techExplanation.technologies.cloudflareKV}
-              />
+              {TECH_ICONS.deployment.map((icon) => {
+                return (
+                  <TechIconLink
+                    href={icon.href}
+                    title={t.techExplanation.technologies[icon.titleKey]}
+                    iconLight={icon.iconLight}
+                    iconDark={icon.iconDark}
+                    width={icon.width}
+                    text={icon.showText ? t.techExplanation.technologies[icon.titleKey] : undefined}
+                  />
+                );
+              })}
             </div>
           </div>
           
@@ -119,13 +99,18 @@ const descriptionHtml = marked.parse(t.description, { breaks: true }) as string;
           <div class="tech-category mb-6">
             <h4 class="tech-category-title">{t.techExplanation.categories.versionControl}</h4>
             <div class="tech-icons">
-              <TechIconLink 
-                href="https://github.com"
-                title={t.techExplanation.technologies.github}
-                iconLight="/assets/github_logo_dark.svg"
-                iconDark="/assets/github_logo_light.svg"
-                width={75}
-              />
+              {TECH_ICONS.versionControl.map((icon) => {
+                return (
+                  <TechIconLink
+                    href={icon.href}
+                    title={t.techExplanation.technologies[icon.titleKey]}
+                    iconLight={icon.iconLight}
+                    iconDark={icon.iconDark}
+                    width={icon.width}
+                    text={icon.showText ? t.techExplanation.technologies[icon.titleKey] : undefined}
+                  />
+                );
+              })}
             </div>
           </div>
           
@@ -133,11 +118,18 @@ const descriptionHtml = marked.parse(t.description, { breaks: true }) as string;
           <div class="tech-category mb-6">
             <h4 class="tech-category-title">{t.techExplanation.categories.packageManager}</h4>
             <div class="tech-icons">
-              <TechIconLink 
-                href="https://www.npmjs.com"
-                title={t.techExplanation.technologies.npm}
-                iconLight="/assets/Npm_logo.svg"
-              />
+              {TECH_ICONS.packageManager.map((icon) => {
+                return (
+                  <TechIconLink
+                    href={icon.href}
+                    title={t.techExplanation.technologies[icon.titleKey]}
+                    iconLight={icon.iconLight}
+                    iconDark={icon.iconDark}
+                    width={icon.width}
+                    text={icon.showText ? t.techExplanation.technologies[icon.titleKey] : undefined}
+                  />
+                );
+              })}
             </div>
           </div>
           
@@ -145,12 +137,18 @@ const descriptionHtml = marked.parse(t.description, { breaks: true }) as string;
           <div class="tech-category mb-6">
             <h4 class="tech-category-title">{t.techExplanation.categories.ide}</h4>
             <div class="tech-icons">
-              <TechIconLink 
-                href="https://cursor.sh"
-                title={t.techExplanation.technologies.cursor}
-                iconLight="/assets/cursor_logo_dark.svg"
-                iconDark="/assets/cursor_logo_light.svg"
-              />
+              {TECH_ICONS.ide.map((icon) => {
+                return (
+                  <TechIconLink
+                    href={icon.href}
+                    title={t.techExplanation.technologies[icon.titleKey]}
+                    iconLight={icon.iconLight}
+                    iconDark={icon.iconDark}
+                    width={icon.width}
+                    text={icon.showText ? t.techExplanation.technologies[icon.titleKey] : undefined}
+                  />
+                );
+              })}
             </div>
           </div>
           
@@ -238,12 +236,12 @@ const descriptionHtml = marked.parse(t.description, { breaks: true }) as string;
   
   .tech-category-title {
     font-family: var(--font-family-sans);
+    color: var(--color-accent);
     font-size: 0.875rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     margin-bottom: 0.75rem;
-    opacity: 0.7;
   }
   
   .bio-content-wrapper {
