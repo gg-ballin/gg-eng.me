@@ -32,6 +32,27 @@ export default defineConfig({
         "@/lib": fileURLToPath(new URL("./src/lib", import.meta.url)),
       },
     },
+    ssr: {
+      noExternal: ['resend'],
+    },
+    optimizeDeps: {
+      exclude: ['resend'],
+    },
+    define: {
+      // Stub out Node.js stream module for Cloudflare Workers
+      'stream': 'undefined',
+    },
+    build: {
+      rollupOptions: {
+        external: (id) => {
+          // Don't bundle Node.js stream modules
+          if (id === 'stream' || id === 'chunks/stream' || id.startsWith('node:stream')) {
+            return true;
+          }
+          return false;
+        },
+      },
+    },
   },
   i18n: {
     defaultLocale: "es",
