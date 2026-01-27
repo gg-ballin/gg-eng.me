@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import ContactForm from '@/components/ContactForm.astro';
+import Reveal from '@/components/Reveal';
 import { getTranslations, type Language } from '@/i18n/translations';
 
 const { lang } = Astro.params as { lang: Language };
@@ -19,14 +20,17 @@ const t = getTranslations(lang);
   lang={lang}
 >
   <div class="max-w-4xl">
-    <h1 class="text-5xl md:text-6xl page-title mt-10" style="text-transform: lowercase;">{t.contact.heading}</h1>
+    <Reveal client:load>
+      <h1 class="text-5xl md:text-6xl page-title mt-10" style="text-transform: lowercase;">{t.contact.heading}</h1>
+    </Reveal>
     
     <!-- Request CV Section -->
-    <section class="contact-section">
-      <h2 class="section-title">{t.contact.requestCvTitle}</h2>
-      <p class="section-description">{t.contact.requestCvDescription}</p>
-      <ContactForm lang={lang} />
-    </section>
+
+      <section class="contact-section">
+        <h2 class="section-title">{t.contact.requestCvTitle}</h2>
+        <p class="section-description">{t.contact.requestCvDescription}</p>
+        <ContactForm lang={lang} />
+      </section>
 
   </div>
   
@@ -69,6 +73,18 @@ const t = getTranslations(lang);
 
   .contact-section {
     margin-bottom: 4rem;
+    animation: slideUpFromBottom 0.8s ease-out 0.2s both;
+  }
+  
+  @keyframes slideUpFromBottom {
+    from {
+      opacity: 0;
+      transform: translateY(50px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
   .section-title {

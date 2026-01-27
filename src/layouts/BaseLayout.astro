@@ -965,9 +965,9 @@ if (import.meta.env.DEV) {
   /* Desktop Popup */
   .desktop-popup {
     position: fixed;
-    bottom: 5rem;
-    right: 1rem;
-    transform: translateY(100px);
+    top: 1.5rem;
+    right: calc(1rem + 4rem);
+    transform: translateY(-100px);
     max-width: 90%;
     width: 100%;
     max-width: 400px;
@@ -1043,9 +1043,9 @@ if (import.meta.env.DEV) {
   
   @media (min-width: 768px) {
     .desktop-popup {
-      bottom: 2rem;
-      right: 2rem;
-      transform: translateY(100px);
+      top: 2rem;
+      right: calc(2rem + 4rem);
+      transform: translateY(-100px);
       max-width: 400px;
     }
     

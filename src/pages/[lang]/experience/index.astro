@@ -3,6 +3,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import ExperienceEntry from '@/components/ExperienceEntry.astro';
 import SkillsSection from '@/components/SkillsSection.astro';
 import SkillsModal from '@/components/SkillsModal.astro';
+import Reveal from '@/components/Reveal';
 import { getTranslations, type Language } from '@/i18n/translations';
 import { getExperienceEntries, getSkillsData } from '@/lib/experience-data';
 
@@ -24,43 +25,45 @@ const skillsData = getSkillsData(lang);
   lang={lang}
 >
   <div class="experience-container">
-    <h1 class="text-5xl md:text-6xl font-bold mb-16 mt-10" style="font-family: var(--font-family-sans); text-transform: lowercase;">{t.experience.heading}</h1>
+    <Reveal client:load>
+      <h1 class="text-5xl md:text-6xl font-bold mb-16 mt-10" style="font-family: var(--font-family-sans); text-transform: lowercase;">{t.experience.heading}</h1>
+    </Reveal>
     
     <div class="experience-layout">
       <!-- Left Column: Experience Timeline -->
-      <div class="experience-column">
+      <div class="experience-column experience-column-animate">
         {experienceEntries.map((entry) => (
           <ExperienceEntry entry={entry} />
         ))}
       </div>
       
       <!-- Right Column: Skills (Desktop only) -->
-      <aside class="skills-column">
-        <SkillsSection 
-          title={t.experience.hardSkills}
-          skills={skillsData.hardSkills}
-          icon="💻"
-        />
-        <SkillsSection 
-          title={t.experience.softSkills}
-          skills={skillsData.softSkills}
-          icon="🤝"
-        />
-        <section class="skills-section">
-          <h3 class="skills-title">
-            <span class="skills-icon">🌐</span>
-            {t.experience.languages}
-          </h3>
-          <div class="languages-list">
-            {skillsData.languages.map((language) => (
-              <div class="language-item">
-                <span class="language-name">{language.name}</span>
-                <span class="language-level">{language.level}</span>
-              </div>
-            ))}
-          </div>
-        </section>
-      </aside>
+      <aside class="skills-column skills-column-animate">
+          <SkillsSection 
+            title={t.experience.hardSkills}
+            skills={skillsData.hardSkills}
+            icon="💻"
+          />
+          <SkillsSection 
+            title={t.experience.softSkills}
+            skills={skillsData.softSkills}
+            icon="🤝"
+          />
+          <section class="skills-section">
+            <h3 class="skills-title languages-title">
+              <span class="skills-icon">🌐</span>
+              {t.experience.languages}
+            </h3>
+            <div class="languages-list">
+              {skillsData.languages.map((language) => (
+                <div class="language-item">
+                  <span class="language-name">{language.name}</span>
+                  <span class="language-level">{language.level}</span>
+                </div>
+              ))}
+            </div>
+          </section>
+        </aside>
     </div>
     
     <!-- Mobile Skills Modal -->
@@ -113,6 +116,10 @@ const skillsData = getSkillsData(lang);
     min-width: 0;
   }
   
+  .experience-column-animate {
+    animation: slideUpFromBottom 0.8s ease-out 0.2s both;
+  }
+  
   .skills-column {
     width: 400px;
     flex-shrink: 0;
@@ -120,6 +127,32 @@ const skillsData = getSkillsData(lang);
     top: 2rem;
     max-height: calc(100vh - 4rem);
     overflow-y: auto;
+  }
+  
+  .skills-column-animate {
+    animation: slideInFromRight 0.8s ease-out 0.3s both;
+  }
+  
+  @keyframes slideUpFromBottom {
+    from {
+      opacity: 0;
+      transform: translateY(50px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes slideInFromRight {
+    from {
+      opacity: 0;
+      transform: translateX(50px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
   }
   
   .languages-list {
@@ -158,6 +191,15 @@ const skillsData = getSkillsData(lang);
     text-transform: uppercase;
     letter-spacing: 0.05em;
     opacity: 0.8;
+  }
+  
+  .languages-title {
+    font-family: 'Courier New', monospace !important;
+    font-size: 0.875rem !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+    margin-bottom: 1.5rem !important;
   }
   
   @media (max-width: 768px) {
@@ -207,6 +249,10 @@ const skillsData = getSkillsData(lang);
     
     .skills-column {
       display: none;
+    }
+    
+    .skills-column-animate {
+      animation: none;
     }
   }
 </style>
