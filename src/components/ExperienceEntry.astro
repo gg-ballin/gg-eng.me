@@ -2,19 +2,86 @@
 import type { ExperienceEntry } from '@/lib/experience-data';
 import SkillIconLink from './SkillIconLink.astro';
 import { getSkillIconConfig } from '@/lib/experience-data';
+import { getEmployerLogo } from '@/lib/experience/employers';
 
 interface Props {
   entry: ExperienceEntry;
 }
 
 const { entry } = Astro.props;
+const employerLogo = getEmployerLogo(entry.company);
 ---
 
 <article class="experience-entry">
   <div class="experience-date">{entry.dateRange}</div>
   <div class="experience-content">
     <h3 class="experience-role">{entry.role}</h3>
-    <p class="experience-company">{entry.company}</p>
+    <div class="experience-company-wrapper">
+      {employerLogo && (
+        <div class="employer-logo-container">
+          {employerLogo.href ? (
+            <a href={employerLogo.href} target="_blank" rel="noopener noreferrer" class="employer-logo-link">
+              {employerLogo.iconDark && !employerLogo.isPng ? (
+                <>
+                  <img 
+                    src={employerLogo.iconLight} 
+                    alt={employerLogo.name} 
+                    class="employer-logo employer-logo-light" 
+                    width={employerLogo.width || 100}
+                    height="auto"
+                  />
+                  <img 
+                    src={employerLogo.iconDark} 
+                    alt={employerLogo.name} 
+                    class="employer-logo employer-logo-dark" 
+                    width={employerLogo.width || 100}
+                    height="auto"
+                  />
+                </>
+              ) : (
+                <img 
+                  src={employerLogo.iconLight} 
+                  alt={employerLogo.name} 
+                  class="employer-logo" 
+                  width={employerLogo.width || 100}
+                  height="auto"
+                />
+              )}
+            </a>
+          ) : (
+            <>
+              {employerLogo.iconDark && !employerLogo.isPng ? (
+                <>
+                  <img 
+                    src={employerLogo.iconLight} 
+                    alt={employerLogo.name} 
+                    class="employer-logo employer-logo-light" 
+                    width={employerLogo.width || 100}
+                    height="auto"
+                  />
+                  <img 
+                    src={employerLogo.iconDark} 
+                    alt={employerLogo.name} 
+                    class="employer-logo employer-logo-dark" 
+                    width={employerLogo.width || 100}
+                    height="auto"
+                  />
+                </>
+              ) : (
+                <img 
+                  src={employerLogo.iconLight} 
+                  alt={employerLogo.name} 
+                  class="employer-logo" 
+                  width={employerLogo.width || 100}
+                  height="auto"
+                />
+              )}
+            </>
+          )}
+        </div>
+      )}
+      <p class="experience-company">{entry.company}</p>
+    </div>
     <p class="experience-description">{entry.description}</p>
     
     {entry.skills && entry.skills.length > 0 && (
@@ -60,12 +127,12 @@ const { entry } = Astro.props;
   }
   
   .experience-date {
-    font-family: 'Courier New', monospace;
+    font-family: var(--font-family-sans);
     font-size: 0.875rem;
     font-weight: 600;
     letter-spacing: 0.05em;
     margin-bottom: 1rem;
-    color: var(--color-text);
+    color: var(--color-accent);
     opacity: 0.8;
   }
   
@@ -89,14 +156,50 @@ const { entry } = Astro.props;
     margin-bottom: 0.5rem;
   }
   
+  .experience-company-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+  
+  .employer-logo-container {
+    display: flex;
+    align-items: center;
+  }
+  
+  .employer-logo-link {
+    display: inline-block;
+    transition: opacity 0.2s ease;
+  }
+  
+  .employer-logo-link:hover {
+    opacity: 0.8;
+  }
+  
+  .employer-logo {
+    display: inline-block;
+    max-width: 100%;
+    height: auto;
+    object-fit: contain;
+  }
+  
+  .employer-logo-light {
+    display: inline-block;
+  }
+  
+  .employer-logo-dark {
+    display: none;
+  }
+  
   .experience-company {
-    font-family: 'Courier New', monospace;
+    font-family: var(--font-family-sans);
     font-size: 0.875rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    margin-bottom: 1rem;
     opacity: 0.8;
+    margin: 0;
   }
   
   .experience-description {
@@ -114,7 +217,7 @@ const { entry } = Astro.props;
   }
   
   .skill-tag {
-    font-family: 'Courier New', monospace;
+    font-family: var(--font-family-sans);
     font-size: 0.75rem;
     font-weight: 600;
     text-transform: uppercase;
@@ -132,7 +235,7 @@ const { entry } = Astro.props;
   }
   
   .projects-title {
-    font-family: 'Courier New', monospace;
+    font-family: var(--font-family-sans);
     font-size: 0.875rem;
     font-weight: 600;
     text-transform: uppercase;
@@ -209,5 +312,30 @@ const { entry } = Astro.props;
     .experience-role {
       font-size: 1.25rem;
     }
+    
+    .employer-logo {
+      max-width: 120px;
+    }
+  }
+</style>
+
+<style is:global>
+  /* Global theme-based employer logo visibility */
+  [data-theme="dark"] .employer-logo-light {
+    display: none !important;
+  }
+  
+  [data-theme="dark"] .employer-logo-dark {
+    display: inline-block !important;
+  }
+  
+  [data-theme="light"] .employer-logo-light,
+  :root:not([data-theme="dark"]) .employer-logo-light {
+    display: inline-block !important;
+  }
+  
+  [data-theme="light"] .employer-logo-dark,
+  :root:not([data-theme="dark"]) .employer-logo-dark {
+    display: none !important;
   }
 </style>

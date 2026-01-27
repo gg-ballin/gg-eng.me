@@ -33,12 +33,19 @@ export const EMPLOYER_LOGOS: Record<string, EmployerLogoConfig> = {
     iconDark: '/assets/icons/experience/employers/blockdaemon/blockdaemon_logo_dark.svg',
     width: 120,
   },
+  coderio: {
+    id: 'coderio',
+    name: 'Coderio',
+    iconLight: '/assets/icons/experience/employers/coderio/coderio.png',
+    isPng: true,
+    width: 100,
+  },
   dept: {
     id: 'dept',
     name: 'DEPT',
     iconLight: '/assets/icons/experience/employers/DEPT/dept_logo_light.svg',
     iconDark: '/assets/icons/experience/employers/DEPT/dept_logo_dark.svg',
-    width: 90,
+    width: 45,
   },
   devbase: {
     id: 'devbase',
@@ -59,7 +66,7 @@ export const EMPLOYER_LOGOS: Record<string, EmployerLogoConfig> = {
     name: 'Mecena Selfers',
     iconLight: '/assets/icons/experience/employers/mecena-selfers/mecena_logo.png',
     isPng: true,
-    width: 110,
+    width: 55,
   },
   selfers: {
     id: 'selfers',
