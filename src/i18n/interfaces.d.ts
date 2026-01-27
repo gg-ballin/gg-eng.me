@@ -22,10 +22,24 @@ export interface Translations {
     description: string;
     techExplanation: {
       intro: string;
+      categories: {
+        frontend: string;
+        deployment: string;
+        versionControl: string;
+        packageManager: string;
+        ide: string;
+      };
       technologies: {
         astro: string;
         framerMotion: string;
+        typescript: string;
         tailwind: string;
+        zod: string;
+        cloudflare: string;
+        cloudflareKV: string;
+        github: string;
+        npm: string;
+        cursor: string;
       };
       whyWebpage: string;
       mobileVsWeb: string;

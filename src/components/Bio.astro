@@ -55,29 +55,105 @@ const descriptionHtml = marked.parse(t.description, { breaks: true }) as string;
           <p class="text-lg md:text-xl max-w-2xl mb-6 leading-relaxed opacity-90">
             {t.techExplanation.intro}
           </p>
-          <div class="tech-icons mb-6">
-            <TechIconLink  
-              href="https://astro.build"
-              title={t.techExplanation.technologies.astro}
-              iconLight="/assets/astro_logo_dark.svg"
-              iconDark="/assets/astro_logo_light.svg"
-              width={65}
-            />
-            <TechIconLink 
-              href="https://www.framer.com/motion/"
-              title={t.techExplanation.technologies.framerMotion}
-              iconLight="/assets/motion_logo_light.svg"
-              iconDark="/assets/motion_logo_dark.svg"
-              text={t.techExplanation.technologies.framerMotion}
-            />
-            <TechIconLink 
-              href="https://tailwindcss.com"
-              title={t.techExplanation.technologies.tailwind}
-              iconLight="/assets/tailwindcss_logo_light.svg"
-              iconDark="/assets/tailwindcss_logo_dark.svg"
-              width={105}
-            />
+          
+          <!-- Frontend Technologies -->
+          <div class="tech-category mb-6">
+            <h4 class="tech-category-title">{t.techExplanation.categories.frontend}</h4>
+            <div class="tech-icons">
+              <TechIconLink  
+                href="https://astro.build"
+                title={t.techExplanation.technologies.astro}
+                iconLight="/assets/astro_logo_dark.svg"
+                iconDark="/assets/astro_logo_light.svg"
+                width={65}
+              />
+              <TechIconLink 
+                href="https://www.framer.com/motion/"
+                title={t.techExplanation.technologies.framerMotion}
+                iconLight="/assets/motion_logo_light.svg"
+                iconDark="/assets/motion_logo_dark.svg"
+                text={t.techExplanation.technologies.framerMotion}
+              />
+              <TechIconLink 
+                href="https://www.typescriptlang.org/"
+                title={t.techExplanation.technologies.typescript}
+                iconLight="/assets/typescript_logo.svg"
+                text={t.techExplanation.technologies.typescript}
+              />
+              <TechIconLink 
+                href="https://tailwindcss.com"
+                title={t.techExplanation.technologies.tailwind}
+                iconLight="/assets/tailwindcss_logo_light.svg"
+                iconDark="/assets/tailwindcss_logo_dark.svg"
+                width={105}
+              />
+              <TechIconLink 
+                href="https://zod.dev"
+                title={t.techExplanation.technologies.zod}
+                iconLight="/assets/zod_logo.svg"
+                text={t.techExplanation.technologies.zod}
+              />
+            </div>
           </div>
+          
+          <!-- Deployment Strategy -->
+          <div class="tech-category mb-6">
+            <h4 class="tech-category-title">{t.techExplanation.categories.deployment}</h4>
+            <div class="tech-icons">
+              <TechIconLink 
+                href="https://www.cloudflare.com"
+                title={t.techExplanation.technologies.cloudflare}
+                iconLight="/assets/Cloudflare_Logo.svg"
+                width={85}
+              />
+              <TechIconLink 
+                href="https://developers.cloudflare.com/kv"
+                title={t.techExplanation.technologies.cloudflareKV}
+                iconLight="/assets/cloudflare_workers.svg"
+                text={t.techExplanation.technologies.cloudflareKV}
+              />
+            </div>
+          </div>
+          
+          <!-- Version Control -->
+          <div class="tech-category mb-6">
+            <h4 class="tech-category-title">{t.techExplanation.categories.versionControl}</h4>
+            <div class="tech-icons">
+              <TechIconLink 
+                href="https://github.com"
+                title={t.techExplanation.technologies.github}
+                iconLight="/assets/github_logo_dark.svg"
+                iconDark="/assets/github_logo_light.svg"
+                width={75}
+              />
+            </div>
+          </div>
+          
+          <!-- Package Manager -->
+          <div class="tech-category mb-6">
+            <h4 class="tech-category-title">{t.techExplanation.categories.packageManager}</h4>
+            <div class="tech-icons">
+              <TechIconLink 
+                href="https://www.npmjs.com"
+                title={t.techExplanation.technologies.npm}
+                iconLight="/assets/Npm_logo.svg"
+              />
+            </div>
+          </div>
+          
+          <!-- IDE -->
+          <div class="tech-category mb-6">
+            <h4 class="tech-category-title">{t.techExplanation.categories.ide}</h4>
+            <div class="tech-icons">
+              <TechIconLink 
+                href="https://cursor.sh"
+                title={t.techExplanation.technologies.cursor}
+                iconLight="/assets/cursor_logo_dark.svg"
+                iconDark="/assets/cursor_logo_light.svg"
+              />
+            </div>
+          </div>
+          
           <p class="text-lg md:text-xl max-w-2xl mb-6 leading-relaxed opacity-90">
             {t.techExplanation.whyWebpage}
           </p>
@@ -154,6 +230,20 @@ const descriptionHtml = marked.parse(t.description, { breaks: true }) as string;
     flex-wrap: wrap;
     gap: 1.5rem;
     align-items: center;
+  }
+  
+  .tech-category {
+    margin-bottom: 1.5rem;
+  }
+  
+  .tech-category-title {
+    font-family: var(--font-family-sans);
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.75rem;
+    opacity: 0.7;
   }
   
   .bio-content-wrapper {

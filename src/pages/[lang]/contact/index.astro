@@ -19,7 +19,7 @@ const t = getTranslations(lang);
   description={t.contact.description}
   lang={lang}
 >
-  <div class="max-w-4xl">
+  <div class="max-w-4xl contact-container">
     <Reveal client:load>
       <h1 class="text-5xl md:text-6xl page-title mt-10" style="text-transform: lowercase;">{t.contact.heading}</h1>
     </Reveal>
@@ -63,6 +63,10 @@ const t = getTranslations(lang);
 </BaseLayout>
 
 <style>
+  .contact-container {
+    margin-top: 1rem;
+  }
+  
   .page-title {
     font-family: var(--font-family-sans);
     font-size: 3rem;

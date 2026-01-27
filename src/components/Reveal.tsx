@@ -35,34 +35,46 @@ export default function Reveal({ children, delay = 0 }: RevealProps) {
       ref={ref} 
       style={{ 
         position: 'relative', 
-        overflow: 'hidden', 
+        overflow: 'visible',
         display: 'inline-block',
+        lineHeight: 0,
+        verticalAlign: 'baseline',
+        isolation: 'isolate',
       }}
     >
-      {children}
-      <motion.div
-        initial="hidden"
-        animate={maskControls}
-        variants={{
-          hidden: { x: '0%', opacity: 1 },
-          reveal: { x: '-100%', opacity: 0 },
-        }}
-        transition={{ 
-          x: { duration: 0.8, delay, ease: 'easeInOut' },
-          opacity: { duration: 0.1, delay: delay + 0.75 }
-        }}
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          width: '100%',
-          height: '100%',
-          backgroundColor: 'var(--color-text)',
-          zIndex: 10,
-        }}
-      />
+      <span style={{ 
+        display: 'inline-block',
+        lineHeight: 'normal',
+        verticalAlign: 'baseline',
+        position: 'relative',
+        overflow: 'hidden',
+      }}>
+        {children}
+        <motion.div
+          initial="hidden"
+          animate={maskControls}
+          variants={{
+            hidden: { x: '0%', opacity: 1 },
+            reveal: { x: '-100%', opacity: 0 },
+          }}
+          transition={{ 
+            x: { duration: 0.8, delay, ease: 'easeInOut' },
+            opacity: { duration: 0.1, delay: delay + 0.75 }
+          }}
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            width: '100%',
+            height: '100%',
+            backgroundColor: 'var(--color-text)',
+            zIndex: 1,
+            pointerEvents: 'none',
+          }}
+        />
+      </span>
     </span>
   );
 }
