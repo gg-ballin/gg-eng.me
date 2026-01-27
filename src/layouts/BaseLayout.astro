@@ -141,7 +141,7 @@ if (import.meta.env.DEV) {
     </main>
     
     <!-- Desktop Detection Popup -->
-    <div id="desktop-popup" class="desktop-popup" role="dialog" aria-labelledby="desktop-popup-message" aria-hidden="true" data-is-desktop={isDesktopBrowser ? 'true' : 'false'} style={!isDesktopBrowser ? 'display: none;' : ''}>
+    <div id="desktop-popup" class="desktop-popup" role="dialog" aria-labelledby="desktop-popup-message" aria-hidden="true" data-is-desktop={isDesktopBrowser ? 'true' : 'false'} style={!isDesktopBrowser ? 'display: none !important; visibility: hidden !important;' : ''}>
       <div class="desktop-popup-content">
         <p id="desktop-popup-message" class="desktop-popup-message">
           {getTranslations(lang).desktopPopup.message}
@@ -312,10 +312,9 @@ if (import.meta.env.DEV) {
           return;
         }
         
-        // Remove inline display:none if present
-        if (popup.style.display === 'none') {
-          popup.style.display = '';
-        }
+        // Remove inline display:none and visibility hidden if present
+        popup.style.removeProperty('display');
+        popup.style.removeProperty('visibility');
         
         const dismissed = localStorage.getItem('desktop-popup-dismissed');
         console.log('Dismissed check', { dismissed });
@@ -999,15 +998,14 @@ if (import.meta.env.DEV) {
   .desktop-popup {
     position: fixed;
     top: 1.5rem;
-    right: calc(1rem + 4rem);
+    right: 1rem;
     transform: translateY(-100px);
-    max-width: 90%;
+    max-width: calc(100% - 2rem);
     width: 100%;
     max-width: 400px;
-    z-index: 1000;
+    z-index: 9999;
     opacity: 0;
     pointer-events: none;
-    display: block !important;
     transition: opacity 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55), 
                 transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
     visibility: hidden;
@@ -1015,13 +1013,19 @@ if (import.meta.env.DEV) {
   
   .desktop-popup[style*="display: none"] {
     display: none !important;
+    visibility: hidden !important;
+  }
+  
+  .desktop-popup:not([style*="display: none"]) {
+    display: block;
   }
   
   .desktop-popup-visible {
     opacity: 1 !important;
-    pointer-events: all;
-    transform: translateY(0);
+    pointer-events: all !important;
+    transform: translateY(0) !important;
     visibility: visible !important;
+    display: block !important;
   }
   
   .desktop-popup-content {
@@ -1077,13 +1081,13 @@ if (import.meta.env.DEV) {
   @media (min-width: 768px) {
     .desktop-popup {
       top: 2rem;
-      right: calc(2rem + 4rem);
+      right: 2rem;
       transform: translateY(-100px);
       max-width: 400px;
     }
     
     .desktop-popup-visible {
-      transform: translateY(0);
+      transform: translateY(0) !important;
     }
   }
   
