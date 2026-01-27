@@ -6,6 +6,7 @@ import SkillsModal from '@/components/SkillsModal.astro';
 import Reveal from '@/components/Reveal';
 import { getTranslations, type Language } from '@/i18n/translations';
 import { getExperienceEntries, getSkillsData } from '@/lib/experience-data';
+import * as Icon from '@astropub/icons';
 
 const { lang } = Astro.params as { lang: Language };
 
@@ -81,9 +82,9 @@ const skillsData = getSkillsData(lang);
     <!-- Mobile: Toggle button for skills modal - Fixed at bottom -->
     <button id="skills-modal-toggle" class="skills-toggle-btn" aria-label="View Skills" aria-expanded="false">
       <span class="skills-toggle-text">Skills</span>
-      <svg class="skills-toggle-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="6 9 12 15 18 9"></polyline>
-      </svg>
+      <span class="skills-toggle-animated-icon">
+        <Icon.DoubleArrowUp width={20} height={20} />
+      </span>
     </button>
   </div>
 </BaseLayout>
@@ -234,12 +235,23 @@ const skillsData = getSkillsData(lang);
       box-shadow: 0 -6px 25px rgba(0, 0, 0, 0.4);
     }
     
-    .skills-toggle-icon {
-      transition: transform 0.3s ease;
+    .skills-toggle-animated-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      animation: iconShake 2.5s ease-in-out infinite;
     }
     
-    .skills-toggle-btn[aria-expanded="true"] .skills-toggle-icon {
-      transform: rotate(180deg);
+    @keyframes iconShake {
+      0%, 100% {
+        transform: translateY(0);
+      }
+      25% {
+        transform: translateY(-2px);
+      }
+      75% {
+        transform: translateY(2px);
+      }
     }
     
     .experience-layout {

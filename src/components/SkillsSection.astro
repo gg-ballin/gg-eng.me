@@ -1,6 +1,4 @@
 ---
-import * as Icon from '@astropub/icons'
-
 interface Props {
   title: string;
   skills: string[];
@@ -13,8 +11,8 @@ const { title, skills, icon } = Astro.props;
 <section class="skills-section">
   <h3 class="skills-title">
     {icon && (
-      <span class="skills-icon skills-icon-shake">
-        <Icon.DoubleArrowUp width={16} height={16} />
+      <span class="skills-icon">
+        {icon}
       </span>
     )}
     {title}
@@ -48,28 +46,8 @@ const { title, skills, icon } = Astro.props;
   }
   
   .skills-icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 20px;
-    height: 20px;
-    color: var(--color-text);
-  }
-  
-  .skills-icon-shake {
-    animation: iconShake 2.5s ease-in-out infinite;
-  }
-  
-  @keyframes iconShake {
-    0%, 100% {
-      transform: translateY(0);
-    }
-    25% {
-      transform: translateY(-2px);
-    }
-    75% {
-      transform: translateY(2px);
-    }
+    display: inline-block;
+    font-size: 1rem;
   }
   
   .skills-grid {
