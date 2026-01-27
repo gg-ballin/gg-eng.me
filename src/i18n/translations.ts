@@ -24,7 +24,7 @@ export const translations: Record<Language, Translations> = {
         intro: 'Este sitio web está construido con:',
         technologies: {
           astro: 'Astro',
-          framerMotion: 'Framer Motion',
+          framerMotion: 'Motion by Framer',
           tailwind: 'Tailwind CSS',
         },
         whyWebpage: '¿Por qué un ingeniero móvil necesita un sitio web en 2026? En un mundo donde el desarrollo móvil es cada vez más especializado, tener una presencia web profesional demuestra versatilidad técnica y capacidad para entender diferentes plataformas y arquitecturas.',
@@ -110,7 +110,7 @@ export const translations: Record<Language, Translations> = {
         intro: 'This website is built with:',
         technologies: {
           astro: 'Astro',
-          framerMotion: 'Framer Motion',
+          framerMotion: 'Motion by Framer',
           tailwind: 'Tailwind CSS',
         },
         whyWebpage: 'Why does a mobile engineer need a webpage in 2026? In a world where mobile development is increasingly specialized, having a professional web presence demonstrates technical versatility and the ability to understand different platforms and architectures.',
