@@ -243,15 +243,15 @@ export const skillsDataEN: SkillsData = {
     authentication: ['Auth0', 'Okta'],
   },
   softSkills: [
-    'Team Leadership',
-    'Problem Solving',
-    'Communication',
-    'Agile Methodologies',
-    'Code Review',
+    'proven team leadership',
+    'asynchronous communication',
+    'SCRUM',
+    'kanban',
+    'code review',
   ],
   languages: [
     { name: 'Spanish', level: 'Native' },
-    { name: 'English', level: 'Fluent' },
+    { name: 'English', level: 'C2' },
   ],
 };
 
@@ -270,15 +270,15 @@ export const skillsDataES: SkillsData = {
     authentication: ['Auth0', 'Okta'],
   },
   softSkills: [
-    'Liderazgo de Equipo',
-    'Resolución de Problemas',
-    'Comunicación',
-    'Metodologías Ágiles',
-    'Revisión de Código',
+    'liderazgo de equipo comprobado',
+    'comunicación asíncrona',
+    'SCRUM',
+    'kanban',
+    'revisión de código',
   ],
   languages: [
     { name: 'Español', level: 'Nativo' },
-    { name: 'Inglés', level: 'Fluido' },
+    { name: 'Inglés', level: 'C2' },
   ],
 };
 

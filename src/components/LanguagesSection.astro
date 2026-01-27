@@ -1,0 +1,91 @@
+---
+import type { SkillsData } from '@/lib/experience-data';
+
+interface Props {
+  languages: SkillsData['languages'];
+  title: string;
+}
+
+const { languages, title } = Astro.props;
+---
+
+<section class="skills-section">
+  <h3 class="skills-title">
+    {title}
+  </h3>
+  <div class="languages-list">
+    {languages.map((language) => (
+      <div class="language-item">
+        <span class="language-name">{language.name}</span>
+        <span class="language-level">{language.level}</span>
+      </div>
+    ))}
+  </div>
+</section>
+
+<style>
+  .skills-section {
+    margin-bottom: 3rem;
+  }
+  
+  .skills-section:last-child {
+    margin-bottom: 0;
+  }
+  
+  .skills-title {
+    color: var(--color-accent);
+    font-family: var(--font-family-sans);
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .languages-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .language-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    border: 2px solid var(--color-text);
+    background-color: var(--color-bg);
+    transition: all 0.2s ease;
+  }
+  
+  .language-item:hover {
+    transform: translate(2px, -2px);
+    box-shadow: -2px 2px 0 var(--color-text);
+    background-color: var(--color-accent);
+    color: var(--color-bg);
+  }
+  
+  .language-name {
+    font-family: var(--font-family-sans);
+    font-size: 1rem;
+    font-weight: 600;
+  }
+  
+  .language-level {
+    font-family: 'Courier New', monospace;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    opacity: 0.8;
+  }
+  
+  @media (max-width: 768px) {
+    .skills-section {
+      margin-bottom: 2rem;
+    }
+  }
+</style>
