@@ -21,7 +21,7 @@ export const translations: Record<Language, Translations> = {
       location: 'Buenos Aires, Argentina',
       description: 'Más de 8 años desarrollando aplicaciones móviles híbridas con React Native, viví la evolución completa del ecosistema: desde los inicios de `expo` (cuándo era difícil renderizar un mapa!) y de `react-native-cli` con Javascript (y sus obsoletos `PropTypes`) hasta los estándares de performance de la era de la Nueva Arquitectura, Fabric. Expo, Typescript, Swift y Kotlin, sintaxis obligatoria que un ingeniero móvil debe dominar para crear aplicaciones, performantes, mantenibles y escalables.',
       techExplanation: {
-        intro: 'Este sitio web está construido con tecnologías modernas:',
+        intro: 'Este sitio web está construido con:',
         technologies: {
           astro: 'Astro',
           framerMotion: 'Framer Motion',
@@ -107,7 +107,7 @@ export const translations: Record<Language, Translations> = {
       location: 'based in Buenos Aires, Argentina',
       description: '8+ years developing hybrid mobile applications with React Native. I\'ve lived through the ecosystem\'s full evolution: from the early days of `expo` (when rendering a map was a nightmare!) and `react-native-cli` with JavaScript (and its now-obsolete `PropTypes`) to the high-performance standards of the New Architecture era, Fabric.\n\nExpo, TypeScript, Swift, and Kotlin are now the essential stack a mobile engineer must master to build high-performance, maintainable, and scalable applications.',
       techExplanation: {
-        intro: 'This website is built with modern technologies:',
+        intro: 'This website is built with:',
         technologies: {
           astro: 'Astro',
           framerMotion: 'Framer Motion',
