@@ -174,8 +174,16 @@ const t = getTranslations(lang);
       position: fixed;
       bottom: 2rem;
       left: calc(4rem + 2rem);
-      width: 400px;
-      height: 400px;
+      width: 300px;
+      height: 125px;
+      padding: 0;
+      background: radial-gradient(ellipse 120% 120% at center, rgba(0, 0, 0, 0.25) 0%, rgba(0, 0, 0, 0.15) 40%, transparent 80%);
+      border-radius: 0.5rem;
+      transition: filter 0.3s ease, opacity 0.3s ease;
+      opacity: 0;
+      animation: containerRevealDesktop 0.8s ease-out 0.8s forwards;
+      overflow: visible;
+      backdrop-filter: blur(2px);
     }
     
     .language-hint-arrow-desktop {
@@ -197,22 +205,27 @@ const t = getTranslations(lang);
     
     .language-hint-popup-desktop {
       position: absolute;
-      bottom: 0rem;
-      left: 3.5rem;
+      top: 50%;
+      left: 57%;
+      transform: translate(-50%, -50%) translateY(10px);
       background-color: var(--color-bg);
       border: 2px solid var(--color-accent);
       border-radius: 0.75rem;
-      padding-left: 1.5rem;
-      padding-right: 1.5rem;
-      padding-top: 1rem;
-      padding-bottom: 1rem;
+      padding: 1rem 1.5rem;
       box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
       opacity: 0;
-      transform: translateY(10px);
       animation: popupRevealDesktop 0.6s ease-out 1.5s forwards,
                  popupShake 3.8s ease-in-out 2.1s infinite;
       max-width: 220px;
+      width: max-content;
       z-index: 1;
+      transition: filter 0.3s ease, opacity 0.3s ease;
+      white-space: normal;
+      word-wrap: break-word;
+    }
+    
+    .language-hint-arrow-desktop {
+      transition: filter 0.3s ease;
     }
     
     [data-theme="dark"] .language-hint-popup-desktop {
@@ -278,11 +291,11 @@ const t = getTranslations(lang);
   @keyframes popupRevealDesktop {
     from {
       opacity: 0;
-      transform: translateY(10px);
+      transform: translate(-50%, -50%) translateY(10px);
     }
     to {
       opacity: 1;
-      transform: translateY(0);
+      transform: translate(-50%, -50%) translateY(0);
     }
   }
   
@@ -310,13 +323,24 @@ const t = getTranslations(lang);
   
   @keyframes popupShake {
     0%, 20%, 100% {
-      transform: translateY(0) translateX(0);
+      transform: translate(-50%, -50%) translateY(0) translateX(0);
     }
     2%, 6%, 10%, 14%, 18% {
-      transform: translateY(0) translateX(-3px);
+      transform: translate(-50%, -50%) translateY(0) translateX(-3px);
     }
     4%, 8%, 12%, 16% {
-      transform: translateY(0) translateX(3px);
+      transform: translate(-50%, -50%) translateY(0) translateX(3px);
+    }
+  }
+  
+  @keyframes containerRevealDesktop {
+    from {
+      opacity: 0;
+      transform: scale(0.95) translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) translateY(0);
     }
   }
 </style>
@@ -334,6 +358,7 @@ const t = getTranslations(lang);
     
     const langSwitcher = document.querySelector('.lang-switcher');
     const dismissed = sessionStorage.getItem('language-hint-dismissed');
+    const hintDesktop = hintContainer.querySelector('.language-hint-desktop');
     
     console.log('Language hint dismissed check', { dismissed, langSwitcher: !!langSwitcher });
     
@@ -351,6 +376,49 @@ const t = getTranslations(lang);
     }
     
     console.log('Language hint will be shown');
+    
+    // Fade out hint when submit button is hovered
+    const popupDesktop = hintContainer.querySelector('.language-hint-popup-desktop');
+    
+    // Set up hover effects - try multiple times to catch the button when it loads
+    const setupHoverEffects = () => {
+      const submitBtn = document.getElementById('submit-btn');
+      if (submitBtn && hintDesktop && hintDesktop instanceof HTMLElement) {
+        submitBtn.addEventListener('mouseenter', () => {
+          console.log('Submit button hovered');
+          hintDesktop.style.filter = 'blur(8px)';
+          hintDesktop.style.opacity = '0.5';
+          if (popupDesktop && popupDesktop instanceof HTMLElement) {
+            popupDesktop.style.opacity = '0';
+          }
+        });
+        
+        submitBtn.addEventListener('mouseleave', () => {
+          console.log('Submit button unhovered');
+          hintDesktop.style.filter = 'none';
+          hintDesktop.style.opacity = '1';
+          if (popupDesktop && popupDesktop instanceof HTMLElement) {
+            popupDesktop.style.opacity = '1';
+          }
+        });
+        
+        console.log('Hover effects set up successfully');
+        return true;
+      }
+      return false;
+    };
+    
+    // Try immediately
+    if (!setupHoverEffects()) {
+      // Retry after delays
+      setTimeout(setupHoverEffects, 300);
+      setTimeout(setupHoverEffects, 1000);
+      
+      // Also listen for Astro page load events
+      document.addEventListener('astro:page-load', () => {
+        setTimeout(setupHoverEffects, 100);
+      });
+    }
     
     // Hide on language switcher click
     langSwitcher?.addEventListener('click', () => {
