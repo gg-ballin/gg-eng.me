@@ -5,7 +5,8 @@ import SkillsSection from '@/components/SkillsSection.astro';
 import SkillsModal from '@/components/SkillsModal.astro';
 import Reveal from '@/components/Reveal';
 import { getTranslations, type Language } from '@/i18n/translations';
-import { getExperienceEntries, getSkillsData } from '@/lib/experience-data';
+import { getExperienceEntries, getSkillsData, getCategoryDisplayName } from '@/lib/experience-data';
+import type { ExperienceTechCategory } from '@/lib/experience/technologies';
 import * as Icon from '@astropub/icons';
 
 const { lang } = Astro.params as { lang: Language };
@@ -18,6 +19,11 @@ if (!['es', 'en'].includes(lang)) {
 const t = getTranslations(lang);
 const experienceEntries = getExperienceEntries(lang);
 const skillsData = getSkillsData(lang);
+
+// Get all categories that have skills
+const categoriesWithSkills = (Object.keys(skillsData.hardSkillsByCategory) as ExperienceTechCategory[]).filter(
+  (category) => skillsData.hardSkillsByCategory[category].length > 0
+);
 ---
 
 <BaseLayout 
@@ -40,15 +46,18 @@ const skillsData = getSkillsData(lang);
       
       <!-- Right Column: Skills (Desktop only) -->
       <aside class="skills-column skills-column-animate">
-          <SkillsSection 
-            title={t.experience.hardSkills}
-            skills={skillsData.hardSkills}
-            icon="💻"
-          />
+          {categoriesWithSkills.map((category) => (
+            <SkillsSection 
+              title={getCategoryDisplayName(category, lang)}
+              skills={skillsData.hardSkillsByCategory[category]}
+              useIcons={true}
+            />
+          ))}
           <SkillsSection 
             title={t.experience.softSkills}
             skills={skillsData.softSkills}
             icon="🤝"
+            useIcons={false}
           />
           <section class="skills-section">
             <h3 class="skills-title languages-title">
@@ -71,7 +80,6 @@ const skillsData = getSkillsData(lang);
     <SkillsModal 
       skillsData={skillsData}
       translations={{
-        hardSkills: t.experience.hardSkills,
         softSkills: t.experience.softSkills,
         languages: t.experience.languages,
         close: lang === 'es' ? 'Cerrar' : 'Close',

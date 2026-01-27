@@ -1,11 +1,12 @@
 ---
 import SkillsSection from './SkillsSection.astro';
 import type { SkillsData } from '@/lib/experience-data';
+import { getCategoryDisplayName } from '@/lib/experience-data';
+import type { ExperienceTechCategory } from '@/lib/experience/technologies';
 
 interface Props {
   skillsData: SkillsData;
   translations: {
-    hardSkills: string;
     softSkills: string;
     languages: string;
     close: string;
@@ -14,6 +15,11 @@ interface Props {
 }
 
 const { skillsData, translations, lang } = Astro.props;
+
+// Get all categories that have skills
+const categoriesWithSkills = (Object.keys(skillsData.hardSkillsByCategory) as ExperienceTechCategory[]).filter(
+  (category) => skillsData.hardSkillsByCategory[category].length > 0
+);
 ---
 
 <div id="skills-modal" class="skills-modal" role="dialog" aria-labelledby="skills-modal-title" aria-hidden="true">
@@ -29,15 +35,18 @@ const { skillsData, translations, lang } = Astro.props;
       </button>
     </div>
     <div class="skills-modal-body">
-      <SkillsSection 
-        title={translations.hardSkills}
-        skills={skillsData.hardSkills}
-        icon="💻"
-      />
+      {categoriesWithSkills.map((category) => (
+        <SkillsSection 
+          title={getCategoryDisplayName(category, lang)}
+          skills={skillsData.hardSkillsByCategory[category]}
+          useIcons={true}
+        />
+      ))}
       <SkillsSection 
         title={translations.softSkills}
         skills={skillsData.softSkills}
         icon="🤝"
+        useIcons={false}
       />
       <section class="skills-section">
         <h3 class="skills-title">

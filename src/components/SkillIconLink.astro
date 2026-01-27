@@ -1,0 +1,116 @@
+---
+import type { ExperienceTechIconConfig } from '@/lib/experience/technologies';
+
+interface Props {
+  iconConfig: ExperienceTechIconConfig;
+  text?: string; // Optional text override
+}
+
+const { iconConfig, text } = Astro.props;
+const { href, name, iconLight, iconDark, width = 45, showText } = iconConfig;
+const height = 40; // Fixed height
+const displayText = text ?? (showText ? name : undefined);
+---
+
+{href ? (
+  <a href={href} target="_blank" rel="noopener noreferrer" class="skill-icon-link" title={name}>
+    {iconDark ? (
+      <>
+        <img src={iconLight} alt={name} class="skill-icon skill-icon-light" width={width} height={height} />
+        <img src={iconDark} alt={name} class="skill-icon skill-icon-dark" width={width} height={height} />
+      </>
+    ) : (
+      <img src={iconLight} alt={name} class="skill-icon" width={width} height={height} />
+    )}
+    {displayText && <span class="skill-name">{displayText}</span>}
+  </a>
+) : (
+  <div class="skill-icon-link skill-icon-link-no-link" title={name}>
+    {iconDark ? (
+      <>
+        <img src={iconLight} alt={name} class="skill-icon skill-icon-light" width={width} height={height} />
+        <img src={iconDark} alt={name} class="skill-icon skill-icon-dark" width={width} height={height} />
+      </>
+    ) : (
+      <img src={iconLight} alt={name} class="skill-icon" width={width} height={height} />
+    )}
+    {displayText && <span class="skill-name">{displayText}</span>}
+  </div>
+)}
+
+<style>
+  .skill-icon-link {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.45rem 0.75rem;
+    border: 2px solid var(--color-text);
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    text-decoration: none;
+    border-radius: 0.375rem;
+    transition: all 0.2s ease;
+    opacity: 0.9;
+  }
+  
+  .skill-icon-link-no-link {
+    cursor: default;
+  }
+  
+  .skill-icon-link:hover {
+    background-color: var(--color-accent);
+    color: var(--color-bg);
+    transform: translate(2px, -2px);
+    box-shadow: -2px 2px 0 var(--color-text);
+    opacity: 1;
+  }
+  
+  .skill-icon-link-no-link:hover {
+    cursor: default;
+  }
+  
+  .skill-icon {
+    display: inline-block;
+    object-fit: contain;
+    flex-shrink: 0;
+    height: 20px;
+  }
+  
+  /* Theme-based icon visibility */
+  .skill-icon-light {
+    display: inline-block;
+  }
+  
+  .skill-icon-dark {
+    display: none;
+  }
+  
+  .skill-name {
+    font-family: var(--font-family-sans);
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: lowercase;
+    letter-spacing: 0.05em;
+  }
+</style>
+
+<style is:global>
+  /* Global theme-based icon visibility */
+  [data-theme="dark"] .skill-icon-light {
+    display: none !important;
+  }
+  
+  [data-theme="dark"] .skill-icon-dark {
+    display: inline-block !important;
+  }
+  
+  [data-theme="light"] .skill-icon-light,
+  :root:not([data-theme="dark"]) .skill-icon-light {
+    display: inline-block !important;
+  }
+  
+  [data-theme="light"] .skill-icon-dark,
+  :root:not([data-theme="dark"]) .skill-icon-dark {
+    display: none !important;
+  }
+</style>

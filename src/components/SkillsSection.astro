@@ -1,11 +1,21 @@
 ---
+import SkillIconLink from './SkillIconLink.astro';
+import { getSkillIconConfig } from '@/lib/experience-data';
+import type { ExperienceTechIconConfig } from '@/lib/experience/technologies';
+
 interface Props {
   title: string;
   skills: string[];
   icon?: string;
+  useIcons?: boolean; // Whether to use icon components
 }
 
-const { title, skills, icon } = Astro.props;
+const { title, skills, icon, useIcons = false } = Astro.props;
+
+// Get icon configs for skills that have icons
+const skillIconConfigs: (ExperienceTechIconConfig | null)[] = useIcons
+  ? skills.map((skill) => getSkillIconConfig(skill))
+  : [];
 ---
 
 <section class="skills-section">
@@ -18,9 +28,20 @@ const { title, skills, icon } = Astro.props;
     {title}
   </h3>
   <div class="skills-grid">
-    {skills.map((skill) => (
-      <span class="skill-badge">{skill}</span>
-    ))}
+    {useIcons ? (
+      skills.map((skill, index) => {
+        const iconConfig = skillIconConfigs[index];
+        if (iconConfig) {
+          return <SkillIconLink iconConfig={iconConfig} />;
+        }
+        // Fallback to text badge if no icon found
+        return <span class="skill-badge">{skill}</span>;
+      })
+    ) : (
+      skills.map((skill) => (
+        <span class="skill-badge">{skill}</span>
+      ))
+    )}
   </div>
 </section>
 
@@ -34,7 +55,8 @@ const { title, skills, icon } = Astro.props;
   }
   
   .skills-title {
-    font-family: 'Courier New', monospace;
+    color: var(--color-accent);
+    font-family: var(--font-family-sans);
     font-size: 0.875rem;
     font-weight: 600;
     text-transform: uppercase;

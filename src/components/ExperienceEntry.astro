@@ -1,5 +1,7 @@
 ---
 import type { ExperienceEntry } from '@/lib/experience-data';
+import SkillIconLink from './SkillIconLink.astro';
+import { getSkillIconConfig } from '@/lib/experience-data';
 
 interface Props {
   entry: ExperienceEntry;
@@ -17,9 +19,14 @@ const { entry } = Astro.props;
     
     {entry.skills && entry.skills.length > 0 && (
       <div class="experience-skills">
-        {entry.skills.map((skill) => (
-          <span class="skill-tag">{skill}</span>
-        ))}
+        {entry.skills.map((skill) => {
+          const iconConfig = getSkillIconConfig(skill);
+          if (iconConfig) {
+            return <SkillIconLink iconConfig={iconConfig} />;
+          }
+          // Fallback to text badge if no icon found
+          return <span class="skill-tag">{skill}</span>;
+        })}
       </div>
     )}
     
