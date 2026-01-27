@@ -8,6 +8,7 @@ export interface Translations {
   // Navigation
   nav: {
     bio: string;
+    experience: string;
     blog: string;
     contact: string;
     theme: string;
@@ -32,6 +33,17 @@ export interface Translations {
     title: string;
     description: string;
     heading: string;
+  };
+  
+  // Experience
+  experience: {
+    title: string;
+    description: string;
+    heading: string;
+    hardSkills: string;
+    softSkills: string;
+    languages: string;
+    downloadCv: string;
   };
   
   // Contact

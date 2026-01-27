@@ -1,0 +1,212 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import ExperienceEntry from '@/components/ExperienceEntry.astro';
+import SkillsSection from '@/components/SkillsSection.astro';
+import SkillsModal from '@/components/SkillsModal.astro';
+import { getTranslations, type Language } from '@/i18n/translations';
+import { getExperienceEntries, getSkillsData } from '@/lib/experience-data';
+
+const { lang } = Astro.params as { lang: Language };
+
+// Validate lang parameter in SSR mode
+if (!['es', 'en'].includes(lang)) {
+  return Astro.redirect('/es/experience');
+}
+
+const t = getTranslations(lang);
+const experienceEntries = getExperienceEntries(lang);
+const skillsData = getSkillsData(lang);
+---
+
+<BaseLayout 
+  title={t.experience.title} 
+  description={t.experience.description}
+  lang={lang}
+>
+  <div class="experience-container">
+    <h1 class="text-5xl md:text-6xl font-bold mb-16 mt-10" style="font-family: var(--font-family-sans); text-transform: lowercase;">{t.experience.heading}</h1>
+    
+    <div class="experience-layout">
+      <!-- Left Column: Experience Timeline -->
+      <div class="experience-column">
+        {experienceEntries.map((entry) => (
+          <ExperienceEntry entry={entry} />
+        ))}
+      </div>
+      
+      <!-- Right Column: Skills (Desktop only) -->
+      <aside class="skills-column">
+        <SkillsSection 
+          title={t.experience.hardSkills}
+          skills={skillsData.hardSkills}
+          icon="💻"
+        />
+        <SkillsSection 
+          title={t.experience.softSkills}
+          skills={skillsData.softSkills}
+          icon="🤝"
+        />
+        <section class="skills-section">
+          <h3 class="skills-title">
+            <span class="skills-icon">🌐</span>
+            {t.experience.languages}
+          </h3>
+          <div class="languages-list">
+            {skillsData.languages.map((language) => (
+              <div class="language-item">
+                <span class="language-name">{language.name}</span>
+                <span class="language-level">{language.level}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+      </aside>
+    </div>
+    
+    <!-- Mobile Skills Modal -->
+    <SkillsModal 
+      skillsData={skillsData}
+      translations={{
+        hardSkills: t.experience.hardSkills,
+        softSkills: t.experience.softSkills,
+        languages: t.experience.languages,
+        close: lang === 'es' ? 'Cerrar' : 'Close',
+      }}
+      lang={lang}
+    />
+    
+    <!-- Mobile: Toggle button for skills modal - Fixed at bottom -->
+    <button id="skills-modal-toggle" class="skills-toggle-btn" aria-label="View Skills" aria-expanded="false">
+      <span class="skills-toggle-text">Skills</span>
+      <svg class="skills-toggle-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="6 9 12 15 18 9"></polyline>
+      </svg>
+    </button>
+  </div>
+</BaseLayout>
+
+<style>
+  .experience-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding-bottom: 0;
+  }
+  
+  @media (max-width: 768px) {
+    .experience-container {
+      padding-bottom: calc(max(0.75rem, env(safe-area-inset-bottom)) + 4rem + 4rem + 2rem);
+    }
+  }
+  
+  .skills-toggle-btn {
+    display: none;
+  }
+  
+  .experience-layout {
+    display: flex;
+    gap: 4rem;
+    align-items: flex-start;
+  }
+  
+  .experience-column {
+    flex: 1;
+    min-width: 0;
+  }
+  
+  .skills-column {
+    width: 400px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 2rem;
+    max-height: calc(100vh - 4rem);
+    overflow-y: auto;
+  }
+  
+  .languages-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .language-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    border: 2px solid var(--color-text);
+    background-color: var(--color-bg);
+    transition: all 0.2s ease;
+  }
+  
+  .language-item:hover {
+    transform: translate(2px, -2px);
+    box-shadow: -2px 2px 0 var(--color-text);
+    background-color: var(--color-accent);
+    color: var(--color-bg);
+  }
+  
+  .language-name {
+    font-family: var(--font-family-sans);
+    font-size: 1rem;
+    font-weight: 600;
+  }
+  
+  .language-level {
+    font-family: 'Courier New', monospace;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    opacity: 0.8;
+  }
+  
+  @media (max-width: 768px) {
+    .skills-toggle-btn {
+      position: fixed;
+      bottom: calc(max(0.75rem, env(safe-area-inset-bottom)) + 4rem);
+      left: 0;
+      right: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      width: calc(100% - 3rem);
+      margin: 0 1.5rem;
+      padding: 1rem;
+      font-family: 'Courier New', monospace;
+      font-size: 0.875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      background-color: var(--color-accent);
+      color: var(--color-bg);
+      border: 3px solid var(--color-text);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      z-index: 99;
+      box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+    }
+    
+    .skills-toggle-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 -6px 25px rgba(0, 0, 0, 0.4);
+    }
+    
+    .skills-toggle-icon {
+      transition: transform 0.3s ease;
+    }
+    
+    .skills-toggle-btn[aria-expanded="true"] .skills-toggle-icon {
+      transform: rotate(180deg);
+    }
+    
+    .experience-layout {
+      flex-direction: column;
+      gap: 0;
+    }
+    
+    .skills-column {
+      display: none;
+    }
+  }
+</style>

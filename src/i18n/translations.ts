@@ -10,6 +10,7 @@ export const translations: Record<Language, Translations> = {
     },
     nav: {
       bio: 'bio',
+      experience: 'experiencia',
       blog: 'blog',
       contact: 'contacto',
       theme: 'Theme',
@@ -28,6 +29,15 @@ export const translations: Record<Language, Translations> = {
       title: 'Blog - Germán Gómez',
       description: 'Reflexiones sobre desarrollo.',
       heading: 'blog',
+    },
+    experience: {
+      title: 'Experiencia - Germán Gómez',
+      description: 'Mi experiencia profesional y habilidades.',
+      heading: 'experiencia',
+      hardSkills: 'Habilidades Técnicas',
+      softSkills: 'Habilidades Blandas',
+      languages: 'Idiomas',
+      downloadCv: 'Descargar CV',
     },
     contact: {
       title: 'Contacto - Germán Gómez',
@@ -76,6 +86,7 @@ export const translations: Record<Language, Translations> = {
     },
     nav: {
       bio: 'bio',
+      experience: 'experience',
       blog: 'blog',
       contact: 'contact',
       theme: 'Theme',
@@ -94,6 +105,15 @@ export const translations: Record<Language, Translations> = {
       title: 'Blog - Germán Gómez',
       description: 'Reflections on development.',
       heading: 'blog',
+    },
+    experience: {
+      title: 'Experience - Germán Gómez',
+      description: 'My professional experience and skills.',
+      heading: 'experience',
+      hardSkills: 'Hard Skills',
+      softSkills: 'Soft Skills',
+      languages: 'Languages',
+      downloadCv: 'Download CV',
     },
     contact: {
       title: 'Contact - Germán Gómez',

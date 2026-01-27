@@ -75,29 +75,46 @@ if (import.meta.env.DEV) {
   <body class="min-h-screen">
     <nav class="nav-bar">
       <div class="nav-links">
-        <a href={`/${lang}/`} class="nav-link nav-link-1 hover:opacity-60 transition-opacity">
+        <a 
+          href={`/${lang}/`} 
+          class={`nav-link nav-link-1 hover:opacity-60 transition-opacity ${(currentPath === `/${lang}/` || currentPath === `/${lang}`) ? 'nav-link-active' : ''}`}
+        >
           <span class="nav-text">{t.bio}</span>
         </a>
-        <a href={`/${lang}/blog`} class="nav-link nav-link-2 hover:opacity-60 transition-opacity">
+        <a 
+          href={`/${lang}/experience`} 
+          class={`nav-link nav-link-2 hover:opacity-60 transition-opacity ${currentPath.startsWith(`/${lang}/experience`) ? 'nav-link-active' : ''}`}
+        >
+          <span class="nav-text">{t.experience}</span>
+        </a>
+        <a 
+          href={`/${lang}/blog`} 
+          class={`nav-link nav-link-3 hover:opacity-60 transition-opacity ${currentPath.startsWith(`/${lang}/blog`) ? 'nav-link-active' : ''}`}
+        >
           <span class="nav-text">{t.blog}</span>
         </a>
-        <a href={`/${lang}/contact`} class="nav-link nav-link-3 hover:opacity-60 transition-opacity">
+        <a 
+          href={`/${lang}/contact`} 
+          class={`nav-link nav-link-4 hover:opacity-60 transition-opacity ${currentPath.startsWith(`/${lang}/contact`) ? 'nav-link-active' : ''}`}
+        >
           <span class="nav-text">{t.contact}</span>
         </a>
       </div>
-      <div class="nav-controls">
-        <button id="theme-toggle" class="nav-control nav-control-1 theme-toggle-btn" aria-label={t.theme}>
-          <span id="theme-icon" class="theme-icon-wrapper">
-            <svg id="theme-icon-sun" class="theme-icon theme-icon-sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-              <circle cx="12" cy="12" r="4" fill="currentColor"/>
-              <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
-            </svg>
-            <svg id="theme-icon-moon" class="theme-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-            </svg>
-          </span>
-        </button>
-        <a href={switcherPath} class="nav-control nav-control-2 lang-switcher">{otherLang}</a>
+      <div id="nav-controls-glassy" class="nav-controls-glassy">
+        <div class="nav-controls">
+          <button id="theme-toggle" class="nav-control nav-control-1 theme-toggle-btn" aria-label={t.theme}>
+            <span id="theme-icon" class="theme-icon-wrapper">
+              <svg id="theme-icon-sun" class="theme-icon theme-icon-sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <circle cx="12" cy="12" r="4" fill="currentColor"/>
+                <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+              </svg>
+              <svg id="theme-icon-moon" class="theme-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+              </svg>
+            </span>
+          </button>
+          <a href={switcherPath} class="nav-control nav-control-2 lang-switcher">{otherLang}</a>
+        </div>
       </div>
     </nav>
     <!-- Language Change Loading Indicator -->
@@ -133,7 +150,7 @@ if (import.meta.env.DEV) {
       </div>
     </div>
     
-    <footer class="footer">
+    <footer class={`footer ${currentPath.startsWith(`/${lang}/experience`) ? 'footer-experience' : ''}`}>
       <p class="footer-copyright">© {currentYear} {getTranslations(lang).footer.copyright}</p>
       <p class="footer-source">
         <a 
@@ -368,6 +385,58 @@ if (import.meta.env.DEV) {
           showDesktopPopup();
         }, 100);
       });
+      
+      // Glassy effect for nav controls on scroll (mobile only)
+      function setupGlassyNavControls() {
+        const glassyWrapper = document.getElementById('nav-controls-glassy');
+        if (!glassyWrapper) return;
+        
+        let scrollTimeout: ReturnType<typeof setTimeout> | null = null;
+        
+        function handleScroll() {
+          if (!glassyWrapper) return;
+          
+          if (window.innerWidth >= 768) {
+            // Desktop: always show (no glassy effect needed)
+            glassyWrapper.classList.remove('scrolled');
+            return;
+          }
+          
+          // Mobile: show glassy effect when scrolled
+          const scrollY = window.scrollY || document.documentElement.scrollTop;
+          if (scrollY > 50) {
+            glassyWrapper.classList.add('scrolled');
+          } else {
+            glassyWrapper.classList.remove('scrolled');
+          }
+        }
+        
+        // Initial check
+        handleScroll();
+        
+        // Throttle scroll events
+        window.addEventListener('scroll', () => {
+          if (scrollTimeout) {
+            clearTimeout(scrollTimeout);
+          }
+          scrollTimeout = setTimeout(handleScroll, 10);
+        }, { passive: true });
+        
+        // Handle resize
+        window.addEventListener('resize', handleScroll, { passive: true });
+        
+        // Re-setup on page navigation
+        document.addEventListener('astro:page-load', () => {
+          setTimeout(handleScroll, 100);
+        });
+      }
+      
+      // Initialize glassy nav controls
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', setupGlassyNavControls);
+      } else {
+        setupGlassyNavControls();
+      }
     </script>
   </body>
 </html>
@@ -402,16 +471,43 @@ if (import.meta.env.DEV) {
     gap: 0;
   }
   
-  .nav-controls {
+  .nav-controls-glassy {
     position: fixed;
     top: 1.5rem;
     right: 1rem;
     left: auto;
+    z-index: 100;
+    padding: 0.5rem;
+    border-radius: 0.75rem;
+  }
+  
+  .nav-controls-glassy::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 0.75rem;
+    background: radial-gradient(ellipse 120% 120% at center, rgba(0, 0, 0, 0.25) 0%, rgba(0, 0, 0, 0.15) 40%, transparent 80%);
+    backdrop-filter: blur(2px);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    z-index: -1;
+  }
+  
+  .nav-controls-glassy.scrolled::before {
+    opacity: 1;
+  }
+  
+  .nav-controls {
     display: flex;
     flex-direction: row;
     gap: 0.5rem;
     align-items: center;
-    z-index: 100;
+    position: relative;
+    z-index: 1;
   }
   
   .nav-emoji {
@@ -452,6 +548,18 @@ if (import.meta.env.DEV) {
       text-orientation: mixed;
       white-space: nowrap;
       display: block;
+    }
+    
+    .nav-controls-glassy {
+      position: static;
+      top: auto;
+      right: auto;
+      left: auto;
+      padding: 0.5rem;
+    }
+    
+    .nav-controls-glassy::before {
+      display: none;
     }
     
     .nav-controls {
@@ -500,12 +608,66 @@ if (import.meta.env.DEV) {
     font-weight: 700;
     color: var(--color-accent);
     text-decoration: none;
+    position: relative;
+    transition: all 0.2s ease;
   }
   
   .nav-text {
     font-size: 1.25rem;
+    position: relative;
   }
   
+  /* Active nav link - Mobile: Elevated + color change + arrow + animation */
+  .nav-link-active {
+    transform: translateY(-4px);
+    color: var(--color-text);
+  }
+  
+  .nav-link-active .nav-text::before {
+    content: '→';
+    margin-right: 0.5rem;
+    color: var(--color-accent);
+    display: inline-block;
+    vertical-align: middle;
+    animation: arrowPulseMobile 1.5s ease-in-out infinite;
+  }
+  
+  .nav-link-active .nav-text {
+    animation: textGlow 2s ease-in-out infinite;
+  }
+  
+  @keyframes arrowPulseMobile {
+    0%, 100% {
+      transform: translateX(0);
+      opacity: 1;
+    }
+    50% {
+      transform: translateX(4px);
+      opacity: 0.7;
+    }
+  }
+  
+  @keyframes arrowPulseDesktop {
+    0%, 100% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    50% {
+      transform: translateY(4px);
+      opacity: 0.7;
+    }
+  }
+  
+  @keyframes textGlow {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.8;
+    }
+  }
+  
+  /* Active nav link - Desktop: Elevated + color change + arrow + animation */
   @media (min-width: 768px) {
     .nav-link {
       font-size: 0.875rem;
@@ -513,6 +675,25 @@ if (import.meta.env.DEV) {
     
     .nav-text {
       font-size: 1rem;
+    }
+    
+    .nav-link-active {
+      transform: translateX(4px);
+      color: var(--color-text);
+    }
+    
+    .nav-link-active .nav-text::before {
+      content: '→';
+      margin-right: 0.57rem;
+      padding-bottom: 4px;
+      color: var(--color-accent);
+      display: inline-block;
+      vertical-align: middle;
+      animation: arrowPulseDesktop 1.5s ease-in-out infinite;
+    }
+    
+    .nav-link-active .nav-text {
+      animation: textGlow 2s ease-in-out infinite;
     }
   }
   
@@ -665,6 +846,10 @@ if (import.meta.env.DEV) {
       animation-delay: 0.4s;
     }
     
+    .play-nav-animation .nav-link-4 {
+      animation-delay: 0.55s;
+    }
+    
     .play-nav-animation .nav-control:not(.nav-control-animated) {
       opacity: 0;
       animation: scaleFromInside 0.5s ease-out forwards;
@@ -709,14 +894,30 @@ if (import.meta.env.DEV) {
   
   .footer {
     padding: 2rem 1rem;
-    padding-bottom: calc(2rem + max(5rem, env(safe-area-inset-bottom)));
+    padding-bottom: calc(2rem + max(5rem, env(safe-area-inset-bottom)) + 4rem);
     text-align: center;
     border-top: 1px solid var(--color-border);
     margin-top: 4rem;
+    width: 100%;
+    box-sizing: border-box;
+    max-width: 100vw;
+    overflow-x: hidden;
+    margin-left: 0;
+    margin-right: 0;
+  }
+  
+  .footer-experience {
+    padding-bottom: calc(2rem + max(5rem, env(safe-area-inset-bottom)) + 6rem);
   }
   
   @media (min-width: 768px) {
     .footer {
+      padding: 2rem 1rem;
+      padding-bottom: 2rem;
+      margin-top: 4rem;
+    }
+    
+    .footer-experience {
       padding-bottom: 2rem;
     }
   }
@@ -726,11 +927,15 @@ if (import.meta.env.DEV) {
     color: var(--color-text);
     opacity: 0.6;
     margin: 0;
+    line-height: 1.5;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
   }
   
   .footer-source {
     margin-top: 0.5rem;
     font-size: 0.875rem;
+    line-height: 1.5;
   }
   
   .footer-link {
@@ -738,12 +943,23 @@ if (import.meta.env.DEV) {
     opacity: 0.6;
     text-decoration: none;
     transition: opacity 0.2s ease;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    display: inline-block;
+    max-width: 100%;
   }
   
   .footer-link:hover {
     opacity: 1;
     text-decoration: underline;
     text-underline-offset: 2px;
+  }
+  
+  @media (max-width: 767px) {
+    .footer {
+      padding-left: max(1rem, env(safe-area-inset-left));
+      padding-right: max(1rem, env(safe-area-inset-right));
+    }
   }
   
   /* Desktop Popup */

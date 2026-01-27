@@ -1,0 +1,232 @@
+---
+import SkillsSection from './SkillsSection.astro';
+import type { SkillsData } from '@/lib/experience-data';
+
+interface Props {
+  skillsData: SkillsData;
+  translations: {
+    hardSkills: string;
+    softSkills: string;
+    languages: string;
+    close: string;
+  };
+  lang: 'es' | 'en';
+}
+
+const { skillsData, translations, lang } = Astro.props;
+---
+
+<div id="skills-modal" class="skills-modal" role="dialog" aria-labelledby="skills-modal-title" aria-hidden="true">
+  <div class="skills-modal-backdrop" id="skills-modal-backdrop"></div>
+  <div class="skills-modal-content">
+    <div class="skills-modal-header">
+      <h2 id="skills-modal-title" class="skills-modal-title">Skills</h2>
+      <button class="skills-modal-close" id="skills-modal-close" aria-label={translations.close}>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+    <div class="skills-modal-body">
+      <SkillsSection 
+        title={translations.hardSkills}
+        skills={skillsData.hardSkills}
+        icon="💻"
+      />
+      <SkillsSection 
+        title={translations.softSkills}
+        skills={skillsData.softSkills}
+        icon="🤝"
+      />
+      <section class="skills-section">
+        <h3 class="skills-title">
+          <span class="skills-icon">🌐</span>
+          {translations.languages}
+        </h3>
+        <div class="languages-list">
+          {skillsData.languages.map((lang) => (
+            <div class="language-item">
+              <span class="language-name">{lang.name}</span>
+              <span class="language-level">{lang.level}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<style>
+  .skills-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 10000;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+  }
+  
+  .skills-modal[aria-hidden="false"] {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: all;
+  }
+  
+  .skills-modal-backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+  }
+  
+  .skills-modal-content {
+    position: relative;
+    width: 100%;
+    max-height: 80vh;
+    background-color: var(--color-bg);
+    border-top: 3px solid var(--color-text);
+    border-radius: 1rem 1rem 0 0;
+    padding: 1.5rem;
+    overflow-y: auto;
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1;
+  }
+  
+  .skills-modal[aria-hidden="false"] .skills-modal-content {
+    transform: translateY(0);
+  }
+  
+  .skills-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--color-border);
+  }
+  
+  .skills-modal-title {
+    font-family: var(--font-family-sans);
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-transform: lowercase;
+  }
+  
+  .skills-modal-close {
+    background: none;
+    border: none;
+    color: var(--color-text);
+    cursor: pointer;
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease;
+  }
+  
+  .skills-modal-close:hover {
+    transform: scale(1.1);
+  }
+  
+  .skills-modal-close:active {
+    transform: scale(0.95);
+  }
+  
+  .skills-modal-body {
+    padding-bottom: 2rem;
+  }
+  
+  .languages-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .language-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    border: 2px solid var(--color-text);
+    background-color: var(--color-bg);
+  }
+  
+  .language-name {
+    font-family: var(--font-family-sans);
+    font-size: 1rem;
+    font-weight: 600;
+  }
+  
+  .language-level {
+    font-family: 'Courier New', monospace;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    opacity: 0.8;
+  }
+  
+  @media (min-width: 768px) {
+    .skills-modal {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  // Modal control logic
+  (function() {
+    const modal = document.getElementById('skills-modal');
+    const backdrop = document.getElementById('skills-modal-backdrop');
+    const closeBtn = document.getElementById('skills-modal-close');
+    const toggleBtn = document.getElementById('skills-modal-toggle');
+    
+    if (!modal || !backdrop || !closeBtn) return;
+    
+    // TypeScript: modal is guaranteed to be non-null after the check above
+    const modalElement = modal;
+    
+    function openModal() {
+      modalElement.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+    }
+    
+    function closeModal() {
+      modalElement.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+    }
+    
+    closeBtn.addEventListener('click', closeModal);
+    backdrop.addEventListener('click', closeModal);
+    
+    if (toggleBtn) {
+      toggleBtn.addEventListener('click', () => {
+        const isHidden = modal.getAttribute('aria-hidden') === 'true';
+        if (isHidden) {
+          openModal();
+        } else {
+          closeModal();
+        }
+      });
+    }
+    
+    // Close on Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modal && modal.getAttribute('aria-hidden') === 'false') {
+        closeModal();
+      }
+    });
+  })();
+</script>
