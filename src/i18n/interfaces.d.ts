@@ -20,6 +20,16 @@ export interface Translations {
     role: string;
     location: string;
     description: string;
+    techExplanation: {
+      intro: string;
+      technologies: {
+        astro: string;
+        framerMotion: string;
+        tailwind: string;
+      };
+      whyWebpage: string;
+      mobileVsWeb: string;
+    };
   };
   
   // Year Progress
