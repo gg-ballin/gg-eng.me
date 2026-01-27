@@ -588,17 +588,28 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
           body: JSON.stringify(data),
         });
         
+        // Read response body once (can only be read once)
+        let responseText;
+        try {
+          responseText = await response.text();
+        } catch (e) {
+          formMessage.textContent = 'Failed to read server response. Please try again.';
+          formMessage.className = 'form-message error';
+          formMessage.style.display = 'block';
+          console.error('Failed to read response:', e);
+          return;
+        }
+        
         // Check if response is OK
         if (!response.ok) {
-          // Try to parse error response
+          // Try to parse error response as JSON
           let errorMessage = `Server error: ${response.status} ${response.statusText}`;
           try {
-            const errorData = await response.json();
+            const errorData = JSON.parse(responseText);
             errorMessage = errorData.error || errorData.message || errorMessage;
           } catch (e) {
-            // Response is not JSON, use status text
-            const text = await response.text();
-            errorMessage = text || errorMessage;
+            // Response is not JSON, use the text as-is
+            errorMessage = responseText || errorMessage;
           }
           
           formMessage.textContent = errorMessage;
@@ -611,12 +622,12 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
         // Parse JSON response
         let result;
         try {
-          result = await response.json();
+          result = JSON.parse(responseText);
         } catch (e) {
           formMessage.textContent = 'Invalid response from server. Please try again.';
           formMessage.className = 'form-message error';
           formMessage.style.display = 'block';
-          console.error('Failed to parse response:', e);
+          console.error('Failed to parse response:', e, 'Response text:', responseText);
           return;
         }
         
