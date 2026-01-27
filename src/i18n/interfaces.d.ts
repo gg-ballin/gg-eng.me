@@ -8,6 +8,7 @@ export interface Translations {
   // Navigation
   nav: {
     bio: string;
+    experience: string;
     blog: string;
     contact: string;
     theme: string;
@@ -19,6 +20,30 @@ export interface Translations {
     role: string;
     location: string;
     description: string;
+    techExplanation: {
+      intro: string;
+      categories: {
+        frontend: string;
+        deployment: string;
+        versionControl: string;
+        packageManager: string;
+        ide: string;
+      };
+      technologies: {
+        astro: string;
+        framerMotion: string;
+        typescript: string;
+        tailwind: string;
+        zod: string;
+        cloudflare: string;
+        cloudflareKV: string;
+        github: string;
+        npm: string;
+        cursor: string;
+      };
+      whyWebpage: string;
+      mobileVsWeb: string;
+    };
   };
   
   // Year Progress
@@ -32,6 +57,17 @@ export interface Translations {
     title: string;
     description: string;
     heading: string;
+  };
+  
+  // Experience
+  experience: {
+    title: string;
+    description: string;
+    heading: string;
+    hardSkills: string;
+    softSkills: string;
+    languages: string;
+    downloadCv: string;
   };
   
   // Contact

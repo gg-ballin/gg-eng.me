@@ -1,0 +1,341 @@
+---
+import type { ExperienceEntry } from '@/lib/experience-data';
+import SkillIconLink from './SkillIconLink.astro';
+import { getSkillIconConfig } from '@/lib/experience-data';
+import { getEmployerLogo } from '@/lib/experience/employers';
+
+interface Props {
+  entry: ExperienceEntry;
+}
+
+const { entry } = Astro.props;
+const employerLogo = getEmployerLogo(entry.company);
+---
+
+<article class="experience-entry">
+  <div class="experience-date">{entry.dateRange}</div>
+  <div class="experience-content">
+    <h3 class="experience-role">{entry.role}</h3>
+    <div class="experience-company-wrapper">
+      {employerLogo && (
+        <div class="employer-logo-container">
+          {employerLogo.href ? (
+            <a href={employerLogo.href} target="_blank" rel="noopener noreferrer" class="employer-logo-link">
+              {employerLogo.iconDark && !employerLogo.isPng ? (
+                <>
+                  <img 
+                    src={employerLogo.iconLight} 
+                    alt={employerLogo.name} 
+                    class="employer-logo employer-logo-light" 
+                    width={employerLogo.width || 100}
+                    height="auto"
+                  />
+                  <img 
+                    src={employerLogo.iconDark} 
+                    alt={employerLogo.name} 
+                    class="employer-logo employer-logo-dark" 
+                    width={employerLogo.width || 100}
+                    height="auto"
+                  />
+                </>
+              ) : (
+                <img 
+                  src={employerLogo.iconLight} 
+                  alt={employerLogo.name} 
+                  class="employer-logo" 
+                  width={employerLogo.width || 100}
+                  height="auto"
+                />
+              )}
+            </a>
+          ) : (
+            <>
+              {employerLogo.iconDark && !employerLogo.isPng ? (
+                <>
+                  <img 
+                    src={employerLogo.iconLight} 
+                    alt={employerLogo.name} 
+                    class="employer-logo employer-logo-light" 
+                    width={employerLogo.width || 100}
+                    height="auto"
+                  />
+                  <img 
+                    src={employerLogo.iconDark} 
+                    alt={employerLogo.name} 
+                    class="employer-logo employer-logo-dark" 
+                    width={employerLogo.width || 100}
+                    height="auto"
+                  />
+                </>
+              ) : (
+                <img 
+                  src={employerLogo.iconLight} 
+                  alt={employerLogo.name} 
+                  class="employer-logo" 
+                  width={employerLogo.width || 100}
+                  height="auto"
+                />
+              )}
+            </>
+          )}
+        </div>
+      )}
+      <p class="experience-company">{entry.company}</p>
+    </div>
+    <p class="experience-description">{entry.description}</p>
+    
+    {entry.skills && entry.skills.length > 0 && (
+      <div class="experience-skills">
+        {entry.skills.map((skill) => {
+          const iconConfig = getSkillIconConfig(skill);
+          if (iconConfig) {
+            return <SkillIconLink iconConfig={iconConfig} />;
+          }
+          // Fallback to text badge if no icon found
+          return <span class="skill-tag">{skill}</span>;
+        })}
+      </div>
+    )}
+    
+    {entry.projects && entry.projects.length > 0 && (
+      <div class="experience-projects">
+        <h4 class="projects-title">PROJECT DEEP DIVES</h4>
+        {entry.projects.map((project) => (
+          <div class="project-item">
+            <h5 class="project-name">{project.name}</h5>
+            <ul class="project-achievements">
+              {project.achievements.map((achievement) => (
+                <li>{achievement}</li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    )}
+  </div>
+</article>
+
+<style>
+  .experience-entry {
+    margin-bottom: 4rem;
+    position: relative;
+    padding-left: 2rem;
+  }
+  
+  .experience-entry:last-child {
+    margin-bottom: 0;
+  }
+  
+  .experience-date {
+    font-family: var(--font-family-sans);
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    margin-bottom: 1rem;
+    color: var(--color-accent);
+    opacity: 0.8;
+  }
+  
+  .experience-content {
+    border: 3px solid var(--color-text);
+    padding: 1.5rem;
+    background-color: var(--timeline-item-bg);
+    transition: all 0.2s ease;
+  }
+  
+  .experience-content:hover {
+    transform: translate(4px, -4px);
+    box-shadow: -4px 4px 0 var(--color-accent);
+  }
+  
+  .experience-role {
+    font-family: var(--font-family-serif);
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 0.5rem;
+  }
+  
+  .experience-company-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+  
+  .employer-logo-container {
+    display: flex;
+    align-items: center;
+  }
+  
+  .employer-logo-link {
+    display: inline-block;
+    transition: opacity 0.2s ease;
+  }
+  
+  .employer-logo-link:hover {
+    opacity: 0.8;
+  }
+  
+  .employer-logo {
+    display: inline-block;
+    max-width: 100%;
+    height: auto;
+    object-fit: contain;
+  }
+  
+  .employer-logo-light {
+    display: inline-block;
+  }
+  
+  .employer-logo-dark {
+    display: none;
+  }
+  
+  .experience-company {
+    font-family: var(--font-family-sans);
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    opacity: 0.8;
+    margin: 0;
+  }
+  
+  .experience-description {
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+    opacity: 0.9;
+  }
+  
+  .experience-skills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+  }
+  
+  .skill-tag {
+    font-family: var(--font-family-sans);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.375rem 0.75rem;
+    border: 2px solid var(--color-text);
+    background-color: var(--color-bg);
+    color: var(--color-text);
+  }
+  
+  .experience-projects {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 2px solid var(--color-border);
+  }
+  
+  .projects-title {
+    font-family: var(--font-family-sans);
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 1.5rem;
+  }
+  
+  .project-item {
+    margin-bottom: 2rem;
+  }
+  
+  .project-item:last-child {
+    margin-bottom: 0;
+  }
+  
+  .project-name {
+    font-family: var(--font-family-sans);
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    position: relative;
+    padding-left: 1rem;
+  }
+  
+  .project-name::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: var(--color-accent);
+  }
+  
+  .project-achievements {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .project-achievements li {
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    margin-bottom: 0.5rem;
+    padding-left: 1.5rem;
+    position: relative;
+    opacity: 0.9;
+  }
+  
+  .project-achievements li::before {
+    content: '•';
+    position: absolute;
+    left: 0;
+    color: var(--color-accent);
+    font-weight: bold;
+  }
+  
+  .project-achievements li:last-child {
+    margin-bottom: 0;
+  }
+  
+  @media (max-width: 768px) {
+    .experience-entry {
+      padding-left: 1.5rem;
+      margin-bottom: 3rem;
+    }
+    
+    .experience-content {
+      padding: 1.25rem;
+    }
+    
+    .experience-role {
+      font-size: 1.25rem;
+    }
+    
+    .employer-logo {
+      max-width: 120px;
+    }
+  }
+</style>
+
+<style is:global>
+  /* Global theme-based employer logo visibility */
+  [data-theme="dark"] .employer-logo-light {
+    display: none !important;
+  }
+  
+  [data-theme="dark"] .employer-logo-dark {
+    display: inline-block !important;
+  }
+  
+  [data-theme="light"] .employer-logo-light,
+  :root:not([data-theme="dark"]) .employer-logo-light {
+    display: inline-block !important;
+  }
+  
+  [data-theme="light"] .employer-logo-dark,
+  :root:not([data-theme="dark"]) .employer-logo-dark {
+    display: none !important;
+  }
+</style>

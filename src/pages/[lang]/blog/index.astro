@@ -2,6 +2,7 @@
 import { getCollection } from 'astro:content';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import TimelineItem from '@/components/TimelineItem.astro';
+import Reveal from '@/components/Reveal';
 import { getTranslations, type Language } from '@/i18n/translations';
 import { formatDate } from '@/utils/formatDate';
 
@@ -40,32 +41,39 @@ const sortedPosts: BlogPost[] = allPosts.sort(
   description={t.description}
   lang={lang}
 >
-  <div class="max-w-4xl ">
-    <h1 class="text-5xl md:text-6xl font-bold mb-16 mt-10" style="font-family: var(--font-family-sans); lowercase;">{t.heading}</h1>
+  <div class="max-w-4xl blog-container">
+    <Reveal client:load>
+      <h1 class="text-5xl md:text-6xl font-bold mb-16 mt-10" style="font-family: var(--font-family-sans); lowercase;">{t.heading}</h1>
+    </Reveal>
     
-    <div class="timeline">
-      {sortedPosts.map((post: BlogPost, index: number) => {
-        const slug = post.slug.replace(`${post.data.language}/`, '');
-        const isHighlighted = index % 3 === 0;
-        return (
-          <TimelineItem
-            title={post.data.title}
-            date={formatDate(post.data.pubDate, lang)}
-            description={post.data.description}
-            href={`/${lang}/blog/${slug}`}
-            isHighlighted={isHighlighted}
-          />
-        );
-      })}
-    </div>
+      <div class="timeline">
+        {sortedPosts.map((post: BlogPost, index: number) => {
+          const slug = post.slug.replace(`${post.data.language}/`, '');
+          const isHighlighted = index % 3 === 0;
+          return (
+            <TimelineItem
+              title={post.data.title}
+              date={formatDate(post.data.pubDate, lang)}
+              description={post.data.description}
+              href={`/${lang}/blog/${slug}`}
+              isHighlighted={isHighlighted}
+            />
+          );
+        })}
+      </div>
   </div>
 </BaseLayout>
 
 <style>
+  .blog-container {
+    margin-top: 1rem;
+  }
+  
   .timeline {
     position: relative;
     padding-left: 3rem;
     margin-left: 1rem;
+    animation: slideUpFromBottom 0.8s ease-out 0.2s both;
   }
 
   .timeline::before {
@@ -76,5 +84,16 @@ const sortedPosts: BlogPost[] = allPosts.sort(
     bottom: 0;
     width: 2px;
     background-color: var(--timeline-line);
+  }
+  
+  @keyframes slideUpFromBottom {
+    from {
+      opacity: 0;
+      transform: translateY(50px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 </style>

@@ -1,0 +1,94 @@
+---
+interface Props {
+  href: string;
+  title: string;
+  iconLight: string;
+  iconDark?: string;
+  text?: string;
+  width?: number;
+}
+
+const { href, title, iconLight, iconDark, text, width = 45 } = Astro.props;
+const height = 45; // Fixed height
+---
+
+<a href={href} target="_blank" rel="noopener noreferrer" class="tech-icon-link" title={title}>
+  {iconDark ? (
+    <>
+      <img src={iconLight} alt={title} class="tech-icon tech-icon-light" width={width} height={height} />
+      <img src={iconDark} alt={title} class="tech-icon tech-icon-dark" width={width} height={height} />
+    </>
+  ) : (
+    <img src={iconLight} alt={title} class="tech-icon" width={width} height={height} />
+  )}
+  {text && <span class="tech-name">{text}</span>}
+</a>
+
+<style>
+  .tech-icon-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border: 2px solid var(--color-text);
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    text-decoration: none;
+    border-radius: 0.375rem;
+    transition: all 0.2s ease;
+    opacity: 0.9;
+  }
+  
+  .tech-icon-link:hover {
+    background-color: var(--color-accent);
+    color: var(--color-bg);
+    transform: translate(2px, -2px);
+    box-shadow: -2px 2px 0 var(--color-text);
+    opacity: 1;
+  }
+  
+  .tech-icon {
+    display: inline-block;
+    object-fit: contain;
+    flex-shrink: 0;
+    height: 45px;
+  }
+  
+  /* Theme-based icon visibility */
+  .tech-icon-light {
+    display: inline-block;
+  }
+  
+  .tech-icon-dark {
+    display: none;
+  }
+  
+  .tech-name {
+    font-family: var(--font-family-sans);
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+</style>
+
+<style is:global>
+  /* Global theme-based icon visibility */
+  [data-theme="dark"] .tech-icon-light {
+    display: none !important;
+  }
+  
+  [data-theme="dark"] .tech-icon-dark {
+    display: inline-block !important;
+  }
+  
+  [data-theme="light"] .tech-icon-light,
+  :root:not([data-theme="dark"]) .tech-icon-light {
+    display: inline-block !important;
+  }
+  
+  [data-theme="light"] .tech-icon-dark,
+  :root:not([data-theme="dark"]) .tech-icon-dark {
+    display: none !important;
+  }
+</style>

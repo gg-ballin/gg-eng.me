@@ -1,0 +1,202 @@
+---
+import SkillsSection from './SkillsSection.astro';
+import LanguagesSection from './LanguagesSection.astro';
+import type { SkillsData } from '@/lib/experience-data';
+import { getCategoryDisplayName } from '@/lib/experience-data';
+import type { ExperienceTechCategory } from '@/lib/experience/technologies';
+
+interface Props {
+  skillsData: SkillsData;
+  translations: {
+    softSkills: string;
+    languages: string;
+    close: string;
+  };
+  lang: 'es' | 'en';
+}
+
+const { skillsData, translations, lang } = Astro.props;
+
+// Get all categories that have skills
+const categoriesWithSkills = (Object.keys(skillsData.hardSkillsByCategory) as ExperienceTechCategory[]).filter(
+  (category) => skillsData.hardSkillsByCategory[category].length > 0
+);
+---
+
+<div id="skills-modal" class="skills-modal" role="dialog" aria-labelledby="skills-modal-title" aria-hidden="true">
+  <div class="skills-modal-backdrop" id="skills-modal-backdrop"></div>
+  <div class="skills-modal-content">
+    <div class="skills-modal-header">
+      <h2 id="skills-modal-title" class="skills-modal-title">Skills</h2>
+      <button class="skills-modal-close" id="skills-modal-close" aria-label={translations.close}>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+    <div class="skills-modal-body">
+      {categoriesWithSkills.map((category) => (
+        <SkillsSection 
+          title={getCategoryDisplayName(category, lang)}
+          skills={skillsData.hardSkillsByCategory[category]}
+          useIcons={true}
+        />
+      ))}
+      <SkillsSection 
+        title={translations.softSkills}
+        skills={skillsData.softSkills}
+        useIcons={false}
+      />
+      <LanguagesSection 
+        languages={skillsData.languages}
+        title={translations.languages}
+      />
+    </div>
+  </div>
+</div>
+
+<style>
+  .skills-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 10000;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+  }
+  
+  .skills-modal[aria-hidden="false"] {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: all;
+  }
+  
+  .skills-modal-backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+  }
+  
+  .skills-modal-content {
+    position: relative;
+    width: 100%;
+    height: 80vh;
+    max-height: 80vh;
+    background-color: var(--color-bg);
+    border-top: 3px solid var(--color-text);
+    border-radius: 1rem 1rem 0 0;
+    padding: 1.5rem;
+    overflow-y: auto;
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1;
+  }
+  
+  .skills-modal[aria-hidden="false"] .skills-modal-content {
+    transform: translateY(0);
+  }
+  
+  .skills-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--color-border);
+  }
+  
+  .skills-modal-title {
+    font-family: var(--font-family-sans);
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-transform: lowercase;
+  }
+  
+  .skills-modal-close {
+    background: none;
+    border: none;
+    color: var(--color-text);
+    cursor: pointer;
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease;
+  }
+  
+  .skills-modal-close:hover {
+    transform: scale(1.1);
+  }
+  
+  .skills-modal-close:active {
+    transform: scale(0.95);
+  }
+  
+  .skills-modal-body {
+    padding-bottom: 2rem;
+  }
+  
+  @media (min-width: 768px) {
+    .skills-modal {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  // Modal control logic
+  (function() {
+    const modal = document.getElementById('skills-modal');
+    const backdrop = document.getElementById('skills-modal-backdrop');
+    const closeBtn = document.getElementById('skills-modal-close');
+    const toggleBtn = document.getElementById('skills-modal-toggle');
+    
+    if (!modal || !backdrop || !closeBtn) return;
+    
+    // TypeScript: modal is guaranteed to be non-null after the check above
+    const modalElement = modal;
+    
+    function openModal() {
+      modalElement.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+    }
+    
+    function closeModal() {
+      modalElement.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+    }
+    
+    closeBtn.addEventListener('click', closeModal);
+    backdrop.addEventListener('click', closeModal);
+    
+    if (toggleBtn) {
+      toggleBtn.addEventListener('click', () => {
+        const isHidden = modal.getAttribute('aria-hidden') === 'true';
+        if (isHidden) {
+          openModal();
+        } else {
+          closeModal();
+        }
+      });
+    }
+    
+    // Close on Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modal && modal.getAttribute('aria-hidden') === 'false') {
+        closeModal();
+      }
+    });
+  })();
+</script>

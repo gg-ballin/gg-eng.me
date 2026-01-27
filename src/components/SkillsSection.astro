@@ -1,0 +1,113 @@
+---
+import SkillIconLink from './SkillIconLink.astro';
+import { getSkillIconConfig } from '@/lib/experience-data';
+import type { ExperienceTechIconConfig } from '@/lib/experience/technologies';
+
+interface Props {
+  title: string;
+  skills: string[];
+  icon?: string;
+  useIcons?: boolean; // Whether to use icon components
+}
+
+const { title, skills, icon, useIcons = false } = Astro.props;
+
+// Get icon configs for skills that have icons
+const skillIconConfigs: (ExperienceTechIconConfig | null)[] = useIcons
+  ? skills.map((skill) => getSkillIconConfig(skill))
+  : [];
+---
+
+<section class="skills-section">
+  <h3 class="skills-title">
+    {icon && (
+      <span class="skills-icon">
+        {icon}
+      </span>
+    )}
+    {title}
+  </h3>
+  <div class="skills-grid">
+    {useIcons ? (
+      skills.map((skill, index) => {
+        const iconConfig = skillIconConfigs[index];
+        if (iconConfig) {
+          return <SkillIconLink iconConfig={iconConfig} />;
+        }
+        // Fallback to text badge if no icon found
+        return <span class="skill-badge">{skill}</span>;
+      })
+    ) : (
+      skills.map((skill) => (
+        <span class="skill-badge">{skill}</span>
+      ))
+    )}
+  </div>
+</section>
+
+<style>
+  .skills-section {
+    margin-bottom: 3rem;
+  }
+  
+  .skills-section:last-child {
+    margin-bottom: 0;
+  }
+  
+  .skills-title {
+    color: var(--color-accent);
+    font-family: var(--font-family-sans);
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .skills-icon {
+    display: inline-block;
+    font-size: 1rem;
+  }
+  
+  .skills-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+  
+  .skill-badge {
+    font-family: var(--font-family-sans);
+    font-size: 0.875rem;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border: 2px solid var(--color-text);
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    transition: all 0.2s ease;
+  }
+  
+  .skill-badge:hover {
+    background-color: var(--color-accent);
+    color: var(--color-bg);
+    transform: translate(2px, -2px);
+    box-shadow: -2px 2px 0 var(--color-text);
+  }
+  
+  @media (max-width: 768px) {
+    .skills-section {
+      margin-bottom: 2rem;
+    }
+    
+    .skills-grid {
+      gap: 0.5rem;
+    }
+    
+    .skill-badge {
+      font-size: 0.8125rem;
+      padding: 0.375rem 0.75rem;
+    }
+  }
+</style>

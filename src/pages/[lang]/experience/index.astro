@@ -1,0 +1,237 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import ExperienceEntry from '@/components/ExperienceEntry.astro';
+import SkillsSection from '@/components/SkillsSection.astro';
+import LanguagesSection from '@/components/LanguagesSection.astro';
+import SkillsModal from '@/components/SkillsModal.astro';
+import Reveal from '@/components/Reveal';
+import { getTranslations, type Language } from '@/i18n/translations';
+import { getExperienceEntries, getSkillsData, getCategoryDisplayName } from '@/lib/experience-data';
+import type { ExperienceTechCategory } from '@/lib/experience/technologies';
+
+const { lang } = Astro.params as { lang: Language };
+
+// Validate lang parameter in SSR mode
+if (!['es', 'en'].includes(lang)) {
+  return Astro.redirect('/es/experience');
+}
+
+const t = getTranslations(lang);
+const experienceEntries = getExperienceEntries(lang);
+const skillsData = getSkillsData(lang);
+
+// Get all categories that have skills
+const categoriesWithSkills = (Object.keys(skillsData.hardSkillsByCategory) as ExperienceTechCategory[]).filter(
+  (category) => skillsData.hardSkillsByCategory[category].length > 0
+);
+---
+
+<BaseLayout 
+  title={t.experience.title} 
+  description={t.experience.description}
+  lang={lang}
+>
+  <div class="experience-container">
+    <Reveal client:load>
+      <h1 class="text-5xl md:text-6xl font-bold mb-16 mt-10" style="font-family: var(--font-family-sans); text-transform: lowercase;">{t.experience.heading}</h1>
+    </Reveal>
+    
+    <div class="experience-layout">
+      <!-- Left Column: Experience Timeline -->
+      <div class="experience-column experience-column-animate">
+        {experienceEntries.map((entry) => (
+          <ExperienceEntry entry={entry} />
+        ))}
+      </div>
+      
+      <!-- Right Column: Skills (Desktop only) -->
+      <aside class="skills-column skills-column-animate">
+          {categoriesWithSkills.map((category) => (
+            <SkillsSection 
+              title={getCategoryDisplayName(category, lang)}
+              skills={skillsData.hardSkillsByCategory[category]}
+              useIcons={true}
+            />
+          ))}
+          <SkillsSection 
+            title={t.experience.softSkills}
+            skills={skillsData.softSkills}
+            useIcons={false}
+          />
+          <LanguagesSection 
+            languages={skillsData.languages}
+            title={t.experience.languages}
+          />
+        </aside>
+    </div>
+    
+    <!-- Mobile Skills Modal -->
+    <SkillsModal 
+      skillsData={skillsData}
+      translations={{
+        softSkills: t.experience.softSkills,
+        languages: t.experience.languages,
+        close: lang === 'es' ? 'Cerrar' : 'Close',
+      }}
+      lang={lang}
+    />
+    
+    <!-- Mobile: Toggle button for skills modal - Fixed at bottom -->
+    <button id="skills-modal-toggle" class="skills-toggle-btn" aria-label="View Skills" aria-expanded="false">
+      <span class="skills-toggle-text">Skills</span>
+      <span class="skills-toggle-animated-icon">
+        <svg width="20" height="20" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M3.85355 2.14645C3.65829 1.95118 3.34171 1.95118 3.14645 2.14645C2.95118 2.34171 2.95118 2.65829 3.14645 2.85355L7.14645 6.85355C7.34171 7.04882 7.65829 7.04882 7.85355 6.85355L11.8536 2.85355C12.0488 2.65829 12.0488 2.34171 11.8536 2.14645C11.6583 1.95118 11.3417 1.95118 11.1464 2.14645L7.5 5.79289L3.85355 2.14645Z" fill="currentColor" fill-rule="evenodd" clip-rule="evenodd"/>
+          <path d="M3.85355 7.14645C3.65829 6.95118 3.34171 6.95118 3.14645 7.14645C2.95118 7.34171 2.95118 7.65829 3.14645 7.85355L7.14645 11.8536C7.34171 12.0488 7.65829 12.0488 7.85355 11.8536L11.8536 7.85355C12.0488 7.65829 12.0488 7.34171 11.8536 7.14645C11.6583 6.95118 11.3417 6.95118 11.1464 7.14645L7.5 10.7929L3.85355 7.14645Z" fill="currentColor" fill-rule="evenodd" clip-rule="evenodd"/>
+        </svg>
+      </span>
+    </button>
+  </div>
+</BaseLayout>
+
+<style>
+  .experience-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    margin-top: 1rem;
+    padding-bottom: 0;
+  }
+  
+  @media (max-width: 768px) {
+    .experience-container {
+      padding-bottom: calc(max(0.75rem, env(safe-area-inset-bottom)) + 4rem + 4rem + 2rem);
+    }
+  }
+  
+  .skills-toggle-btn {
+    display: none;
+  }
+  
+  .experience-layout {
+    display: flex;
+    gap: 4rem;
+    align-items: flex-start;
+  }
+  
+  .experience-column {
+    flex: 1;
+    min-width: 0;
+  }
+  
+  .experience-column-animate {
+    animation: slideUpFromBottom 0.8s ease-out 0.2s both;
+  }
+  
+  .skills-column {
+    width: 400px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 2rem;
+    max-height: calc(100vh - 4rem);
+    overflow-y: auto;
+  }
+  
+  .skills-column-animate {
+    animation: slideInFromRight 0.8s ease-out 0.3s both;
+  }
+  
+  @keyframes slideUpFromBottom {
+    from {
+      opacity: 0;
+      transform: translateY(50px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes slideInFromRight {
+    from {
+      opacity: 0;
+      transform: translateX(50px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+  
+  .skills-section .skills-title {
+    color: var(--color-accent);
+    font-family: var(--font-family-sans);
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  
+  @media (max-width: 768px) {
+    .skills-toggle-btn {
+      position: fixed;
+      bottom: calc(max(0.75rem, env(safe-area-inset-bottom)) + 4rem);
+      left: 0;
+      right: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      width: calc(100% - 2rem);
+      margin: 0 1rem;
+      padding: 1rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      background-color: var(--color-accent);
+      color: var(--color-bg);
+      border: 3px solid var(--color-text);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      z-index: 99;
+      box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+    }
+    
+    .skills-toggle-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 -6px 25px rgba(0, 0, 0, 0.4);
+    }
+    
+    .skills-toggle-animated-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      animation: iconShake 2.5s ease-in-out infinite;
+    }
+    
+    @keyframes iconShake {
+      0%, 100% {
+        transform: translateY(0);
+      }
+      25% {
+        transform: translateY(-2px);
+      }
+      75% {
+        transform: translateY(2px);
+      }
+    }
+    
+    .experience-layout {
+      flex-direction: column;
+      gap: 0;
+    }
+    
+    .skills-column {
+      display: none;
+    }
+    
+    .skills-column-animate {
+      animation: none;
+    }
+  }
+</style>
