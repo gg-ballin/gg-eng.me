@@ -10,7 +10,7 @@
     "cache:clear": "rm -rf .astro dist node_modules/.cache",
     "dev": "npm run setup && astro dev",
     "prebuild": "node scripts/encode-pdfs.js",
-    "build": "astro build",
+    "build": "npm run cache:clear && astro build",
     "preview": "astro preview",
     "astro": "astro",
     "check-env": "node -e \"if(!process.env.RESEND_API_KEY){console.error('❌ RESEND_API_KEY not set');process.exit(1)}else{console.log('✓ Environment configured')}\"",
