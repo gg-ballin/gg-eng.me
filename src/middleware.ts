@@ -15,6 +15,12 @@ export const onRequest = defineMiddleware(async (context, next) => {
   }
 
   const pathname = context.url.pathname;
+  
+  // Skip i18n routing for API routes - they should be accessible directly
+  if (pathname.startsWith('/api/')) {
+    return next();
+  }
+  
   if (pathname === '/' || pathname === '') {
     const acceptLang = context.request.headers.get('Accept-Language');
     const locale = preferSpanish(acceptLang) ? 'es' : 'en';

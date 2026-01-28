@@ -39,13 +39,27 @@ export const POST: APIRoute = async ({ request, locals }) => {
       );
     }
     
-    // Validate Cloudflare Turnstile token (only if configured)
+    // Validate Cloudflare Turnstile token (required if configured)
     const turnstileSecretKey = (locals.env?.TURNSTILE_SECRET_KEY as string | undefined)
       || import.meta.env.TURNSTILE_SECRET_KEY;
     
-    // Only validate if both secret key and token are provided
-    // Allow form submission without CAPTCHA if Turnstile is not configured
-    if (turnstileSecretKey && data.turnstileToken && data.turnstileToken !== 'disabled') {
+    // If Turnstile is configured, require a valid token
+    if (turnstileSecretKey) {
+      // Reject if no token or token is 'disabled'
+      if (!data.turnstileToken || data.turnstileToken === 'disabled') {
+        return new Response(
+          JSON.stringify({
+            success: false,
+            error: 'CAPTCHA verification is required. Please complete the CAPTCHA and try again.',
+          }),
+          {
+            status: 400,
+            headers: { 'Content-Type': 'application/json' },
+          }
+        );
+      }
+      
+      // Verify the token with Cloudflare
       const turnstileResponse = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
