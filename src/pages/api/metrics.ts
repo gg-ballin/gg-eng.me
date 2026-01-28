@@ -6,7 +6,8 @@ export const prerender = false;
 export const GET: APIRoute = async ({ url, locals }) => {
   // Optional authentication via query parameter
   const providedToken = url.searchParams.get('token');
-  const expectedToken = (locals.env?.METRICS_TOKEN as string | undefined) 
+  const expectedToken = (locals.env?.METRICS_TOKEN as string | undefined)
+    || (locals.runtime?.env?.METRICS_TOKEN as string | undefined)
     || import.meta.env.METRICS_TOKEN;
   
   // If token is configured, require it
@@ -41,8 +42,10 @@ export const GET: APIRoute = async ({ url, locals }) => {
     date = new Date().toISOString().split('T')[0];
   }
   
-  // Get KV namespace
-  const analyticsKv = locals.env?.ANALYTICS_KV as KVNamespace | undefined;
+  // Get KV namespace from runtime env (Cloudflare bindings)
+  // Check both locations: runtime.env (direct Cloudflare binding) and env (set by middleware)
+  const analyticsKv = (locals.runtime?.env?.ANALYTICS_KV as KVNamespace | undefined)
+    || (locals.env?.ANALYTICS_KV as KVNamespace | undefined);
   
   if (!analyticsKv) {
     return new Response(

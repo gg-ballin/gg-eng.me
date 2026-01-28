@@ -124,7 +124,9 @@ export const POST: APIRoute = async ({ request, locals }) => {
     }
     
     // Track CV request analytics (non-blocking)
-    const analyticsKv = locals.env?.ANALYTICS_KV;
+    // Check both runtime.env (direct Cloudflare binding) and env (set by middleware)
+    const analyticsKv = (locals.runtime?.env?.ANALYTICS_KV as KVNamespace | undefined)
+      || (locals.env?.ANALYTICS_KV as KVNamespace | undefined);
     if (analyticsKv) {
       trackEvent({
         type: 'cv_request',
