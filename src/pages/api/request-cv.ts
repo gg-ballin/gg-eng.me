@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
 import { contactFormSchema } from '@/lib/validation';
 import { EmailService } from '@/lib/emailService';
+import { trackEvent } from '@/lib/analytics';
 
 const TURNSTILE_VERIFY_URL = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
 
@@ -120,6 +121,19 @@ export const POST: APIRoute = async ({ request, locals }) => {
           headers: { 'Content-Type': 'application/json' },
         }
       );
+    }
+    
+    // Track CV request analytics (non-blocking)
+    const analyticsKv = locals.env?.ANALYTICS_KV;
+    if (analyticsKv) {
+      trackEvent({
+        type: 'cv_request',
+        path: '/api/request-cv',
+        timestamp: Date.now(),
+        language: data.language,
+      }, analyticsKv).catch(() => {
+        // Silently fail - analytics shouldn't break the request
+      });
     }
     
     // Send notification email to owner

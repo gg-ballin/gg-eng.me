@@ -1,4 +1,5 @@
 import { defineMiddleware } from 'astro:middleware';
+import { trackEvent } from '@/lib/analytics';
 
 const SPANISH_LOCALES = ['es'];
 
@@ -77,6 +78,39 @@ export const onRequest = defineMiddleware(async (context, next) => {
   if (context.url.pathname.endsWith('.pdf')) {
     headers.set('X-Robots-Tag', 'noindex, nofollow, noarchive, nosnippet');
     headers.set('Cache-Control', 'private, no-cache, no-store, must-revalidate');
+  }
+  
+  // Track pageview analytics (non-blocking)
+  // Skip tracking for API routes, static assets, PDFs, and other non-page routes
+  const shouldTrack = 
+    !pathname.startsWith('/api/') &&
+    !pathname.startsWith('/_astro/') &&
+    !pathname.startsWith('/assets/') &&
+    !pathname.endsWith('.pdf') &&
+    !pathname.endsWith('.ico') &&
+    !pathname.endsWith('.xml') &&
+    !pathname.endsWith('.txt') &&
+    response.status === 200; // Only track successful responses
+  
+  if (shouldTrack) {
+    const analyticsKv = context.locals.env?.ANALYTICS_KV;
+    if (analyticsKv) {
+      // Extract language from pathname (/es/... or /en/...)
+      const langMatch = pathname.match(/^\/(es|en)\//);
+      const language = langMatch ? langMatch[1] : undefined;
+      
+      // Track asynchronously (don't await to avoid blocking)
+      trackEvent({
+        type: 'pageview',
+        path: pathname,
+        timestamp: Date.now(),
+        userAgent: context.request.headers.get('user-agent') || undefined,
+        referer: context.request.headers.get('referer') || undefined,
+        language,
+      }, analyticsKv).catch(() => {
+        // Silently fail - analytics shouldn't break the site
+      });
+    }
   }
   
   return response;
