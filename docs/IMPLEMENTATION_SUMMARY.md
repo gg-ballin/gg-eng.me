@@ -23,7 +23,7 @@ This document summarizes the security and privacy enhancements applied to the po
   - `autocomplete="off"` (no autofill)
 
 ### Server-Side
-**File**: `src/api/request-cv.ts`
+**File**: `src/pages/api/request-cv.ts`
 
 - Validates honeypot is empty
 - If filled → Returns fake success (confuses bots)
@@ -122,12 +122,16 @@ Both languages include:
 
 ### Console Logs Removed
 
-**Verified**: All `console.log`, `console.error`, `console.warn` removed from:
-- ✅ `src/lib/emailService.ts`
-- ✅ `src/api/request-cv.ts`
-- ✅ `src/components/ContactForm.astro`
+**Client-Side Console Logs Removed**: ✅
+- ✅ `src/components/ContactForm.astro` - All debug logs removed
+- ✅ `src/layouts/BaseLayout.astro` - All debug logs removed
 
-**Result**: Clean production logs, no sensitive data leakage.
+**Server-Side Logging**: 
+- ✅ `src/lib/emailService.ts` - No console logs
+- ✅ `src/pages/api/request-cv.ts` - Intentional server-side logging for notification email debugging (prefixed with `[CV Request]`)
+- ✅ `src/components/ContactForm.astro` - No client-side logs
+
+**Result**: Clean client-side code, minimal server-side logging for debugging only.
 
 ### Code Quality
 - ✅ TypeScript strict mode enabled
@@ -152,9 +156,11 @@ Both languages include:
    - Removed all console logs
    - Verified language logic
 
-3. **`src/api/request-cv.ts`**
-   - Removed console logs
-   - Simplified bot rejection logic
+3. **`src/pages/api/request-cv.ts`**
+   - Added Turnstile CAPTCHA validation
+   - Fixed notification email to await completion (Cloudflare Workers compatibility)
+   - Extracted API URL constants
+   - Server-side logging for notification email debugging
 
 4. **`src/components/ContactForm.astro`**
    - Removed console.error
@@ -265,7 +271,7 @@ bun run build
 
 ### Current Limitations
 1. **No rate limiting** - Recommended for production
-2. **No CAPTCHA** - Add if spam increases
+2. **CAPTCHA** - ✅ Cloudflare Turnstile implemented (optional, configurable)
 3. **No email verification** - Single-step process
 4. **Resend logs** - They retain email metadata
 
@@ -286,10 +292,10 @@ bun run build
 | Form component | `src/components/ContactForm.astro` |
 | Validation schema | `src/lib/validation.ts` |
 | Email service | `src/lib/emailService.ts` |
-| API endpoint | `src/api/request-cv.ts` |
+| API endpoint | `src/pages/api/request-cv.ts` |
 | Security headers | `src/middleware.ts` |
 | SEO protection | `public/robots.txt` |
-| Security docs | `SECURITY.md`, `SECURITY_AUDIT.md` |
+| Security docs | `docs/SECURITY.md`, `docs/SECURITY_AUDIT.md` |
 
 ### Key Security Functions
 ```typescript
@@ -320,9 +326,9 @@ if (data.website && data.website.length > 0) { /* bot */ }
 4. Review form submission logs
 
 ### For Security Questions
-- Review: `SECURITY.md`
-- Audit: `SECURITY_AUDIT.md`
-- Setup: `SETUP_GUIDE.md`
+- Review: `docs/SECURITY.md`
+- Audit: `docs/SECURITY_AUDIT.md`
+- Deployment: `docs/DEPLOYMENT.md`
 
 ---
 
@@ -343,3 +349,22 @@ Your portfolio now has:
 
 **Last Updated**: 2026-01-15  
 **Next Review**: 2026-04-15 (90 days)
+
+---
+
+## Recent Updates (2026-01-15)
+
+### Notification Email Fix
+- ✅ Fixed notification email not sending in Cloudflare Workers/preview/production
+- ✅ Changed from fire-and-forget to awaited execution
+- ✅ Ensures notification completes before worker terminates
+
+### Code Quality Improvements
+- ✅ Extracted API URLs to constants (`TURNSTILE_VERIFY_URL`, `RESEND_API_URL`)
+- ✅ Removed all client-side console.log statements
+- ✅ Cleaned up debug logging in production code
+
+### CAPTCHA Implementation
+- ✅ Cloudflare Turnstile CAPTCHA fully implemented
+- ✅ Optional configuration (works without CAPTCHA if not configured)
+- ✅ Server-side token validation

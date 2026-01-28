@@ -40,7 +40,7 @@ This document verifies that all security and privacy measures have been properly
 ```
 
 ### Server-Side Validation
-- **File**: `src/api/request-cv.ts` (lines 30-41)
+- **File**: `src/pages/api/request-cv.ts` (lines 32-42)
 - **Behavior**: Silently returns success to confuse bots
 - **Schema**: Zod validation enforces empty honeypot field
 
@@ -204,7 +204,12 @@ grep -r "console\.(log|error|warn|info)" src/
 - ✅ HTML encoding in email templates
 - ✅ No eval() or innerHTML usage
 
-### 6.3 API Rate Limiting
+### 6.3 CAPTCHA Protection
+- ✅ **IMPLEMENTED**: Cloudflare Turnstile CAPTCHA
+- Optional configuration (works without CAPTCHA if not configured)
+- Server-side token validation
+
+### 6.4 API Rate Limiting
 - ⚠️ **RECOMMENDED**: Add rate limiting in production
 - See `SECURITY.md` for implementation examples
 
@@ -231,7 +236,8 @@ grep -r "console\.(log|error|warn|info)" src/
 - [x] No email in client bundle
 - [x] Language logic verified (ES/EN)
 - [x] PDF attachment logic verified
-- [x] All console logs removed
+- [x] Client-side console logs removed
+- [x] Server-side logging minimal (debugging only)
 - [x] Input validation with Zod
 - [x] Company field required
 - [x] .env in .gitignore
@@ -332,7 +338,10 @@ If you discover a security vulnerability:
 - ✅ Security headers
 - ✅ Email obfuscation
 - ✅ PDF indexing prevention
-- ✅ Console logs removed
+- ✅ Client-side console logs removed
+- ✅ Cloudflare Turnstile CAPTCHA implemented
+- ✅ Notification email fix (Cloudflare Workers compatibility)
+- ✅ API URL constants extracted
 - ✅ Personal email server-side only
 - ✅ Language logic verified
 - ✅ All tests passed

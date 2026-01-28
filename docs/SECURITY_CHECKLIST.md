@@ -25,7 +25,8 @@
 - [ ] ✅ Personal email obfuscated (Base64)
 - [ ] ✅ Personal email server-side only
 - [ ] ✅ Language logic correct (ES/EN)
-- [ ] ✅ All console logs removed
+- [ ] ✅ Client-side console logs removed
+- [ ] ✅ Server-side logging minimal (debugging only)
 
 ### Security Headers
 - [ ] ✅ X-Frame-Options: DENY
@@ -135,12 +136,13 @@ bun update
 
 | Task | File |
 |------|------|
-| Update sender email | `src/lib/emailService.ts:30` |
+| Update sender email | `src/lib/emailService.ts:76` |
 | Modify form fields | `src/components/ContactForm.astro` |
 | Change validation rules | `src/lib/validation.ts` |
 | Adjust security headers | `src/middleware.ts` |
 | Update robots.txt | `public/robots.txt` |
-| Change email template | `src/lib/emailService.ts:60+` |
+| Change email template | `src/lib/emailService.ts:186+` |
+| API endpoint | `src/pages/api/request-cv.ts` |
 
 ---
 

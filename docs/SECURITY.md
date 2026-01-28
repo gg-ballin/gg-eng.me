@@ -41,6 +41,7 @@ This portfolio uses an email-based request system to control access and track in
 
 #### 3. Form Security
 - ✅ **Honeypot field**: Invisible field that catches bots
+- ✅ **Cloudflare Turnstile CAPTCHA**: Implemented (optional, configurable)
 - ✅ **Server-side validation**: Zod schemas validate all inputs
 - ✅ **CSRF protection**: Same-origin policy enforced
 - ✅ **Rate limiting**: Recommended for production (see below)
@@ -101,24 +102,16 @@ if (!success) {
 }
 ```
 
-### 2. CAPTCHA (Optional)
+### 2. CAPTCHA ✅ IMPLEMENTED
 
-For additional bot protection, consider adding Turnstile or reCAPTCHA:
+Cloudflare Turnstile CAPTCHA is already implemented:
 
-```typescript
-// Cloudflare Turnstile validation
-const turnstileResponse = await fetch(
-  'https://challenges.cloudflare.com/turnstile/v0/siteverify',
-  {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      secret: process.env.TURNSTILE_SECRET,
-      response: token,
-    }),
-  }
-);
-```
+- **Location**: `src/pages/api/request-cv.ts`
+- **Configuration**: Optional (works without CAPTCHA if not configured)
+- **Validation**: Server-side token verification
+- **Constants**: API URL extracted to `TURNSTILE_VERIFY_URL` constant
+
+The implementation validates Turnstile tokens when `TURNSTILE_SECRET_KEY` is configured in environment variables.
 
 ### 3. Email Verification
 

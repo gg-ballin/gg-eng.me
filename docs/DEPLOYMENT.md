@@ -237,8 +237,8 @@ git push origin main
 
 Cloudflare will:
 1. Detect the push
-2. Run `bun install`
-3. Run `bun run build`
+2. Run `npm install` (or auto-detect package manager)
+3. Run `npm run build`
 4. Deploy to production
 
 Deploy time: ~2-3 minutes
@@ -263,12 +263,13 @@ Your project is configured with:
 
 ### Build Fails
 
-**Error**: `Command failed: bun run build`
+**Error**: `Command failed: npm run build`
 
 **Solution**:
 1. Check build logs in Cloudflare Pages
-2. Test build locally: `bun run build`
+2. Test build locally: `npm run build`
 3. Verify all dependencies are in `package.json`
+4. Check Node.js version (should be 20.x or higher)
 
 ### Email Not Sending
 
@@ -287,7 +288,9 @@ Your project is configured with:
 **Solution**:
 1. Verify file is at: `src/pages/api/request-cv.ts` (not `src/api/`)
 2. Check `output: "hybrid"` in `astro.config.mjs`
-3. Ensure Cloudflare adapter is installed
+3. Ensure Cloudflare adapter is installed (`@astrojs/cloudflare`)
+4. Verify `export const prerender = false;` in API route
+5. Check Cloudflare Pages Functions logs for errors
 
 ### DNS Not Propagating
 
@@ -344,16 +347,16 @@ Expected performance:
 
 ```bash
 # Local development
-bun run dev
+npm run dev
 
 # Build locally
-bun run build
+npm run build
 
 # Preview build
-bun run preview
+npm run preview
 
 # Check environment
-bun run check-env
+npm run check-env
 
 # Deploy (automatic on push)
 git push origin main

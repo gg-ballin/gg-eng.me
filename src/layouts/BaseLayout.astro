@@ -41,14 +41,6 @@ if (import.meta.env.DEV) {
   isDesktopBrowser = true;
 }
 
-// Debug log (only in dev)
-if (import.meta.env.DEV) {
-  console.log('[Server] Desktop detection:', { 
-    isDesktopBrowser, 
-    uaString: uaString.substring(0, 50) + '...',
-    env: import.meta.env.DEV ? 'dev' : 'prod'
-  });
-}
 ---
 
 <!doctype html>
@@ -296,28 +288,15 @@ if (import.meta.env.DEV) {
         const popup = document.getElementById('desktop-popup');
         const closeBtn = document.getElementById('desktop-popup-close');
         
-        console.log('showDesktopPopup called', { 
-          popup: !!popup, 
-          closeBtn: !!closeBtn,
-          popupDisplay: popup ? window.getComputedStyle(popup).display : 'N/A'
-        });
-        
         // Only show if popup exists
         if (!popup || !closeBtn) {
-          console.error('Popup elements not found in DOM');
           return;
         }
         
         // Check if popup has data-is-desktop attribute (server-side confirmed desktop)
         const isDesktop = popup.getAttribute('data-is-desktop') === 'true';
-        console.log('Desktop check', { 
-          isDesktop, 
-          dataAttr: popup.getAttribute('data-is-desktop'),
-          inlineStyle: popup.getAttribute('style')
-        });
         
         if (!isDesktop) {
-          console.log('Not desktop, skipping popup');
           return;
         }
         
@@ -325,43 +304,24 @@ if (import.meta.env.DEV) {
         popup.style.removeProperty('display');
         popup.style.removeProperty('visibility');
         
-        const dismissed = localStorage.getItem('desktop-popup-dismissed');
-        console.log('Dismissed check', { dismissed });
-        
         // In dev mode, allow clearing dismissal status via URL parameter
         if (import.meta.env.DEV && new URLSearchParams(window.location.search).get('clear-popup') === 'true') {
           localStorage.removeItem('desktop-popup-dismissed');
-          console.log('Popup dismissal cleared via URL parameter');
         }
         
         // Don't show if already dismissed
         if (localStorage.getItem('desktop-popup-dismissed') === 'true') {
-          console.log('Popup already dismissed');
           return;
         }
         
-        console.log('Showing popup in 1.5 seconds...');
-        
         // Show popup after a short delay
         const showTimeout = setTimeout(() => {
-          console.log('Showing popup now');
-          console.log('Popup before:', {
-            hasVisibleClass: popup.classList.contains('desktop-popup-visible'),
-            opacity: window.getComputedStyle(popup).opacity,
-            display: window.getComputedStyle(popup).display
-          });
           popup.setAttribute('aria-hidden', 'false');
           popup.classList.add('desktop-popup-visible');
-          console.log('Popup after:', {
-            hasVisibleClass: popup.classList.contains('desktop-popup-visible'),
-            opacity: window.getComputedStyle(popup).opacity,
-            display: window.getComputedStyle(popup).display
-          });
         }, 1500);
         
         // Close button handler
         const handleClose = () => {
-          console.log('Closing popup');
           popup.classList.remove('desktop-popup-visible');
           popup.setAttribute('aria-hidden', 'true');
           localStorage.setItem('desktop-popup-dismissed', 'true');
