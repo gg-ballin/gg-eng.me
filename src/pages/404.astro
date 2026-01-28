@@ -1,0 +1,95 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { getTranslations, type Language } from '@/i18n/translations';
+
+// Detect locale from URL path
+const pathname = Astro.url.pathname;
+const lang: Language = pathname.startsWith('/en/') || pathname === '/en' ? 'en' : 'es';
+
+const t = getTranslations(lang);
+
+Astro.response.status = 404;
+---
+
+<BaseLayout title={t.seo.title} description={t.seo.description} lang={lang}>
+  <main class="max-w-4xl mx-auto not-found-container">
+    <h1 class="not-found-title flex items-center gap-3">
+      404
+      <span 
+        aria-hidden="true" 
+        class=" rounded-full accent-dot"
+        style="width: 1.25rem; height: 1.25rem; background-color: var(--color-accent);"
+      ></span>
+    </h1>
+    <p class="not-found-subtitle">
+      {lang === 'es'
+        ? 'No pudimos encontrar esta página.'
+        : 'We could not find this page.'}
+    </p>
+    <p class="not-found-description">
+      {lang === 'es'
+        ? 'Verifica la URL o vuelve al inicio.'
+        : 'Check the URL or go back to the homepage.'}
+    </p>
+    <a href={lang === 'es' ? '/es/' : '/en/'} class="not-found-link">
+      {lang === 'es' ? 'Volver al inicio' : 'Back to home'}
+    </a>
+  </main>
+
+  <style>
+    .not-found-container {
+      padding-top: 5rem;
+      padding-bottom: 5rem;
+      text-align: left;
+    }
+
+    .not-found-title {
+      font-family: var(--font-family-sans);
+      font-size: 5rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      text-transform: lowercase;
+    }
+
+    .not-found-subtitle {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .not-found-description {
+      font-size: 1.125rem;
+      opacity: 0.8;
+      margin-bottom: 2.5rem;
+      max-width: 32rem;
+    }
+
+    .not-found-link {
+      display: inline-block;
+      padding: 0.75rem 1.5rem;
+      border: 2px solid var(--color-text);
+      text-decoration: none;
+      font-family: var(--font-family-sans);
+      font-size: 0.875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--color-text);
+      background-color: var(--color-bg);
+      transition: all 0.2s ease;
+    }
+
+    .not-found-link:hover {
+      background-color: var(--color-accent);
+      color: var(--color-bg);
+      transform: translate(2px, -2px);
+      box-shadow: -2px 2px 0 var(--color-text);
+    }
+
+    @media (max-width: 768px) {
+      .not-found-title {
+        font-size: 3.5rem;
+      }
+    }
+  </style>
+</BaseLayout>
+

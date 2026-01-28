@@ -2,6 +2,7 @@
 import { getTranslations, type Language } from '@/i18n/translations';
 import { getCurrentYear } from '@/utils/formatDate';
 import { useUserAgent } from 'astro-useragent';
+import { APP_VERSION } from '@/lib/version';
 
 interface Props {
   title: string;
@@ -15,9 +16,14 @@ const currentPath = Astro.url.pathname;
 const t = getTranslations(lang).nav;
 const currentYear = getCurrentYear();
 
-// Language switcher logic
+// Language switcher & nav paths (prefixed locales)
 const otherLang = lang === 'es' ? 'en' : 'es';
 const switcherPath = currentPath.replace(`/${lang}/`, `/${otherLang}/`);
+
+const bioPath = `/${lang}/`;
+const experiencePath = `/${lang}/experience`;
+const blogPath = `/${lang}/blog`;
+const contactPath = `/${lang}/contact`;
 
 // Detect if user is on desktop browser (not mobile) using server-side user agent
 const uaString = Astro.request.headers.get('user-agent') ?? '';
@@ -76,44 +82,44 @@ if (import.meta.env.DEV) {
     <nav class="nav-bar">
       <div class="nav-links">
         <a 
-          href={`/${lang}/`} 
+          href={bioPath}
           class={`nav-link nav-link-1 hover:opacity-60 transition-opacity ${(currentPath === `/${lang}/` || currentPath === `/${lang}`) ? 'nav-link-active' : ''}`}
         >
           <span class="nav-text">{t.bio}</span>
         </a>
         <a 
-          href={`/${lang}/experience`} 
+          href={experiencePath}
           class={`nav-link nav-link-2 hover:opacity-60 transition-opacity ${currentPath.startsWith(`/${lang}/experience`) ? 'nav-link-active' : ''}`}
         >
           <span class="nav-text">{t.experience}</span>
         </a>
         <a 
-          href={`/${lang}/blog`} 
+          href={blogPath}
           class={`nav-link nav-link-3 hover:opacity-60 transition-opacity ${currentPath.startsWith(`/${lang}/blog`) ? 'nav-link-active' : ''}`}
         >
           <span class="nav-text">{t.blog}</span>
         </a>
         <a 
-          href={`/${lang}/contact`} 
+          href={contactPath}
           class={`nav-link nav-link-4 hover:opacity-60 transition-opacity ${currentPath.startsWith(`/${lang}/contact`) ? 'nav-link-active' : ''}`}
         >
           <span class="nav-text">{t.contact}</span>
         </a>
       </div>
       <div id="nav-controls-glassy" class="nav-controls-glassy">
-        <div class="nav-controls">
-          <button id="theme-toggle" class="nav-control nav-control-1 theme-toggle-btn" aria-label={t.theme}>
-            <span id="theme-icon" class="theme-icon-wrapper">
-              <svg id="theme-icon-sun" class="theme-icon theme-icon-sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                <circle cx="12" cy="12" r="4" fill="currentColor"/>
-                <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
-              </svg>
-              <svg id="theme-icon-moon" class="theme-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-              </svg>
-            </span>
-          </button>
-          <a href={switcherPath} class="nav-control nav-control-2 lang-switcher">{otherLang}</a>
+      <div class="nav-controls">
+        <button id="theme-toggle" class="nav-control nav-control-1 theme-toggle-btn" aria-label={t.theme}>
+          <span id="theme-icon" class="theme-icon-wrapper">
+            <svg id="theme-icon-sun" class="theme-icon theme-icon-sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <circle cx="12" cy="12" r="4" fill="currentColor"/>
+              <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+            </svg>
+            <svg id="theme-icon-moon" class="theme-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+            </svg>
+          </span>
+        </button>
+        <a href={switcherPath} class="nav-control nav-control-2 lang-switcher">{otherLang}</a>
         </div>
       </div>
     </nav>
@@ -166,6 +172,9 @@ if (import.meta.env.DEV) {
       </div>
       )}
       <p class="footer-copyright">© {currentYear} {getTranslations(lang).footer.copyright}</p>
+      <p class="footer-version">
+        v{APP_VERSION}
+      </p>
       <p class="footer-source">
         <a 
           href="https://github.com/gg-ballin/gg-eng.me" 
@@ -968,6 +977,12 @@ if (import.meta.env.DEV) {
     margin-top: 0.5rem;
     font-size: 0.875rem;
     line-height: 1.5;
+  }
+  
+  .footer-version {
+    margin-top: 0.5rem;
+    font-size: 0.75rem;
+    opacity: 0.5;
   }
   
   .footer-link {

@@ -5,6 +5,7 @@ import tailwindcss from "@tailwindcss/vite";
 import mdx from "@astrojs/mdx";
 import react from "@astrojs/react";
 import { fileURLToPath } from "node:url";
+import pkg from "./package.json" assert { type: "json" };
 
 // https://astro.build/config
 export default defineConfig({
@@ -18,6 +19,11 @@ export default defineConfig({
   vite: {
     // @ts-ignore - Tailwind Vite plugin type compatibility with Astro's Vite version
     plugins: [tailwindcss()],
+    define: {
+      __APP_VERSION__: JSON.stringify(
+        process.env.PUBLIC_APP_VERSION || pkg.version || "1.0.0"
+      ),
+    },
     resolve: {
       alias: {
         "@": fileURLToPath(new URL("./src", import.meta.url)),

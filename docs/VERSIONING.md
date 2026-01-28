@@ -1,91 +1,69 @@
 # Semantic Versioning Strategy
 
-This document outlines the versioning strategy for the portfolio site.
+This document defines how the portfolio uses **Semantic Versioning (SemVer)** and how to bump versions safely.
 
-## Overview
+## SemVer basics
 
-The project uses **Semantic Versioning (SemVer)** following the `MAJOR.MINOR.PATCH` format:
-- **MAJOR**: Breaking changes
-- **MINOR**: New features (backward compatible)
-- **PATCH**: Bug fixes (backward compatible)
+Format: `MAJOR.MINOR.PATCH`
 
-## Version Source
+- **MAJOR** (`1.10.1 → 2.0.0`): Breaking changes to public behavior or contracts, for example:
+  - URL changes that invalidate previously shared links (routing/i18n changes, removed pages).
+  - API contract changes for `/api/*` endpoints.
+  - Large layout/content changes that could break saved browser states or automation.
+- **MINOR** (`1.10.1 → 1.11.0`): Backward‑compatible feature additions.
+- **PATCH** (`1.10.1 → 1.10.2`): Bug fixes and internal refactors with no user‑visible breaking change.
 
-The version is managed in `package.json` and automatically read at build time.
+Deciding whether something is *breaking* is always a manual judgment call; the tooling only applies the bump you choose.
 
-### Priority Order
+## Source of truth
 
-1. **Environment Variable** (`PUBLIC_APP_VERSION`)
-   - Useful for CI/CD pipelines
-   - Can override package.json version
-   - Set in Cloudflare Pages environment variables if needed
+- The canonical version lives in the `version` field of [`package.json`](../package.json).
+- At build time, Astro reads this value (or an optional environment override) and exposes it via a compile‑time constant.
+- The current version is rendered in the site footer as a small `vX.Y.Z` label.
 
-2. **package.json** (`version` field)
-   - Primary source of truth
-   - Update manually when releasing
+Priority order:
 
-3. **Fallback**: `1.0.0`
-   - Used if neither of the above are available
+1. **Environment variable** `PUBLIC_APP_VERSION` (optional, for CI/CD overrides).
+2. `package.json` `version` field.
+3. Fallback `"1.0.0"` (only used if both above are missing).
 
-## Usage
+## Using the version in code
 
-### Reading Version in Code
+Helper: [`src/lib/version.ts`](../src/lib/version.ts)
 
 ```typescript
-import { getVersion, getFormattedVersion } from '@/utils/version';
+import { getVersion, getFormattedVersion } from '@/lib/version';
 
-// Get raw version: "1.0.0"
-const version = getVersion();
-
-// Get formatted version: "v1.0.0"
-const formatted = getFormattedVersion();
+const raw = getVersion();          // "1.0.0"
+const formatted = getFormattedVersion(); // "v1.0.0"
 ```
 
-### Displaying Version
+The footer in `BaseLayout` uses `APP_VERSION` from this helper and shows it as a subtle label under the copyright.
 
-The version is automatically displayed in:
-- **Bio component**: Shows as a badge (e.g., `v1.0.0`)
-- Can be accessed anywhere via the utility functions
+## Bumping versions
 
-## Cloudflare Pages Integration
+Use the built‑in npm `version` command to keep tags and `package.json` in sync:
 
-Cloudflare Pages **does not** provide automatic versioning out-of-the-box. However, you can:
+- **Patch** (bug fix):  
+  `npm version patch`  → `1.10.1` → `1.10.2`
+- **Minor** (new features, no breaking changes):  
+  `npm version minor`  → `1.10.1` → `1.11.0`
+- **Major** (breaking changes):  
+  `npm version major`  → `1.10.1` → `2.0.0`
 
-### Option 1: Use package.json (Recommended)
-- Update `package.json` version manually
-- Version is read at build time automatically
-- No additional configuration needed
+This will:
 
-### Option 2: Use Environment Variables
-1. Go to Cloudflare Pages project settings
-2. Navigate to **Environment Variables**
-3. Add: `PUBLIC_APP_VERSION` = `1.0.0`
-4. This will override package.json version
+1. Update the `version` field in `package.json`.
+2. Create a git commit and tag (never push from here; deployment is handled elsewhere).
 
-### Option 3: Git Tags (Advanced)
-For automated versioning, you can:
-1. Use GitHub Actions to read git tags
-2. Set `PUBLIC_APP_VERSION` environment variable during build
-3. Tag releases: `git tag v1.0.0 && git push --tags`
+## Cloudflare Pages considerations
 
-## Version Update Workflow
+Cloudflare Pages does not provide built‑in semantic releases on this tier. Instead:
 
-1. **Update package.json**:
-   ```json
-   {
-     "version": "1.0.1"
-   }
-   ```
+- Deploys always use the `version` from `package.json` (or `PUBLIC_APP_VERSION` if set).
+- To override the version for a specific deployment, set `PUBLIC_APP_VERSION` in the Cloudflare Pages environment.
 
-2. **Commit and push**:
-   ```bash
-   git add package.json
-   git commit -m "chore: bump version to 1.0.1"
-   git push
-   ```
+To check what is deployed:
 
-3. **Deploy**: Cloudflare Pages will automatically build with the new version
-
-## Current Version
-
-Check `package.json` for the current version, or look at the version badge in the Bio section of the site.
+- Look at the footer label (`vX.Y.Z`) on the live site.
+- Or inspect `package.json` in the commit that Cloudflare built.

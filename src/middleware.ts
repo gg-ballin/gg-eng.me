@@ -21,6 +21,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
     return next();
   }
   
+  // Root: redirect based on Accept-Language to /es/ or /en/
   if (pathname === '/' || pathname === '') {
     const acceptLang = context.request.headers.get('Accept-Language');
     const locale = preferSpanish(acceptLang) ? 'es' : 'en';
