@@ -246,6 +246,13 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
       return;
     }
     
+    // Disable submit button initially if Turnstile is configured
+    // It will be enabled after Turnstile successfully loads
+    if (turnstileSiteKey) {
+      submitBtn.disabled = true;
+      submitText.textContent = 'Loading CAPTCHA...';
+    }
+    
     // Form data persistence across language changes
     const FORM_STORAGE_KEY = 'contact-form-data';
     
@@ -317,6 +324,60 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
     // Rather than a type annotation, which is invalid in .astro, use JSDoc or leave untyped:
     /** @type {string|null} */
     let turnstileWidgetId = null;
+    
+    // Flag to prevent multiple error handlers from firing
+    let turnstileErrorHandled = false;
+    
+    // Helper function to handle Turnstile errors (only once)
+    const handleTurnstileError = (error) => {
+      // Prevent multiple error handlers from firing
+      if (turnstileErrorHandled) {
+        return;
+      }
+      turnstileErrorHandled = true;
+      
+      console.error('Turnstile error:', error);
+      // Set error flag - form submission will be blocked
+      if (turnstileTokenInput) {
+        turnstileTokenInput.dataset.loadError = 'true';
+        turnstileTokenInput.value = '';
+      }
+      // Hide widget on error (domain mismatch, etc.)
+      const widgetContainer = document.getElementById('turnstile-widget');
+      const formGroup = document.getElementById('turnstile-form-group');
+      if (widgetContainer) {
+        widgetContainer.style.display = 'none';
+      }
+      if (formGroup) {
+        formGroup.style.display = 'none';
+      }
+      // Show error message - check if it's a domain error (110200)
+      const isDomainError = error && (error === '110200' || String(error).includes('110200'));
+      const currentHost = window.location.hostname;
+      const currentPort = window.location.port;
+      const isLocalhost = currentHost === 'localhost' || currentHost === '127.0.0.1';
+      
+      let errorMessage = 'CAPTCHA failed to load. Please refresh the page.';
+      if (isDomainError && isLocalhost) {
+        errorMessage = 'Domain not registered in Turnstile. Add "localhost" (and optionally "localhost:' + currentPort + '") to your Turnstile site domains in Cloudflare dashboard. Changes may take a few minutes to propagate.';
+      } else if (isDomainError) {
+        errorMessage = `Domain "${currentHost}" not registered in Turnstile. Add it to your Turnstile site domains.`;
+      } else if (error === 'timeout') {
+        errorMessage = 'CAPTCHA verification timed out. Please refresh the page and try again.';
+      } else {
+        errorMessage = 'CAPTCHA failed to load. This may be due to domain configuration. Please check your Turnstile settings and refresh the page.';
+      }
+      
+      if (turnstileError) {
+        turnstileError.textContent = errorMessage;
+        turnstileError.style.display = 'block';
+      }
+      // Keep submit button disabled
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitText.textContent = 'CAPTCHA Error';
+      }
+    };
 
     // Load Turnstile script and initialize widget
     const initTurnstile = () => {
@@ -369,6 +430,8 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
                 turnstileWidgetId = window.turnstile.render(widgetContainer, {
                   sitekey: siteKey,
                   callback: (token) => {
+                    // Reset error flag on success
+                    turnstileErrorHandled = false;
                     // Successfully rendered and got token - show the form group
                     const formGroup = document.getElementById('turnstile-form-group');
                     if (formGroup) {
@@ -376,46 +439,31 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
                     }
                     if (turnstileTokenInput) {
                       turnstileTokenInput.value = token;
+                      // Clear any error flags
+                      turnstileTokenInput.dataset.loadError = 'false';
                     }
                     if (turnstileError) {
                       turnstileError.textContent = '';
                       turnstileError.style.display = 'none';
                     }
+                    // Enable submit button now that Turnstile is loaded
+                    if (submitBtn) {
+                      submitBtn.disabled = false;
+                      submitText.textContent = t.submit;
+                    }
                   },
                   'error-callback': (error) => {
                     console.error('Turnstile error callback:', error);
-                    // Don't show error on page load - only show if form is submitted
-                    // Set a flag that we'll check on form submission
-                    if (turnstileTokenInput) {
-                      turnstileTokenInput.dataset.loadError = 'true';
-                    }
-                    // Hide widget on error (domain mismatch, etc.)
-                    const widgetContainer = document.getElementById('turnstile-widget');
-                    const formGroup = document.getElementById('turnstile-form-group');
-                    if (widgetContainer) {
-                      widgetContainer.style.display = 'none';
-                    }
-                    if (formGroup) {
-                      formGroup.style.display = 'none';
-                    }
-                    // Set dummy token to allow form submission
-                    if (turnstileTokenInput) {
-                      turnstileTokenInput.value = 'disabled';
-                    }
+                    handleTurnstileError(error);
+                  },
+                  'timeout-callback': () => {
+                    console.error('Turnstile timeout');
+                    handleTurnstileError('timeout');
                   },
                 });
               } catch (error) {
                 console.error('Turnstile render error:', error);
-                // Don't show error on page load - only show if form is submitted
-                // Set a flag that we'll check on form submission
-                if (turnstileTokenInput) {
-                  turnstileTokenInput.dataset.loadError = 'true';
-                }
-                // Hide the widget container if render fails
-                const widgetContainer = document.getElementById('turnstile-widget');
-                if (widgetContainer) {
-                  widgetContainer.style.display = 'none';
-                }
+                handleTurnstileError('render_error');
               }
             }
           } else {
@@ -425,20 +473,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
       };
       script.onerror = () => {
         console.error('Failed to load Turnstile script');
-        // Don't show error on page load - only show if form is submitted
-        // Set a flag that we'll check on form submission
-        if (turnstileTokenInput) {
-          turnstileTokenInput.dataset.loadError = 'true';
-        }
-        // Hide the widget container if script fails to load
-        const widgetContainer = document.getElementById('turnstile-widget');
-        const formGroup = document.getElementById('turnstile-form-group');
-        if (widgetContainer) {
-          widgetContainer.style.display = 'none';
-        }
-        if (formGroup) {
-          formGroup.style.display = 'none';
-        }
+        handleTurnstileError('script_load_error');
       };
       document.head.appendChild(script);
     } else if (window.turnstile) {
@@ -449,6 +484,8 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
           turnstileWidgetId = window.turnstile.render(widgetContainer, {
             sitekey: siteKey,
             callback: (token) => {
+              // Reset error flag on success
+              turnstileErrorHandled = false;
               // Successfully rendered and got token - show the form group
               const formGroup = document.getElementById('turnstile-form-group');
               if (formGroup) {
@@ -456,46 +493,29 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
               }
               if (turnstileTokenInput) {
                 turnstileTokenInput.value = token;
+                // Clear any error flags
+                turnstileTokenInput.dataset.loadError = 'false';
               }
               if (turnstileError) {
                 turnstileError.textContent = '';
                 turnstileError.style.display = 'none';
               }
+              // Enable submit button now that Turnstile is loaded
+              if (submitBtn) {
+                submitBtn.disabled = false;
+                submitText.textContent = t.submit;
+              }
             },
             'error-callback': (error) => {
-              console.error('Turnstile error callback:', error);
-              // Don't show error on page load - only show if form is submitted
-              // Set a flag that we'll check on form submission
-              if (turnstileTokenInput) {
-                turnstileTokenInput.dataset.loadError = 'true';
-              }
-              // Hide widget on error (domain mismatch, etc.)
-              const widgetContainer = document.getElementById('turnstile-widget');
-              const formGroup = document.getElementById('turnstile-form-group');
-              if (widgetContainer) {
-                widgetContainer.style.display = 'none';
-              }
-              if (formGroup) {
-                formGroup.style.display = 'none';
-              }
-              // Set dummy token to allow form submission
-              if (turnstileTokenInput) {
-                turnstileTokenInput.value = 'disabled';
-              }
+              handleTurnstileError(error);
+            },
+            'timeout-callback': () => {
+              handleTurnstileError('timeout');
             },
           });
         } catch (error) {
           console.error('Turnstile render error:', error);
-          // Don't show error on page load - only show if form is submitted
-          // Set a flag that we'll check on form submission
-          if (turnstileTokenInput) {
-            turnstileTokenInput.dataset.loadError = 'true';
-          }
-          // Hide the widget container if render fails
-          const widgetContainer = document.getElementById('turnstile-widget');
-          if (widgetContainer) {
-            widgetContainer.style.display = 'none';
-          }
+          handleTurnstileError('render_error');
         }
       }
     }
@@ -542,7 +562,21 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
       // Check if Turnstile failed to load
       const turnstileLoadError = turnstileTokenInput?.dataset.loadError === 'true';
       
-      if (isTurnstileConfigured && !turnstileToken && !turnstileLoadError) {
+      // If Turnstile is configured but failed to load, block submission for security
+      if (siteKey && turnstileLoadError) {
+        if (turnstileError) {
+          turnstileError.textContent = 'CAPTCHA verification failed to load. Please refresh the page and try again.';
+          turnstileError.style.display = 'block';
+        }
+        console.error('Turnstile failed to load - blocking form submission for security');
+        // Re-enable submit button since we're returning early
+        submitBtn.disabled = false;
+        submitText.textContent = t.submit;
+        return;
+      }
+      
+      // Require Turnstile token if Turnstile is configured
+      if (isTurnstileConfigured && !turnstileToken) {
         if (turnstileError) {
           turnstileError.textContent = 'Please complete the CAPTCHA verification.';
           turnstileError.style.display = 'block';
@@ -552,16 +586,6 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
         submitBtn.disabled = false;
         submitText.textContent = t.submit;
         return;
-      }
-      
-      // If Turnstile failed to load but is configured, allow submission anyway
-      // (graceful degradation - form should still work)
-      if (turnstileLoadError && siteKey) {
-        console.warn('Turnstile failed to load, allowing form submission without CAPTCHA');
-        // Set dummy token to allow submission
-        if (turnstileTokenInput) {
-          turnstileTokenInput.value = 'disabled';
-        }
       }
       
       // Disable submit button

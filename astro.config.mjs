@@ -30,16 +30,24 @@ export default defineConfig({
         "@/i18n": fileURLToPath(new URL("./src/i18n", import.meta.url)),
         "@/content": fileURLToPath(new URL("./src/content", import.meta.url)),
         "@/lib": fileURLToPath(new URL("./src/lib", import.meta.url)),
+        // Redirect Node.js stream modules to polyfill stub for Cloudflare Workers
+        "stream": fileURLToPath(new URL("./src/lib/stream-polyfill.ts", import.meta.url)),
+        "chunks/stream": fileURLToPath(new URL("./src/lib/stream-polyfill.ts", import.meta.url)),
+        "node:stream": fileURLToPath(new URL("./src/lib/stream-polyfill.ts", import.meta.url)),
       },
     },
     ssr: {
       noExternal: ['resend'],
+      resolve: {
+        conditions: ['worker', 'browser'],
+      },
     },
     optimizeDeps: {
       exclude: ['resend'],
     },
     define: {
       // Stub out Node.js stream module for Cloudflare Workers
+      // Note: Only valid JS identifiers can be used here (no special chars)
       'stream': 'undefined',
     },
     build: {
@@ -51,6 +59,34 @@ export default defineConfig({
           }
           return false;
         },
+        output: {
+          // Prevent creating chunks that reference stream
+          manualChunks: undefined,
+          // Use a function to control chunk naming and prevent stream chunks
+          chunkFileNames: (chunkInfo) => {
+            // Prevent chunks with stream in the name
+            if (chunkInfo.name && chunkInfo.name.includes('stream')) {
+              return 'chunks/[name]-[hash].js';
+            }
+            return 'chunks/[name]-[hash].js';
+          },
+        },
+        plugins: [
+          {
+            name: 'resolve-stream-polyfill',
+            resolveId(id) {
+              // Intercept stream imports and redirect to polyfill
+              if (id === 'stream' || id === 'chunks/stream' || id === 'node:stream') {
+                return fileURLToPath(new URL("./src/lib/stream-polyfill.ts", import.meta.url));
+              }
+              return null;
+            },
+          },
+        ],
+      },
+      commonjsOptions: {
+        // Transform CommonJS modules that use streams
+        transformMixedEsModules: true,
       },
     },
   },

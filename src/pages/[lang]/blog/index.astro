@@ -43,24 +43,24 @@ const sortedPosts: BlogPost[] = allPosts.sort(
 >
   <div class="max-w-4xl blog-container">
     <Reveal client:load>
-      <h1 class="text-5xl md:text-6xl font-bold mb-16 mt-10" style="font-family: var(--font-family-sans); lowercase;">{t.heading}</h1>
+    <h1 class="text-5xl md:text-6xl font-bold mb-16 mt-10" style="font-family: var(--font-family-sans); lowercase;">{t.heading}</h1>
     </Reveal>
     
-      <div class="timeline">
-        {sortedPosts.map((post: BlogPost, index: number) => {
-          const slug = post.slug.replace(`${post.data.language}/`, '');
-          const isHighlighted = index % 3 === 0;
-          return (
-            <TimelineItem
-              title={post.data.title}
-              date={formatDate(post.data.pubDate, lang)}
-              description={post.data.description}
-              href={`/${lang}/blog/${slug}`}
-              isHighlighted={isHighlighted}
-            />
-          );
-        })}
-      </div>
+    <div class="timeline">
+      {sortedPosts.map((post: BlogPost, index: number) => {
+        const slug = post.slug.replace(`${post.data.language}/`, '');
+        const isHighlighted = index % 3 === 0;
+        return (
+          <TimelineItem
+            title={post.data.title}
+            date={formatDate(post.data.pubDate, lang)}
+            description={post.data.description}
+            href={`/${lang}/blog/${slug}`}
+            isHighlighted={isHighlighted}
+          />
+        );
+      })}
+    </div>
   </div>
 </BaseLayout>
 
