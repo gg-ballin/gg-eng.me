@@ -122,30 +122,30 @@ export const POST: APIRoute = async ({ request, locals }) => {
       );
     }
     
-    // Send notification email to owner (non-blocking)
+    // Send notification email to owner
+    // Await to ensure it completes in Cloudflare Workers (they terminate on response return)
     // Don't fail the request if notification fails, but log detailed errors
-    emailService.sendCVRequestNotification(data)
-      .then((result) => {
-        if (!result.success) {
-          console.error('[CV Request] Failed to send notification email:', {
-            error: result.error,
-            requesterEmail: data.email,
-            requesterName: data.name,
-            timestamp: new Date().toISOString(),
-          });
-        } else {
-          console.log('[CV Request] Notification email sent successfully to owner');
-        }
-      })
-      .catch((error) => {
-        console.error('[CV Request] Exception sending notification email:', {
-          error: error instanceof Error ? error.message : String(error),
-          stack: error instanceof Error ? error.stack : undefined,
+    try {
+      const notificationResult = await emailService.sendCVRequestNotification(data);
+      if (!notificationResult.success) {
+        console.error('[CV Request] Failed to send notification email:', {
+          error: notificationResult.error,
           requesterEmail: data.email,
           requesterName: data.name,
           timestamp: new Date().toISOString(),
         });
+      } else {
+        console.log('[CV Request] Notification email sent successfully to owner');
+      }
+    } catch (error) {
+      console.error('[CV Request] Exception sending notification email:', {
+        error: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+        requesterEmail: data.email,
+        requesterName: data.name,
+        timestamp: new Date().toISOString(),
       });
+    }
     
     return new Response(
       JSON.stringify({ success: true }),
