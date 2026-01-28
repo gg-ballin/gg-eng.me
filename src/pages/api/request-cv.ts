@@ -122,9 +122,17 @@ export const POST: APIRoute = async ({ request, locals }) => {
     
     // Send notification email to owner (non-blocking)
     // Don't fail the request if notification fails
-    emailService.sendCVRequestNotification(data).catch((error) => {
-      console.error('Failed to send notification email:', error);
-    });
+    emailService.sendCVRequestNotification(data)
+      .then((result) => {
+        if (!result.success) {
+          console.error('Failed to send notification email:', result.error);
+        } else {
+          console.log('Notification email sent successfully');
+        }
+      })
+      .catch((error) => {
+        console.error('Failed to send notification email:', error);
+      });
     
     return new Response(
       JSON.stringify({ success: true }),

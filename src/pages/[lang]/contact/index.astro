@@ -370,32 +370,25 @@ const t = getTranslations(lang);
   (function() {
     const hintContainer = document.getElementById('language-hint-container');
     if (!hintContainer) {
-      console.warn('Language hint container not found');
       return;
     }
     
-    console.log('Language hint container found', hintContainer);
     
     const langSwitcher = document.querySelector('.lang-switcher');
     const dismissed = sessionStorage.getItem('language-hint-dismissed');
     const hintDesktop = hintContainer.querySelector('.language-hint-desktop');
     
-    console.log('Language hint dismissed check', { dismissed, langSwitcher: !!langSwitcher });
     
     // In dev mode, allow clearing dismissal status via URL parameter
     if (import.meta.env.DEV && new URLSearchParams(window.location.search).get('clear-hint') === 'true') {
       sessionStorage.removeItem('language-hint-dismissed');
-      console.log('Language hint dismissal cleared via URL parameter');
     }
     
     // Don't show if already dismissed in this session
     if (sessionStorage.getItem('language-hint-dismissed') === 'true') {
-      console.log('Language hint already dismissed, hiding');
       hintContainer.style.display = 'none';
       return;
     }
-    
-    console.log('Language hint will be shown');
     
     // Fade out hint when submit button is hovered
     const popupDesktop = hintContainer.querySelector('.language-hint-popup-desktop');
@@ -405,7 +398,6 @@ const t = getTranslations(lang);
       const submitBtn = document.getElementById('submit-btn');
       if (submitBtn && hintDesktop && hintDesktop instanceof HTMLElement) {
         submitBtn.addEventListener('mouseenter', () => {
-          console.log('Submit button hovered');
           hintDesktop.style.filter = 'blur(8px)';
           hintDesktop.style.opacity = '0.5';
           if (popupDesktop && popupDesktop instanceof HTMLElement) {
@@ -414,7 +406,6 @@ const t = getTranslations(lang);
         });
         
         submitBtn.addEventListener('mouseleave', () => {
-          console.log('Submit button unhovered');
           hintDesktop.style.filter = 'none';
           hintDesktop.style.opacity = '1';
           if (popupDesktop && popupDesktop instanceof HTMLElement) {
@@ -422,7 +413,6 @@ const t = getTranslations(lang);
           }
         });
         
-        console.log('Hover effects set up successfully');
         return true;
       }
       return false;
@@ -442,7 +432,6 @@ const t = getTranslations(lang);
     
     // Hide on language switcher click
     langSwitcher?.addEventListener('click', () => {
-      console.log('Language switcher clicked, hiding hint');
       hintContainer.style.opacity = '0';
       hintContainer.style.transition = 'opacity 0.3s ease';
       setTimeout(() => {
@@ -454,7 +443,6 @@ const t = getTranslations(lang);
     // Auto-hide after 8 seconds
     setTimeout(() => {
       if (hintContainer.style.display !== 'none') {
-        console.log('Auto-hiding language hint after 8 seconds');
         hintContainer.style.opacity = '0';
         hintContainer.style.transition = 'opacity 0.3s ease';
         setTimeout(() => {
