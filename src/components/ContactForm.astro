@@ -421,15 +421,20 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
       script.async = true;
       script.defer = true;
       script.onload = () => {
+        console.log('Turnstile script loaded, checking for window.turnstile...');
         // Small delay to ensure Turnstile is fully loaded
         setTimeout(() => {
           if (window.turnstile) {
+            console.log('window.turnstile is available, rendering widget...');
             const widgetContainer = document.getElementById('turnstile-widget');
             if (widgetContainer) {
+              console.log('Widget container found, calling turnstile.render...');
+              console.log('Site key:', siteKey ? 'Present' : 'Missing');
               try {
                 turnstileWidgetId = window.turnstile.render(widgetContainer, {
                   sitekey: siteKey,
                   callback: (token) => {
+                    console.log('Turnstile callback received token:', token ? 'Token received' : 'No token');
                     // Reset error flag on success
                     turnstileErrorHandled = false;
                     // Successfully rendered and got token - show the form group
@@ -466,8 +471,22 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
                 handleTurnstileError('render_error');
               }
             }
-          } else {
-            console.error('Turnstile widget container not found');
+            } else {
+            console.error('window.turnstile not available after script load');
+            console.log('Checking if script loaded correctly...');
+            // Check if script is in DOM
+            const scriptTag = document.querySelector('script[src*="challenges.cloudflare.com/turnstile"]');
+            console.log('Script tag in DOM:', scriptTag ? 'Yes' : 'No');
+            // Wait a bit more and try again
+            setTimeout(() => {
+              if (window.turnstile) {
+                console.log('window.turnstile now available, retrying...');
+                initTurnstile();
+              } else {
+                console.error('window.turnstile still not available');
+                handleTurnstileError('script_load_failed');
+              }
+            }, 2000);
           }
         }, 100);
       };
@@ -476,6 +495,18 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
         handleTurnstileError('script_load_error');
       };
       document.head.appendChild(script);
+      
+      // Add a timeout to prevent button from being stuck forever
+      // If Turnstile doesn't load within 10 seconds, show an error
+      setTimeout(() => {
+        if (submitBtn && submitBtn.disabled && submitText.textContent === 'Loading CAPTCHA...') {
+          console.warn('Turnstile loading timeout - checking status');
+          if (!window.turnstile) {
+            console.error('Turnstile still not available after timeout');
+            handleTurnstileError('loading_timeout');
+          }
+        }
+      }, 10000);
     } else if (window.turnstile) {
       // Script already loaded, just render widget
       const widgetContainer = document.getElementById('turnstile-widget');
