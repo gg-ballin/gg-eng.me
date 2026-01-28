@@ -34,6 +34,9 @@ export default defineConfig({
         "stream": fileURLToPath(new URL("./src/lib/stream-polyfill.ts", import.meta.url)),
         "chunks/stream": fileURLToPath(new URL("./src/lib/stream-polyfill.ts", import.meta.url)),
         "node:stream": fileURLToPath(new URL("./src/lib/stream-polyfill.ts", import.meta.url)),
+        // Redirect Node.js buffer module to polyfill stub for Cloudflare Workers
+        "buffer": fileURLToPath(new URL("./src/lib/buffer-polyfill.ts", import.meta.url)),
+        "node:buffer": fileURLToPath(new URL("./src/lib/buffer-polyfill.ts", import.meta.url)),
       },
     },
     ssr: {
@@ -53,8 +56,9 @@ export default defineConfig({
     build: {
       rollupOptions: {
         external: (id) => {
-          // Don't bundle Node.js stream modules
-          if (id === 'stream' || id === 'chunks/stream' || id.startsWith('node:stream')) {
+          // Don't bundle Node.js stream/buffer modules
+          if (id === 'stream' || id === 'chunks/stream' || id.startsWith('node:stream') ||
+              id === 'buffer' || id.startsWith('node:buffer')) {
             return true;
           }
           return false;
@@ -75,9 +79,12 @@ export default defineConfig({
           {
             name: 'resolve-stream-polyfill',
             resolveId(id) {
-              // Intercept stream imports and redirect to polyfill
+              // Intercept stream/buffer imports and redirect to polyfills
               if (id === 'stream' || id === 'chunks/stream' || id === 'node:stream') {
                 return fileURLToPath(new URL("./src/lib/stream-polyfill.ts", import.meta.url));
+              }
+              if (id === 'buffer' || id === 'node:buffer') {
+                return fileURLToPath(new URL("./src/lib/buffer-polyfill.ts", import.meta.url));
               }
               return null;
             },
