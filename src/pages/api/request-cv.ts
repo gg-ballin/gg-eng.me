@@ -2,6 +2,8 @@ import type { APIRoute } from 'astro';
 import { contactFormSchema } from '@/lib/validation';
 import { EmailService } from '@/lib/emailService';
 
+const TURNSTILE_VERIFY_URL = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
+
 export const prerender = false;
 
 export const POST: APIRoute = async ({ request, locals }) => {
@@ -60,7 +62,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       }
       
       // Verify the token with Cloudflare
-      const turnstileResponse = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+      const turnstileResponse = await fetch(TURNSTILE_VERIFY_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -121,17 +123,28 @@ export const POST: APIRoute = async ({ request, locals }) => {
     }
     
     // Send notification email to owner (non-blocking)
-    // Don't fail the request if notification fails
+    // Don't fail the request if notification fails, but log detailed errors
     emailService.sendCVRequestNotification(data)
       .then((result) => {
         if (!result.success) {
-          console.error('Failed to send notification email:', result.error);
+          console.error('[CV Request] Failed to send notification email:', {
+            error: result.error,
+            requesterEmail: data.email,
+            requesterName: data.name,
+            timestamp: new Date().toISOString(),
+          });
         } else {
-          console.log('Notification email sent successfully');
+          console.log('[CV Request] Notification email sent successfully to owner');
         }
       })
       .catch((error) => {
-        console.error('Failed to send notification email:', error);
+        console.error('[CV Request] Exception sending notification email:', {
+          error: error instanceof Error ? error.message : String(error),
+          stack: error instanceof Error ? error.stack : undefined,
+          requesterEmail: data.email,
+          requesterName: data.name,
+          timestamp: new Date().toISOString(),
+        });
       });
     
     return new Response(

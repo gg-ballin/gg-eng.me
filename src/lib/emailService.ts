@@ -2,13 +2,13 @@ import type { ContactFormData } from './validation';
 import type { Language } from '@/i18n/translations';
 import { getCVBase64 } from './cv-data';
 
+// Use Resend REST API directly (Cloudflare Workers compatible)
+const RESEND_API_URL = 'https://api.resend.com/emails';
+
 const getPersonalEmail = (): string => {
   const encoded = 'Z29tZXpnZXIuYTlAZ21haWwuY29t';
   return atob(encoded);
 };
-
-// Use Resend REST API directly (Cloudflare Workers compatible)
-const RESEND_API_URL = 'https://api.resend.com/emails';
 
 async function sendEmailViaAPI(
   apiKey: string,
@@ -34,9 +34,18 @@ async function sendEmailViaAPI(
     const result = await response.json();
 
     if (!response.ok) {
+      // Include full error details from Resend API for debugging
+      const errorDetails = {
+        status: response.status,
+        statusText: response.statusText,
+        message: result.message,
+        name: result.name,
+        errors: result.errors,
+      };
+      
       return {
         success: false,
-        error: result.message || `HTTP ${response.status}: ${response.statusText}`,
+        error: JSON.stringify(errorDetails),
       };
     }
 
@@ -171,7 +180,11 @@ export class EmailService {
       });
       
       if (!response.success) {
-        return { success: false, error: response.error };
+        // Include recipient email in error for debugging
+        return { 
+          success: false, 
+          error: `Failed to send notification to ${personalEmail}: ${response.error}` 
+        };
       }
       
       return { success: true };
