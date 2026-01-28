@@ -1,4 +1,3 @@
-import { Resend } from 'resend';
 import type { ContactFormData } from './validation';
 import type { Language } from '@/i18n/translations';
 import { getCVBase64 } from './cv-data';
@@ -8,11 +7,53 @@ const getPersonalEmail = (): string => {
   return atob(encoded);
 };
 
+// Use Resend REST API directly (Cloudflare Workers compatible)
+const RESEND_API_URL = 'https://api.resend.com/emails';
+
+async function sendEmailViaAPI(
+  apiKey: string,
+  payload: {
+    from: string;
+    to: string[];
+    subject: string;
+    html: string;
+    reply_to?: string[];
+    attachments?: Array<{ filename: string; content: string }>;
+  }
+): Promise<{ success: boolean; error?: string; data?: any }> {
+  try {
+    const response = await fetch(RESEND_API_URL, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      return {
+        success: false,
+        error: result.message || `HTTP ${response.status}: ${response.statusText}`,
+      };
+    }
+
+    return { success: true, data: result };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    };
+  }
+}
+
 export class EmailService {
-  private resend: Resend;
+  private apiKey: string;
   
   constructor(apiKey: string) {
-    this.resend = new Resend(apiKey);
+    this.apiKey = apiKey;
   }
   
   async sendCVRequest(data: ContactFormData): Promise<{ success: boolean; error?: string }> {
@@ -27,14 +68,14 @@ export class EmailService {
       
       const htmlContent = this.generateEmailTemplate(data);
       
-      // Get CV as base64 string (Resend expects this format in Cloudflare Workers)
+      // Get CV as base64 string (Resend expects this format)
       const cvBase64 = getCVBase64(data.language);
       
-      // Send email with CV attachment
-      const response = await this.resend.emails.send({
+      // Send email with CV attachment via Resend API
+      const response = await sendEmailViaAPI(this.apiKey, {
         from: 'German Gómez <noreply@gg-eng.me>',
         to: [data.email],
-        replyTo: [getPersonalEmail()],
+        reply_to: [getPersonalEmail()],
         subject,
         html: htmlContent,
         attachments: [
@@ -45,8 +86,8 @@ export class EmailService {
         ],
       });
       
-      if (response.error) {
-        return { success: false, error: response.error.message };
+      if (!response.success) {
+        return { success: false, error: response.error };
       }
       
       return { success: true };
@@ -122,15 +163,15 @@ export class EmailService {
         </html>
       `;
       
-      const response = await this.resend.emails.send({
+      const response = await sendEmailViaAPI(this.apiKey, {
         from: 'German Gómez <noreply@gg-eng.me>',
         to: [personalEmail],
         subject,
         html: htmlContent,
       });
       
-      if (response.error) {
-        return { success: false, error: response.error.message };
+      if (!response.success) {
+        return { success: false, error: response.error };
       }
       
       return { success: true };
@@ -263,15 +304,15 @@ export class EmailService {
         </html>
       `;
       
-      const response = await this.resend.emails.send({
+      const response = await sendEmailViaAPI(this.apiKey, {
         from: 'German Gómez <noreply@gg-eng.me>',
         to: [email],
         subject,
         html: htmlContent,
       });
       
-      if (response.error) {
-        return { success: false, error: response.error.message };
+      if (!response.success) {
+        return { success: false, error: response.error };
       }
       
       return { success: true };
@@ -290,15 +331,15 @@ export class EmailService {
     language: Language
   ): Promise<{ success: boolean; error?: string }> {
     try {
-      const response = await this.resend.emails.send({
+      const response = await sendEmailViaAPI(this.apiKey, {
         from: 'German Gómez <noreply@gg-eng.me>',
         to: [email],
         subject,
         html: htmlContent,
       });
       
-      if (response.error) {
-        return { success: false, error: response.error.message };
+      if (!response.success) {
+        return { success: false, error: response.error };
       }
       
       return { success: true };
