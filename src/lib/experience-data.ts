@@ -14,6 +14,7 @@ export interface ExperienceEntry {
   description: string;
   skills: string[];
   projects?: ProjectDeepDive[];
+  highlight?: boolean;
 }
 
 export interface SkillsData {
@@ -141,7 +142,7 @@ export function flattenSkillsByCategory(skillsByCategory: Record<ExperienceTechC
 export function getCategoryDisplayName(category: ExperienceTechCategory, lang: 'es' | 'en'): string {
   const categoryNames: Record<ExperienceTechCategory, { en: string; es: string }> = {
     mobileFrameworks: { en: 'Mobile Frameworks', es: 'Frameworks Móviles' },
-    languages: { en: 'Languages', es: 'Lenguajes' },
+    languages: { en: 'Programming Languages', es: 'Lenguajes de Programación' },
     stateManagement: { en: 'State Management', es: 'Gestión de Estado' },
     backendCloud: { en: 'Backend & Cloud', es: 'Backend y Cloud' },
     developmentTools: { en: 'Development Tools', es: 'Herramientas de Desarrollo' },
@@ -149,6 +150,7 @@ export function getCategoryDisplayName(category: ExperienceTechCategory, lang: '
     testing: { en: 'Testing', es: 'Testing' },
     monitoring: { en: 'Monitoring', es: 'Monitoreo' },
     apis: { en: 'APIs', es: 'APIs' },
+    idioms: { en: 'Idioms', es: 'Idiomas' },
     authentication: { en: 'Authentication', es: 'Autenticación' },
   };
   return categoryNames[category][lang];
@@ -162,6 +164,7 @@ export const experienceEntriesEN: ExperienceEntry[] = [
     company: 'Blockdaemon',
     description: 'Ported a native iOS application to a cross-platform solution using React Native with Expo, achieving feature parity in 4 months. Integrated custom native modules in Swift and Kotlin to bridge secure functionalities into the React Native environment. Developed a secure approver application for institutional wallets leveraging Multi-Party Computation (MPC). Managed migration from Okta to Auth0 SSO and upgraded Expo SDK from v51 to v54.',
     skills: ['EXPO', 'SWIFT', 'KOTLIN', 'Expo EAS', 'zustand', 'mobx', 'jest', 'Sentry', 'OKTA', 'AUTH0', 'CURSOR'],
+    highlight: true,
   },
   {
     dateRange: 'JUN 2023 - OCT 2023',
@@ -190,6 +193,7 @@ export const experienceEntriesEN: ExperienceEntry[] = [
     company: 'DEPT',
     description: 'Led a team of 3 Senior Engineers to build a hydroponics startup client from the ground up. Acted as first engineer, making all core architecture and stack decisions. Drove alignment through recurring product and stakeholder meetings with the client\'s Product Owner.',
     skills: ['REACT NATIVE', 'TYPESCRIPT', 'GraphQL', 'Apollo', 'AWS Amplify', 'AWS Cognito', 'App Center'],
+    highlight: true,
   },
   {
     dateRange: 'SEP 2017 - SEP 2021',
@@ -197,6 +201,7 @@ export const experienceEntriesEN: ExperienceEntry[] = [
     company: 'Paisanos',
     description: 'Delivered over 10 mobile applications for FinTech, AgTech, and Healthcare using React Native. Performed major React Native version migrations (v0.51 to v0.59) using RN Upgrade Helper. Adapted quickly across a high-rotation project environment, ramping into different products and requirements.',
     skills: ['REACT NATIVE', 'TYPESCRIPT', 'JAVASCRIPT','AWS S3', 'Firebase', 'Swift', 'Kotlin', 'Bitrise' ],
+    highlight: true,
   },
   {
     dateRange: 'DEC 2016 - MAY 2019',
@@ -215,6 +220,7 @@ export const experienceEntriesES: ExperienceEntry[] = [
     company: 'Blockdaemon',
     description: 'Migración de una aplicación nativa de iOS a una solución multiplataforma utilizando React Native con Expo, logrando paridad de funciones en 4 meses. Integración de módulos nativos personalizados en Swift y Kotlin para conectar funcionalidades seguras al entorno de React Native. Desarrollo de una aplicación de aprobación segura para billeteras institucionales utilizando Computación Multipartita (MPC). Gestión de la migración de Okta a Auth0 SSO y actualización del SDK de Expo de v51 a v54.',
     skills: ['EXPO', 'SWIFT', 'KOTLIN', 'Expo EAS', 'zustand', 'mobx', 'jest', 'Sentry', 'OKTA', 'AUTH0', 'CURSOR'],
+    highlight: true,
   },
   {
     dateRange: 'JUN 2023 - OCT 2023',
@@ -243,6 +249,7 @@ export const experienceEntriesES: ExperienceEntry[] = [
     company: 'DEPT',
     description: 'Liderazgo de un equipo de 3 ingenieros Senior para construir el cliente de una startup de hidroponía desde cero. Primer ingeniero en el proyecto, tomando todas las decisiones sobre la arquitectura principal y el stack tecnológico. Alineación mediante reuniones recurrentes de producto y con stakeholders (Product Owner del cliente).',
     skills: ['REACT NATIVE', 'TYPESCRIPT', 'GraphQL', 'Apollo', 'AWS Amplify', 'AWS Cognito', 'App Center'],
+    highlight: true,
   },
   {
     dateRange: 'SEP 2017 - SEP 2021',
@@ -250,6 +257,7 @@ export const experienceEntriesES: ExperienceEntry[] = [
     company: 'Paisanos',
     description: 'Entrega de más de 10 aplicaciones móviles para FinTech, AgTech y Healthcare utilizando React Native. Realización de migraciones mayores de versiones de React Native (v0.51 a v0.59) utilizando RN Upgrade Helper. Adaptación rápida en un entorno de proyectos de alta rotación, integrándose a diferentes productos y requisitos.',
     skills: ['REACT NATIVE', 'TYPESCRIPT', 'JAVASCRIPT','AWS S3', 'Firebase', 'Swift', 'Kotlin', 'Bitrise' ],
+    highlight: true,
   },
   {
     dateRange: 'DIC 2016 - MAYO 2019',
@@ -273,6 +281,7 @@ export const skillsDataEN: SkillsData = {
     monitoring: ['Sentry'],
     apis: ['GraphQL', 'Apollo', 'TanStack Query'],
     authentication: ['Auth0', 'Okta'],
+    idioms: ['English', 'Spanish'],
   },
   softSkills: [
     'proven team leadership',
@@ -300,6 +309,7 @@ export const skillsDataES: SkillsData = {
     monitoring: ['Sentry'],
     apis: ['GraphQL', 'Apollo', 'TanStack Query'],
     authentication: ['Auth0', 'Okta'],
+    idioms: ['Español', 'Inglés'],
   },
   softSkills: [
     'liderazgo de equipo comprobado',

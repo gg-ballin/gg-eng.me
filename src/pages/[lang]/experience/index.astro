@@ -33,7 +33,7 @@ const categoriesWithSkills = (Object.keys(skillsData.hardSkillsByCategory) as Ex
 >
   <div class="experience-container">
     <Reveal client:load>
-      <h1 class="text-5xl md:text-6xl font-bold mb-16 mt-10" style="font-family: var(--font-family-sans); text-transform: lowercase;">{t.experience.heading}</h1>
+      <h1 class="text-5xl md:text-6xl font-bold mb-16 mt-10 max-w-4xl" style="font-family: var(--font-family-sans); text-transform: lowercase;">{t.experience.heading}</h1>
     </Reveal>
     
     <div class="experience-layout">
@@ -91,10 +91,15 @@ const categoriesWithSkills = (Object.keys(skillsData.hardSkillsByCategory) as Ex
 
 <style>
   .experience-container {
-    max-width: 1400px;
-    margin: 0 auto;
     margin-top: 1rem;
     padding-bottom: 0;
+  }
+  
+  .experience-layout {
+    max-width: 1400px;
+    display: flex;
+    gap: 4rem;
+    align-items: flex-start;
   }
   
   @media (max-width: 768px) {
@@ -105,12 +110,6 @@ const categoriesWithSkills = (Object.keys(skillsData.hardSkillsByCategory) as Ex
   
   .skills-toggle-btn {
     display: none;
-  }
-  
-  .experience-layout {
-    display: flex;
-    gap: 4rem;
-    align-items: flex-start;
   }
   
   .experience-column {
