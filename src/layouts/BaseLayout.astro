@@ -141,10 +141,16 @@ if (import.meta.env.DEV) {
     <!-- Desktop Detection Popup -->
     <div id="desktop-popup" class="desktop-popup" role="dialog" aria-labelledby="desktop-popup-message" aria-hidden="true" data-is-desktop={isDesktopBrowser ? 'true' : 'false'} style={!isDesktopBrowser ? 'display: none !important; visibility: hidden !important;' : ''}>
       <div class="desktop-popup-content">
-        <p id="desktop-popup-message" class="desktop-popup-message">
-          {getTranslations(lang).desktopPopup.message}
-        </p>
-        <button id="desktop-popup-close" class="desktop-popup-close" aria-label="Close">×</button>
+        <div class="desktop-popup-qr-container">
+          <img src="/assets/qr/qr-light.png" alt="QR Code" class="qr-code qr-code-light" />
+          <img src="/assets/qr/qr-dark.png" alt="QR Code" class="qr-code qr-code-dark" />
+        </div>
+        <div class="desktop-popup-text-container">
+          <p id="desktop-popup-message" class="desktop-popup-message">
+            {getTranslations(lang).desktopPopup.message}
+          </p>
+          <button id="desktop-popup-close" class="desktop-popup-close" aria-label="Close">×</button>
+        </div>
       </div>
     </div>
     
@@ -1011,12 +1017,47 @@ if (import.meta.env.DEV) {
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
     position: relative;
     display: flex;
-    align-items: center;
+    flex-direction: column;
     gap: 1rem;
   }
   
   [data-theme="dark"] .desktop-popup-content {
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 255, 136, 0.3);
+  }
+  
+  .desktop-popup-qr-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 0.5rem;
+  }
+  
+  .qr-code {
+    width: 200px;
+    height: 200px;
+    object-fit: contain;
+  }
+  
+  .qr-code-light {
+    display: block;
+  }
+  
+  .qr-code-dark {
+    display: none;
+  }
+  
+  [data-theme="dark"] .qr-code-light {
+    display: none;
+  }
+  
+  [data-theme="dark"] .qr-code-dark {
+    display: block;
+  }
+  
+  .desktop-popup-text-container {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
   }
   
   .desktop-popup-message {
