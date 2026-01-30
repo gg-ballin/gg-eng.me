@@ -10,11 +10,22 @@ interface Props {
 
 const { entry } = Astro.props;
 const employerLogo = getEmployerLogo(entry.company);
+const isHighlighted = entry.highlight === true;
 ---
 
 <article class="experience-entry">
   <div class="experience-date">{entry.dateRange}</div>
-  <div class="experience-content">
+  <div class={`experience-content ${isHighlighted ? 'experience-content-highlighted' : ''}`}>
+    {isHighlighted && (
+      <div class="highlight-badge">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+        </svg>
+      </div>
+    )}
+    {isHighlighted && (
+      <div class="border-trail"></div>
+    )}
     <h3 class="experience-role">{entry.role}</h3>
     <div class="experience-company-wrapper">
       {employerLogo && (
@@ -141,12 +152,142 @@ const employerLogo = getEmployerLogo(entry.company);
     padding: 1.5rem;
     background-color: var(--timeline-item-bg);
     transition: all 0.2s ease;
+    position: relative;
   }
   
   .experience-content:hover {
     transform: translate(4px, -4px);
     box-shadow: -4px 4px 0 var(--color-accent);
   }
+  
+  /* Override hover for highlighted entries - no accent line */
+  .experience-content-highlighted:hover {
+    transform: translate(4px, -4px);
+    box-shadow: 
+      0 0 20px rgba(99, 102, 241, 0.3),
+      0 0 40px rgba(99, 102, 241, 0.2);
+  }
+  
+  [data-theme="dark"] .experience-content-highlighted:hover {
+    box-shadow: 
+      0 0 20px rgba(0, 255, 136, 0.4),
+      0 0 40px rgba(0, 255, 136, 0.3);
+  }
+  
+  /* Highlight badge */
+  .highlight-badge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    z-index: 10;
+    color: var(--color-accent);
+    animation: starPulse 2s ease-in-out infinite;
+    filter: drop-shadow(0 0 4px currentColor);
+  }
+  
+  @keyframes starPulse {
+    0%, 100% {
+      transform: scale(1) rotate(0deg);
+      opacity: 1;
+    }
+    50% {
+      transform: scale(1.1) rotate(180deg);
+      opacity: 0.9;
+    }
+  }
+  
+  /* Neon border trail animation */
+  .experience-content-highlighted {
+    border: 3px solid var(--color-text);
+    position: relative;
+    background: var(--timeline-item-bg);
+  }
+  
+  .border-trail {
+    position: absolute;
+    width: 80px;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--color-accent), transparent);
+    box-shadow: 0 0 10px var(--color-accent), 0 0 20px var(--color-accent);
+    z-index: -1;
+    opacity: 0;
+    pointer-events: none;
+    /* animation: borderTrailMove 3s linear infinite; */
+    transform-origin: center center;
+    display: none; /* Hidden until animation is enabled */
+  }
+  
+  /* Border trail animation - commented out for future feature
+  @keyframes borderTrailMove {
+    Top edge - horizontal, moving right
+    0% {
+      top: -3px;
+      left: 0%;
+      width: 80px;
+      height: 3px;
+      transform: translateX(0) rotate(0deg);
+    }
+    24% {
+      top: -3px;
+      left: 100%;
+      width: 80px;
+      height: 3px;
+      transform: translateX(-100%) rotate(0deg);
+    }
+    Right edge - vertical, moving down
+    26% {
+      top: 0%;
+      left: 100%;
+      width: 3px;
+      height: 80px;
+      transform: translateX(-100%) translateY(0) rotate(90deg);
+    }
+    49% {
+      top: 100%;
+      left: 100%;
+      width: 3px;
+      height: 80px;
+      transform: translateX(-100%) translateY(-100%) rotate(90deg);
+    }
+    Bottom edge - horizontal, moving left
+    51% {
+      top: 100%;
+      left: 100%;
+      width: 80px;
+      height: 3px;
+      transform: translateX(-100%) translateY(-100%) rotate(180deg);
+    }
+    74% {
+      top: 100%;
+      left: 0%;
+      width: 80px;
+      height: 3px;
+      transform: translateX(0) translateY(-100%) rotate(180deg);
+    }
+    Left edge - vertical, moving up
+    76% {
+      top: 100%;
+      left: -3px;
+      width: 3px;
+      height: 80px;
+      transform: translateX(0) translateY(-100%) rotate(270deg);
+    }
+    99% {
+      top: 0%;
+      left: -3px;
+      width: 3px;
+      height: 80px;
+      transform: translateX(0) translateY(0) rotate(270deg);
+    }
+    100% {
+      top: -3px;
+      left: 0%;
+      width: 80px;
+      height: 3px;
+      transform: translateX(0) rotate(0deg);
+    }
+  }
+  */
   
   .experience-role {
     font-family: var(--font-family-serif);
@@ -307,6 +448,18 @@ const employerLogo = getEmployerLogo(entry.company);
     
     .experience-content {
       padding: 1.25rem;
+    }
+    
+    .highlight-badge {
+      top: 0.75rem;
+      right: 0.75rem;
+      width: 20px;
+      height: 20px;
+    }
+    
+    .highlight-badge svg {
+      width: 20px;
+      height: 20px;
     }
     
     .experience-role {
