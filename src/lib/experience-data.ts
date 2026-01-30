@@ -142,7 +142,7 @@ export function flattenSkillsByCategory(skillsByCategory: Record<ExperienceTechC
 export function getCategoryDisplayName(category: ExperienceTechCategory, lang: 'es' | 'en'): string {
   const categoryNames: Record<ExperienceTechCategory, { en: string; es: string }> = {
     mobileFrameworks: { en: 'Mobile Frameworks', es: 'Frameworks Móviles' },
-    languages: { en: 'Languages', es: 'Lenguajes' },
+    languages: { en: 'Programming Languages', es: 'Lenguajes de Programación' },
     stateManagement: { en: 'State Management', es: 'Gestión de Estado' },
     backendCloud: { en: 'Backend & Cloud', es: 'Backend y Cloud' },
     developmentTools: { en: 'Development Tools', es: 'Herramientas de Desarrollo' },
@@ -150,6 +150,7 @@ export function getCategoryDisplayName(category: ExperienceTechCategory, lang: '
     testing: { en: 'Testing', es: 'Testing' },
     monitoring: { en: 'Monitoring', es: 'Monitoreo' },
     apis: { en: 'APIs', es: 'APIs' },
+    idioms: { en: 'Idioms', es: 'Idiomas' },
     authentication: { en: 'Authentication', es: 'Autenticación' },
   };
   return categoryNames[category][lang];
@@ -280,6 +281,7 @@ export const skillsDataEN: SkillsData = {
     monitoring: ['Sentry'],
     apis: ['GraphQL', 'Apollo', 'TanStack Query'],
     authentication: ['Auth0', 'Okta'],
+    idioms: ['English', 'Spanish'],
   },
   softSkills: [
     'proven team leadership',
@@ -307,6 +309,7 @@ export const skillsDataES: SkillsData = {
     monitoring: ['Sentry'],
     apis: ['GraphQL', 'Apollo', 'TanStack Query'],
     authentication: ['Auth0', 'Okta'],
+    idioms: ['Español', 'Inglés'],
   },
   softSkills: [
     'liderazgo de equipo comprobado',

@@ -6,6 +6,7 @@
 export type ExperienceTechCategory =
   | 'mobileFrameworks'
   | 'languages'
+  | 'idioms'  
   | 'stateManagement'
   | 'backendCloud'
   | 'developmentTools'
@@ -26,6 +27,22 @@ export interface ExperienceTechIconConfig {
 }
 
 export const EXPERIENCE_TECH_ICONS: Record<ExperienceTechCategory, ExperienceTechIconConfig[]> = {
+  idioms: [
+    {
+      id: 'english',
+      name: 'English',
+      href: 'https://www.english.com',
+      iconLight: '/assets/icons/experience/technologies/english/english_logo.svg',
+      showText: true,
+    },
+    {
+      id: 'spanish',
+      name: 'Spanish',
+      href: 'https://www.spanish.com',
+      iconLight: '/assets/icons/experience/technologies/spanish/spanish_logo.svg',
+      showText: true,
+    },
+  ],
   mobileFrameworks: [
     {
       id: 'react-native',
