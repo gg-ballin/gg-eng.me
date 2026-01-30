@@ -281,7 +281,7 @@ export const skillsDataEN: SkillsData = {
     monitoring: ['Sentry'],
     apis: ['GraphQL', 'Apollo', 'TanStack Query'],
     authentication: ['Auth0', 'Okta'],
-    idioms: ['English', 'Spanish'],
+    idioms: [], // Empty - languages with levels are shown via LanguagesSection component
   },
   softSkills: [
     'proven team leadership',
@@ -309,7 +309,7 @@ export const skillsDataES: SkillsData = {
     monitoring: ['Sentry'],
     apis: ['GraphQL', 'Apollo', 'TanStack Query'],
     authentication: ['Auth0', 'Okta'],
-    idioms: ['Español', 'Inglés'],
+    idioms: [], // Empty - languages with levels are shown via LanguagesSection component
   },
   softSkills: [
     'liderazgo de equipo comprobado',
