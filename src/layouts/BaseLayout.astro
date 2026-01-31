@@ -1274,6 +1274,17 @@ if (import.meta.env.DEV) {
     display: block !important;
   }
   
+  /* Force hide on mobile - even with visible class */
+  @media (max-width: 767px) {
+    .desktop-popup,
+    .desktop-popup-visible {
+      display: none !important;
+      visibility: hidden !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
+    }
+  }
+  
   .desktop-popup-content {
     background-color: var(--color-bg);
     border: 2px solid var(--color-accent);
