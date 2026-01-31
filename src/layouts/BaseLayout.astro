@@ -381,24 +381,20 @@ if (import.meta.env.DEV) {
         // Remove hidden class if present
         popup.classList.remove('recruiter-hint-popup-hidden');
         
-        // Position popup relative to contact link on mobile only
+        // Position popup - CSS handles positioning, JS only manages transform for animation
         function positionPopup() {
           if (!popup) return;
           
           const isMobile = window.innerWidth < 768;
           
-          if (isMobile && contactLink) {
-            // Mobile: position bottom right, just above the contact nav link
-            const contactRect = contactLink.getBoundingClientRect();
-            const navBarHeight = 60; // Approximate nav bar height
-            const popupOffset = 0.5; // Space above nav link in rem
-            
-            popup.style.bottom = `${navBarHeight + popupOffset}rem`;
-            popup.style.right = '1rem';
-            popup.style.left = 'auto';
-            popup.style.transform = 'translateY(20px)';
+          if (isMobile) {
+            // Mobile: CSS handles bottom/right positioning, JS only manages transform for animation
+            // Don't override CSS positioning, just ensure transform is set for animation
+            if (!popup.classList.contains('recruiter-hint-popup-visible')) {
+              popup.style.transform = 'translateY(20px)';
+            }
           } else {
-            // Desktop: reset to let CSS handle it
+            // Desktop: reset inline styles to let CSS handle it
             popup.style.bottom = '';
             popup.style.right = '';
             popup.style.left = '';
@@ -1543,14 +1539,12 @@ if (import.meta.env.DEV) {
       display: inline;
     }
     
-    /* Triangle decoration on top-right corner */
+    /* Hide triangle decoration on top - we only want bottom tail on mobile */
     .recruiter-hint-popup-content::before {
-      top: -8px;
-      right: 1.5rem;
-      border-width: 0 8px 8px 8px;
-      border-color: transparent transparent var(--color-accent) transparent;
+      display: none;
     }
     
+    /* Tail at bottom, pointing down to contact nav link */
     .recruiter-hint-popup-tail {
       bottom: -12px;
       right: 1.5rem;
