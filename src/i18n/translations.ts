@@ -14,6 +14,12 @@ export const translations: Record<Language, Translations> = {
       blog: 'blog',
       contact: 'contacto',
       theme: 'Theme',
+      recruiterHint: {
+        message: '👋 Tech Recruiters: Para solicitar mi CV, ir a',
+        linkText: 'contacto',
+        mobileMessage: '👋 Tech Recruiters:',
+        mobileLinkText: 'Solicitar mi CV aquí',
+      },
     },
     bio: {
       name: 'hola hola! soy Germán Gómez',
@@ -114,6 +120,12 @@ export const translations: Record<Language, Translations> = {
       blog: 'blog',
       contact: 'contact',
       theme: 'Theme',
+      recruiterHint: {
+        message: '👋 Tech Recruiters: To request my CV, go to',
+        linkText: 'contact',
+        mobileMessage: '👋 Tech Recruiters:',
+        mobileLinkText: 'Request my CV here',
+      },
     },
     bio: {
       name: 'hello there! i\'m Germán Gómez',
