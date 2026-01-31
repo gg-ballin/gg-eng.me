@@ -140,7 +140,7 @@ if (import.meta.env.DEV) {
     </main>
     
     <!-- Desktop Detection Popup -->
-    <div id="desktop-popup" class={`desktop-popup ${!isDesktopBrowser ? 'desktop-popup-hidden' : ''}`} role="dialog" aria-labelledby="desktop-popup-message" aria-hidden="true" data-is-desktop={isDesktopBrowser ? 'true' : 'false'}>
+    <div id="desktop-popup" class={`desktop-popup ${!isDesktopBrowser || currentPath.startsWith(`/${lang}/experience`) ? 'desktop-popup-hidden' : ''}`} role="dialog" aria-labelledby="desktop-popup-message" aria-hidden="true" data-is-desktop={isDesktopBrowser ? 'true' : 'false'}>
       <div class="desktop-popup-content">
         <p id="desktop-popup-message" class="desktop-popup-message">
           {getTranslations(lang).desktopPopup.message}
@@ -314,6 +314,14 @@ if (import.meta.env.DEV) {
         if (!popup) {
           if (import.meta.env.DEV) {
             console.log('[Desktop Popup] Popup not found');
+          }
+          return;
+        }
+        
+        // Don't show on experience page
+        if (window.location.pathname.includes('/experience')) {
+          if (import.meta.env.DEV) {
+            console.log('[Desktop Popup] On experience page, skipping');
           }
           return;
         }
