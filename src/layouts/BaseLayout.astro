@@ -163,7 +163,7 @@ if (import.meta.env.DEV) {
             </span>
             <span class="recruiter-hint-mobile">
               {getTranslations(lang).nav.recruiterHint.mobileMessage}{' '}
-              <a href={contactPath} class="recruiter-hint-link">{getTranslations(lang).nav.recruiterHint.mobileLinkText}</a>.
+              <span class="recruiter-hint-mobile-text">{getTranslations(lang).nav.recruiterHint.mobileLinkText}</span>.
             </span>
           </p>
         </div>
@@ -1519,7 +1519,7 @@ if (import.meta.env.DEV) {
   /* Mobile: bubble appears bottom right, just above contact nav link, tail points down */
   @media (max-width: 767px) {
     .recruiter-hint-popup {
-      bottom: calc(4rem + 0.5rem);
+      bottom: calc(4rem + 0.5rem + 1rem);
       right: 1rem;
       left: auto;
       transform: translateY(20px);
@@ -1544,7 +1544,7 @@ if (import.meta.env.DEV) {
       display: none;
     }
     
-    /* Tail at bottom, pointing down to contact nav link */
+    /* Tail at bottom, pointing down to contact nav link - solid accent color triangle */
     .recruiter-hint-popup-tail {
       bottom: -12px;
       right: 1.5rem;
@@ -1552,20 +1552,21 @@ if (import.meta.env.DEV) {
       transform: none;
       border-width: 12px 10px 0 10px;
       border-color: var(--color-accent) transparent transparent transparent;
+      background: transparent;
+      box-sizing: border-box;
     }
     
+    /* Remove inner triangle on mobile - just use solid accent color */
     .recruiter-hint-popup-tail::after {
-      content: '';
-      position: absolute;
-      left: -8px;
-      top: -10px;
-      border-width: 10px 8px 0 8px;
-      border-color: var(--color-bg) transparent transparent transparent;
-      border-style: solid;
+      display: none;
     }
     
     .recruiter-hint-popup-message {
       white-space: normal;
+    }
+    
+    .recruiter-hint-mobile-text {
+      color: var(--color-text);
     }
   }
   
