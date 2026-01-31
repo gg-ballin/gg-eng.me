@@ -12,6 +12,10 @@ export interface Translations {
     blog: string;
     contact: string;
     theme: string;
+    recruiterHint: {
+      message: string;
+      linkText: string;
+    };
   };
   
   // Bio page

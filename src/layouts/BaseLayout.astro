@@ -94,6 +94,7 @@ if (import.meta.env.DEV) {
         <a 
           href={contactPath}
           class={`nav-link nav-link-4 hover:opacity-60 transition-opacity ${currentPath.startsWith(`/${lang}/contact`) ? 'nav-link-active' : ''}`}
+          id="contact-nav-link"
         >
           <span class="nav-text">{t.contact}</span>
         </a>
@@ -139,9 +140,8 @@ if (import.meta.env.DEV) {
     </main>
     
     <!-- Desktop Detection Popup -->
-    <div id="desktop-popup" class="desktop-popup" role="dialog" aria-labelledby="desktop-popup-message" aria-hidden="true" data-is-desktop={isDesktopBrowser ? 'true' : 'false'} style={!isDesktopBrowser ? 'display: none !important; visibility: hidden !important;' : ''}>
+    <div id="desktop-popup" class={`desktop-popup ${!isDesktopBrowser ? 'desktop-popup-hidden' : ''}`} role="dialog" aria-labelledby="desktop-popup-message" aria-hidden="true" data-is-desktop={isDesktopBrowser ? 'true' : 'false'}>
       <div class="desktop-popup-content">
-        <button id="desktop-popup-close" class="desktop-popup-close" aria-label="Close">×</button>
         <p id="desktop-popup-message" class="desktop-popup-message">
           {getTranslations(lang).desktopPopup.message}
         </p>
@@ -151,6 +151,19 @@ if (import.meta.env.DEV) {
         </div>
       </div>
     </div>
+    
+    <!-- Recruiter Hint Popup -->
+    {!currentPath.startsWith(`/${lang}/contact`) && (
+      <div id="recruiter-hint-popup" class="recruiter-hint-popup" role="dialog" aria-labelledby="recruiter-hint-message" aria-hidden="true">
+        <div class="recruiter-hint-popup-content">
+          <p id="recruiter-hint-message" class="recruiter-hint-popup-message">
+            {getTranslations(lang).nav.recruiterHint.message}{' '}
+            <a href={contactPath} class="recruiter-hint-link">{getTranslations(lang).nav.recruiterHint.linkText}</a>.
+          </p>
+        </div>
+        <div class="recruiter-hint-popup-tail"></div>
+      </div>
+    )}
     
     <footer class={`footer ${currentPath.startsWith(`/${lang}/experience`) ? 'footer-experience' : ''}`}>
       {!hideSocialLinks && (
@@ -290,57 +303,210 @@ if (import.meta.env.DEV) {
       // Desktop detection popup (using server-side detection from astro-useragent)
       function showDesktopPopup() {
         const popup = document.getElementById('desktop-popup');
-        const closeBtn = document.getElementById('desktop-popup-close');
         
         // Only show if popup exists
-        if (!popup || !closeBtn) {
+        if (!popup) {
+          if (import.meta.env.DEV) {
+            console.log('[Desktop Popup] Popup not found');
+          }
           return;
         }
         
         // Check if popup has data-is-desktop attribute (server-side confirmed desktop)
         const isDesktop = popup.getAttribute('data-is-desktop') === 'true';
         
+        if (import.meta.env.DEV) {
+          console.log('[Desktop Popup] isDesktop:', isDesktop, 'data-is-desktop:', popup.getAttribute('data-is-desktop'));
+        }
+        
         if (!isDesktop) {
+          if (import.meta.env.DEV) {
+            console.log('[Desktop Popup] Not desktop, skipping');
+          }
           return;
         }
         
-        // Remove inline display:none and visibility hidden if present
-        popup.style.removeProperty('display');
-        popup.style.removeProperty('visibility');
+        // Remove hidden class if present
+        popup.classList.remove('desktop-popup-hidden');
         
         // In dev mode, allow clearing dismissal status via URL parameter
         if (import.meta.env.DEV && new URLSearchParams(window.location.search).get('clear-popup') === 'true') {
           localStorage.removeItem('desktop-popup-dismissed');
+          if (import.meta.env.DEV) {
+            console.log('[Desktop Popup] Cleared dismissal status');
+          }
         }
         
-        // Don't show if already dismissed
-        if (localStorage.getItem('desktop-popup-dismissed') === 'true') {
+        // Don't show if already dismissed (only check in production, ignore in dev mode)
+        const isDismissed = localStorage.getItem('desktop-popup-dismissed') === 'true';
+        if (import.meta.env.DEV) {
+          console.log('[Desktop Popup] Dev mode - isDismissed:', isDismissed, '(ignoring dismissal in dev mode)');
+        }
+        
+        // Only respect dismissal in production
+        if (!import.meta.env.DEV && isDismissed) {
           return;
         }
         
         // Show popup after a short delay
-        const showTimeout = setTimeout(() => {
+        setTimeout(() => {
           popup.setAttribute('aria-hidden', 'false');
           popup.classList.add('desktop-popup-visible');
         }, 1500);
+      }
+      
+      // Recruiter hint popup - position near contact nav link on mobile, bottom right on desktop
+      function showRecruiterHintPopup() {
+        const popup = document.getElementById('recruiter-hint-popup');
+        const contactLink = document.getElementById('contact-nav-link');
         
-        // Close button handler
-        const handleClose = () => {
-          popup.classList.remove('desktop-popup-visible');
-          popup.setAttribute('aria-hidden', 'true');
-          localStorage.setItem('desktop-popup-dismissed', 'true');
-          clearTimeout(showTimeout);
-        };
+        if (!popup) {
+          return;
+        }
         
-        closeBtn.addEventListener('click', handleClose);
+        // Remove hidden class if present
+        popup.classList.remove('recruiter-hint-popup-hidden');
+        
+        // Position popup relative to contact link on mobile only
+        function positionPopup() {
+          if (!popup) return;
+          
+          const isMobile = window.innerWidth < 768;
+          
+          if (isMobile && contactLink) {
+            // Mobile: position above the contact link, higher up
+            const contactRect = contactLink.getBoundingClientRect();
+            popup.style.bottom = `${window.innerHeight - contactRect.top + 0.5}rem`;
+            popup.style.left = `${contactRect.left + contactRect.width / 2}px`;
+            popup.style.transform = 'translateX(-50%) translateY(20px)';
+          }
+          // Desktop: CSS handles positioning (bottom right)
+        }
+        
+        // Position initially (mobile only)
+        positionPopup();
+        
+        // Reposition on resize (mobile only)
+        window.addEventListener('resize', positionPopup);
+        
+        // Show popup after a short delay
+        setTimeout(() => {
+          if (!popup) return;
+          
+          if (import.meta.env.DEV) {
+            console.log('[Recruiter Hint Popup] Showing popup now');
+          }
+          popup.setAttribute('aria-hidden', 'false');
+          popup.classList.add('recruiter-hint-popup-visible');
+          positionPopup(); // Reposition when visible
+        }, 2000);
+      }
+      
+      // QR code shake animation - shake entire popup
+      function initQRShake() {
+        const popupContent = document.querySelector('.desktop-popup-content');
+        if (!popupContent) return;
+        
+        setInterval(() => {
+          popupContent.classList.add('qr-shake');
+          setTimeout(() => {
+            popupContent.classList.remove('qr-shake');
+          }, 500);
+        }, 5000);
+      }
+      
+      // Overlap detection for popups
+      function checkPopupOverlap(popup: HTMLElement | null, importantContentSelectors: string[]): boolean {
+        if (!popup || (!popup.classList.contains('desktop-popup-visible') && !popup.classList.contains('recruiter-hint-popup-visible'))) {
+          return false;
+        }
+        
+        const popupRect = popup.getBoundingClientRect();
+        const importantElements = document.querySelectorAll(importantContentSelectors.join(','));
+        
+        for (const element of importantElements) {
+          const elementRect = element.getBoundingClientRect();
+          
+          // Check if popup overlaps with element
+          const overlaps = !(
+            popupRect.right < elementRect.left ||
+            popupRect.left > elementRect.right ||
+            popupRect.bottom < elementRect.top ||
+            popupRect.top > elementRect.bottom
+          );
+          
+          if (overlaps) {
+            return true;
+          }
+        }
+        
+        return false;
+      }
+      
+      // Apply overlap opacity to popups
+      function updatePopupOpacity() {
+        const desktopPopup = document.getElementById('desktop-popup');
+        const recruiterPopup = document.getElementById('recruiter-hint-popup');
+        
+        // Important content areas to check
+        const importantSelectors = [
+          '.main-content',
+          '.skills-column',
+          '.experience-column',
+          '.experience-layout',
+          'aside',
+          'section'
+        ];
+        
+        if (desktopPopup) {
+          const overlaps = checkPopupOverlap(desktopPopup, importantSelectors);
+          desktopPopup.style.opacity = overlaps ? '0.2' : '1';
+        }
+        
+        if (recruiterPopup) {
+          const overlaps = checkPopupOverlap(recruiterPopup, importantSelectors);
+          recruiterPopup.style.opacity = overlaps ? '0.2' : '1';
+        }
+      }
+      
+      // Throttled overlap check
+      let overlapCheckTimeout: number | null = null;
+      function scheduleOverlapCheck() {
+        if (overlapCheckTimeout) {
+          cancelAnimationFrame(overlapCheckTimeout);
+        }
+        overlapCheckTimeout = requestAnimationFrame(updatePopupOpacity);
+      }
+      
+      // Initialize overlap detection
+      function initOverlapDetection() {
+        // Check on scroll
+        window.addEventListener('scroll', scheduleOverlapCheck, { passive: true });
+        
+        // Check on resize
+        window.addEventListener('resize', scheduleOverlapCheck, { passive: true });
+        
+        // Initial check
+        setTimeout(updatePopupOpacity, 2000);
+        
+        // Check periodically (every 500ms) to catch dynamic content changes
+        setInterval(updatePopupOpacity, 500);
       }
       
       // Initialize popup when DOM is ready
       function initPopup() {
         if (document.readyState === 'loading') {
-          document.addEventListener('DOMContentLoaded', showDesktopPopup);
+          document.addEventListener('DOMContentLoaded', () => {
+            showDesktopPopup();
+            showRecruiterHintPopup();
+            initQRShake();
+            initOverlapDetection();
+          });
         } else {
           showDesktopPopup();
+          showRecruiterHintPopup();
+          initQRShake();
+          initOverlapDetection();
         }
       }
       
@@ -369,6 +535,9 @@ if (import.meta.env.DEV) {
         popupInitialized = false;
         setTimeout(() => {
           showDesktopPopup();
+          showRecruiterHintPopup();
+          initQRShake();
+          initOverlapDetection();
         }, 100);
       });
       
@@ -446,7 +615,61 @@ if (import.meta.env.DEV) {
     padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
     background-color: var(--color-nav-bg);
     border-top: 1px solid var(--color-border);
+    box-shadow: 
+      0 -4px 12px rgba(99, 102, 241, 0.15),
+      0 -2px 4px var(--color-accent);
+    animation: navGlowPulseMobile 3s ease-in-out infinite;
     z-index: 100;
+  }
+  
+  [data-theme="dark"] .nav-bar {
+    box-shadow: 
+      0 -4px 12px rgba(0, 255, 136, 0.2),
+      0 -2px 4px var(--color-accent);
+    animation: navGlowPulseMobileDark 3s ease-in-out infinite;
+  }
+  
+  @keyframes navGlowPulseMobile {
+    0%, 100% {
+      box-shadow: 
+        0 -4px 12px rgba(99, 102, 241, 0.15),
+        0 -2px 4px var(--color-accent);
+    }
+    50% {
+      box-shadow: 
+        0 -4px 12px rgba(99, 102, 241, 0.08),
+        0 -2px 2px var(--color-accent);
+    }
+  }
+  
+  @keyframes navGlowPulseMobileDark {
+    0%, 100% {
+      box-shadow: 
+        0 -4px 12px rgba(0, 255, 136, 0.2),
+        0 -2px 4px var(--color-accent);
+    }
+    50% {
+      box-shadow: 
+        0 -4px 12px rgba(0, 255, 136, 0.1),
+        0 -2px 2px var(--color-accent);
+    }
+  }
+  
+  /* Override glow on desktop */
+  @media (min-width: 768px) {
+    .nav-bar {
+      box-shadow: 
+        4px 0 12px rgba(99, 102, 241, 0.15),
+        2px 0 4px var(--color-accent);
+      animation: navGlowPulse 3s ease-in-out infinite;
+    }
+    
+    [data-theme="dark"] .nav-bar {
+      box-shadow: 
+        4px 0 12px rgba(0, 255, 136, 0.2),
+        2px 0 4px var(--color-accent);
+      animation: navGlowPulseDark 3s ease-in-out infinite;
+    }
   }
   
   .nav-links {
@@ -516,6 +739,46 @@ if (import.meta.env.DEV) {
       padding: 2rem 0;
       border-top: none;
       border-right: 1px solid var(--color-border);
+      background-color: rgba(0, 0, 0, 0.02);
+      backdrop-filter: blur(8px);
+      box-shadow: 
+        4px 0 12px rgba(99, 102, 241, 0.15),
+        2px 0 4px var(--color-accent);
+      animation: navGlowPulse 3s ease-in-out infinite;
+    }
+    
+    [data-theme="dark"] .nav-bar {
+      background-color: rgba(255, 255, 255, 0.02);
+      box-shadow: 
+        4px 0 12px rgba(0, 255, 136, 0.2),
+        2px 0 4px var(--color-accent);
+      animation: navGlowPulseDark 3s ease-in-out infinite;
+    }
+    
+    @keyframes navGlowPulse {
+      0%, 100% {
+        box-shadow: 
+          4px 0 12px rgba(99, 102, 241, 0.15),
+          2px 0 4px var(--color-accent);
+      }
+      50% {
+        box-shadow: 
+          4px 0 12px rgba(99, 102, 241, 0.08),
+          2px 0 2px var(--color-accent);
+      }
+    }
+    
+    @keyframes navGlowPulseDark {
+      0%, 100% {
+        box-shadow: 
+          4px 0 12px rgba(0, 255, 136, 0.2),
+          2px 0 4px var(--color-accent);
+      }
+      50% {
+        box-shadow: 
+          4px 0 12px rgba(0, 255, 136, 0.1),
+          2px 0 2px var(--color-accent);
+      }
     }
     
     .nav-links {
@@ -988,15 +1251,19 @@ if (import.meta.env.DEV) {
     transition: opacity 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55), 
                 transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
     visibility: hidden;
+    display: none; /* Hidden by default on mobile */
   }
   
-  .desktop-popup[style*="display: none"] {
+  /* Only show on desktop */
+  @media (min-width: 768px) {
+    .desktop-popup {
+      display: block;
+    }
+  }
+  
+  .desktop-popup-hidden {
     display: none !important;
     visibility: hidden !important;
-  }
-  
-  .desktop-popup:not([style*="display: none"]) {
-    display: block;
   }
   
   .desktop-popup-visible {
@@ -1061,34 +1328,6 @@ if (import.meta.env.DEV) {
     display: block;
   }
   
-  .desktop-popup-close {
-    position: absolute;
-    top: 50%;
-    right: 1rem;
-    transform: translateY(-50%);
-    background: none;
-    border: none;
-    color: var(--color-text);
-    font-size: clamp(1.25rem, 1.5vw + 0.75rem, 2rem);
-    line-height: 1;
-    cursor: pointer;
-    padding: 0.5rem;
-    opacity: 0.6;
-    transition: opacity 0.2s ease, transform 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 10;
-  }
-  
-  .desktop-popup-close:hover {
-    opacity: 1;
-    transform: translateY(-50%) scale(1.1);
-  }
-  
-  .desktop-popup-close:active {
-    transform: translateY(-50%) scale(0.95);
-  }
   
   @media (min-width: 768px) {
     .desktop-popup {
@@ -1100,6 +1339,166 @@ if (import.meta.env.DEV) {
     
     .desktop-popup-visible {
       transform: translateY(0) !important;
+    }
+  }
+  
+  /* QR Code Shake Animation - shakes entire popup */
+  @keyframes qrShake {
+    0%, 100% {
+      transform: translateX(0);
+    }
+    10%, 30%, 50%, 70%, 90% {
+      transform: translateX(-4px);
+    }
+    20%, 40%, 60%, 80% {
+      transform: translateX(4px);
+    }
+  }
+  
+  .desktop-popup-content.qr-shake {
+    animation: qrShake 0.5s ease-in-out;
+  }
+  
+  /* Recruiter Hint Popup - Comic Bubble */
+  .recruiter-hint-popup {
+    position: fixed;
+    z-index: 9998;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55), 
+                transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    visibility: hidden;
+  }
+  
+  .recruiter-hint-popup-hidden {
+    display: none !important;
+    visibility: hidden !important;
+  }
+  
+  .recruiter-hint-popup-visible {
+    opacity: 1 !important;
+    pointer-events: all !important;
+    visibility: visible !important;
+    display: block !important;
+  }
+  
+  .recruiter-hint-popup-content {
+    background-color: var(--color-bg);
+    border: 2px solid var(--color-accent);
+    border-radius: 1rem;
+    padding: 1rem 1.25rem;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  [data-theme="dark"] .recruiter-hint-popup-content {
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 255, 136, 0.3);
+  }
+  
+  /* Triangle border decoration */
+  .recruiter-hint-popup-content::before {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-style: solid;
+  }
+  
+  .recruiter-hint-popup-message {
+    margin: 0;
+    font-size: clamp(0.875rem, 1.2vw + 0.5rem, 1.125rem);
+    line-height: 1.5;
+    color: var(--color-text);
+    font-weight: 600;
+    text-align: center;
+    white-space: nowrap;
+  }
+  
+  .recruiter-hint-link {
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    transition: opacity 0.2s ease;
+  }
+  
+  .recruiter-hint-link:hover {
+    opacity: 0.7;
+  }
+  
+  /* Comic bubble tail/pointer */
+  .recruiter-hint-popup-tail {
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-style: solid;
+  }
+  
+  /* Desktop: bubble at bottom right corner */
+  @media (min-width: 768px) {
+    .recruiter-hint-popup {
+      bottom: 2rem;
+      right: 2rem;
+      transform: translateY(100px);
+    }
+    
+    .recruiter-hint-popup-visible {
+      transform: translateY(0) !important;
+    }
+    
+    /* No triangle decoration on desktop */
+    .recruiter-hint-popup-content::before {
+      display: none;
+    }
+    
+    .recruiter-hint-popup-tail {
+      display: none; /* Hide tail on desktop */
+    }
+  }
+  
+  /* Mobile: bubble appears above contact nav link, tail points down */
+  @media (max-width: 767px) {
+    .recruiter-hint-popup {
+      bottom: calc(4rem + 1.5rem);
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      max-width: calc(100% - 2rem);
+    }
+    
+    .recruiter-hint-popup-visible {
+      transform: translateX(-50%) translateY(0) !important;
+    }
+    
+    /* Triangle decoration on top-right corner */
+    .recruiter-hint-popup-content::before {
+      top: -8px;
+      right: 1.5rem;
+      border-width: 0 8px 8px 8px;
+      border-color: transparent transparent var(--color-accent) transparent;
+    }
+    
+    .recruiter-hint-popup-tail {
+      bottom: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-width: 12px 10px 0 10px;
+      border-color: var(--color-accent) transparent transparent transparent;
+    }
+    
+    .recruiter-hint-popup-tail::after {
+      content: '';
+      position: absolute;
+      left: -8px;
+      top: -10px;
+      border-width: 10px 8px 0 8px;
+      border-color: var(--color-bg) transparent transparent transparent;
+      border-style: solid;
+    }
+    
+    .recruiter-hint-popup-message {
+      white-space: normal;
     }
   }
   
