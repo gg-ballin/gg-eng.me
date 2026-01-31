@@ -15,6 +15,8 @@ export interface Translations {
     recruiterHint: {
       message: string;
       linkText: string;
+      mobileMessage: string;
+      mobileLinkText: string;
     };
   };
   

@@ -17,6 +17,8 @@ export const translations: Record<Language, Translations> = {
       recruiterHint: {
         message: '👋 Tech Recruiters: Para solicitar mi CV, ir a',
         linkText: 'contacto',
+        mobileMessage: '👋 Tech Recruiters:',
+        mobileLinkText: 'Solicitar mi CV aquí',
       },
     },
     bio: {
@@ -121,6 +123,8 @@ export const translations: Record<Language, Translations> = {
       recruiterHint: {
         message: '👋 Tech Recruiters: To request my CV, go to',
         linkText: 'contact',
+        mobileMessage: '👋 Tech Recruiters:',
+        mobileLinkText: 'Request my CV here',
       },
     },
     bio: {

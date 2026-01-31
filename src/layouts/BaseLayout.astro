@@ -157,8 +157,14 @@ if (import.meta.env.DEV) {
       <div id="recruiter-hint-popup" class="recruiter-hint-popup" role="dialog" aria-labelledby="recruiter-hint-message" aria-hidden="true">
         <div class="recruiter-hint-popup-content">
           <p id="recruiter-hint-message" class="recruiter-hint-popup-message">
-            {getTranslations(lang).nav.recruiterHint.message}{' '}
-            <a href={contactPath} class="recruiter-hint-link">{getTranslations(lang).nav.recruiterHint.linkText}</a>.
+            <span class="recruiter-hint-desktop">
+              {getTranslations(lang).nav.recruiterHint.message}{' '}
+              <a href={contactPath} class="recruiter-hint-link">{getTranslations(lang).nav.recruiterHint.linkText}</a>.
+            </span>
+            <span class="recruiter-hint-mobile">
+              {getTranslations(lang).nav.recruiterHint.mobileMessage}{' '}
+              <a href={contactPath} class="recruiter-hint-link">{getTranslations(lang).nav.recruiterHint.mobileLinkText}</a>.
+            </span>
           </p>
         </div>
         <div class="recruiter-hint-popup-tail"></div>
@@ -374,20 +380,38 @@ if (import.meta.env.DEV) {
           const isMobile = window.innerWidth < 768;
           
           if (isMobile && contactLink) {
-            // Mobile: position above the contact link, higher up
+            // Mobile: position bottom right, just above the contact nav link
             const contactRect = contactLink.getBoundingClientRect();
-            popup.style.bottom = `${window.innerHeight - contactRect.top + 0.5}rem`;
-            popup.style.left = `${contactRect.left + contactRect.width / 2}px`;
-            popup.style.transform = 'translateX(-50%) translateY(20px)';
+            const navBarHeight = 60; // Approximate nav bar height
+            const popupOffset = 0.5; // Space above nav link in rem
+            
+            popup.style.bottom = `${navBarHeight + popupOffset}rem`;
+            popup.style.right = '1rem';
+            popup.style.left = 'auto';
+            popup.style.transform = 'translateY(20px)';
+          } else {
+            // Desktop: reset to let CSS handle it
+            popup.style.bottom = '';
+            popup.style.right = '';
+            popup.style.left = '';
+            popup.style.transform = '';
           }
-          // Desktop: CSS handles positioning (bottom right)
         }
         
         // Position initially (mobile only)
         positionPopup();
         
-        // Reposition on resize (mobile only)
-        window.addEventListener('resize', positionPopup);
+        // Reposition on resize (mobile only) - use a single handler
+        let resizeTimeout: ReturnType<typeof setTimeout> | null = null;
+        const handleResize = () => {
+          if (resizeTimeout) {
+            clearTimeout(resizeTimeout);
+          }
+          resizeTimeout = setTimeout(() => {
+            positionPopup();
+          }, 100);
+        };
+        window.addEventListener('resize', handleResize, { passive: true });
         
         // Show popup after a short delay
         setTimeout(() => {
@@ -396,9 +420,14 @@ if (import.meta.env.DEV) {
           if (import.meta.env.DEV) {
             console.log('[Recruiter Hint Popup] Showing popup now');
           }
+          positionPopup(); // Position before showing
           popup.setAttribute('aria-hidden', 'false');
           popup.classList.add('recruiter-hint-popup-visible');
-          positionPopup(); // Reposition when visible
+          
+          // Reposition after a brief delay to ensure layout is stable
+          setTimeout(() => {
+            positionPopup();
+          }, 100);
         }, 2000);
       }
       
@@ -1483,17 +1512,27 @@ if (import.meta.env.DEV) {
     }
   }
   
-  /* Mobile: bubble appears above contact nav link, tail points down */
+  /* Mobile: bubble appears bottom right, just above contact nav link, tail points down */
   @media (max-width: 767px) {
     .recruiter-hint-popup {
-      bottom: calc(4rem + 1.5rem);
-      left: 50%;
-      transform: translateX(-50%) translateY(20px);
+      bottom: calc(4rem + 0.5rem);
+      right: 1rem;
+      left: auto;
+      transform: translateY(20px);
       max-width: calc(100% - 2rem);
     }
     
     .recruiter-hint-popup-visible {
-      transform: translateX(-50%) translateY(0) !important;
+      transform: translateY(0) !important;
+    }
+    
+    /* Hide desktop message, show mobile message */
+    .recruiter-hint-desktop {
+      display: none;
+    }
+    
+    .recruiter-hint-mobile {
+      display: inline;
     }
     
     /* Triangle decoration on top-right corner */
@@ -1506,8 +1545,9 @@ if (import.meta.env.DEV) {
     
     .recruiter-hint-popup-tail {
       bottom: -12px;
-      left: 50%;
-      transform: translateX(-50%);
+      right: 1.5rem;
+      left: auto;
+      transform: none;
       border-width: 12px 10px 0 10px;
       border-color: var(--color-accent) transparent transparent transparent;
     }
@@ -1524,6 +1564,17 @@ if (import.meta.env.DEV) {
     
     .recruiter-hint-popup-message {
       white-space: normal;
+    }
+  }
+  
+  /* Desktop: show desktop message, hide mobile message */
+  @media (min-width: 768px) {
+    .recruiter-hint-desktop {
+      display: inline;
+    }
+    
+    .recruiter-hint-mobile {
+      display: none;
     }
   }
   
