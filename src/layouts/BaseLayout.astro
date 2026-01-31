@@ -599,6 +599,13 @@ if (import.meta.env.DEV) {
 <style is:global>
   @import '../styles/global.css';
   
+  /* Ensure full width and prevent horizontal overflow */
+  html, body {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+  
   /* Mobile-first: bottom tab bar */
   .nav-bar {
     position: fixed;
@@ -833,18 +840,25 @@ if (import.meta.env.DEV) {
   .main-content {
     flex: 1;
     margin-left: 0;
+    margin-right: 0;
     padding: 1.5rem;
     padding-bottom: 5rem;
     min-height: 100vh;
     background-color: var(--color-bg);
     position: relative;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
   }
   
   @media (min-width: 768px) {
     .main-content {
       margin-left: 4rem;
+      margin-right: 0;
       padding: 3rem;
       padding-bottom: 3rem;
+      width: calc(100% - 4rem);
+      max-width: none;
     }
   }
   
