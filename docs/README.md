@@ -1,19 +1,16 @@
-# QR Code Images
+# QR Code Image
 
-Place your QR code images here:
+Place your QR code image here:
 
-- `qr-light.png` - QR code for light theme (should be visible on light backgrounds)
-- `qr-dark.png` - QR code for dark theme (should be visible on dark backgrounds)
+- `qrcode.png` - Single QR code used in the desktop popup (displayed inside a theme-colored frame: violet in light mode, green in dark mode).
 
 ## Recommended Specifications
 
-- **Size**: 200x200px minimum (will be displayed at 200x200px)
+- **Size**: 200x200px minimum (displayed at 150–220px via clamp)
 - **Format**: PNG or SVG
 - **Content**: Should encode the current page URL or base domain URL
-- **Contrast**: Ensure good contrast for scanning:
-  - Light theme QR: Dark code on light background
-  - Dark theme QR: Light code on dark background
+- **Contrast**: Ensure good contrast for scanning on both light and dark backgrounds.
 
 ## Usage
 
-The QR codes will automatically switch based on the current theme (light/dark mode) in the desktop popup.
+The QR code is shown in the desktop popup with a frame that follows the site theme (`--color-accent`). The popup also includes a "Scan Me" tag below the QR.

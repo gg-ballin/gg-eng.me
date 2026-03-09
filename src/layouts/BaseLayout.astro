@@ -3,6 +3,8 @@ import { getTranslations, type Language } from '@/i18n/translations';
 import { getCurrentYear } from '@/utils/formatDate';
 import { useUserAgent } from 'astro-useragent';
 import { APP_VERSION } from '@/lib/version';
+import ScanMeTag from '@/components/ScanMeTag.astro';
+
 
 interface Props {
   title: string;
@@ -146,8 +148,10 @@ if (import.meta.env.DEV) {
           {getTranslations(lang).desktopPopup.message}
         </p>
         <div class="desktop-popup-qr-container">
-          <img src="/assets/qr/qr-light.png" alt="QR Code" class="qr-code qr-code-light" />
-          <img src="/assets/qr/qr-dark.png" alt="QR Code" class="qr-code qr-code-dark" />
+          <div class="qr-code-frame">
+            <img src="/assets/qr/qrcode.png" alt="QR Code" class="qr-code" />
+          </div>
+          <ScanMeTag label={getTranslations(lang).desktopPopup.scanMe} />
         </div>
       </div>
     </div>
@@ -1364,31 +1368,26 @@ if (import.meta.env.DEV) {
   
   .desktop-popup-qr-container {
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
+    gap: 0.75rem;
     margin-top: 1rem;
+  }
+  
+  .qr-code-frame {
+    border: 2px solid var(--color-accent);
+    border-radius: 0.5rem;
+    padding: 0.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
   
   .qr-code {
     width: clamp(150px, 12vw, 220px);
     height: clamp(150px, 12vw, 220px);
     object-fit: contain;
-  }
-  
-  .qr-code-light {
-    display: block;
-  }
-  
-  .qr-code-dark {
-    display: none;
-  }
-  
-  [data-theme="dark"] .qr-code-light {
-    display: none;
-  }
-  
-  [data-theme="dark"] .qr-code-dark {
-    display: block;
   }
   
   
