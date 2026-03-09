@@ -383,21 +383,14 @@ if (import.meta.env.DEV) {
         // Remove hidden class if present
         popup.classList.remove('desktop-popup-hidden');
         
-        // In dev mode, allow clearing dismissal status via URL parameter
-        if (import.meta.env.DEV && new URLSearchParams(window.location.search).get('clear-popup') === 'true') {
+        // Allow clearing dismissal via URL param (dev and production, for testing)
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('clear-popup') === 'true' || urlParams.get('show-popup') === '1') {
           localStorage.removeItem('desktop-popup-dismissed');
-          if (import.meta.env.DEV) {
-            console.log('[Desktop Popup] Cleared dismissal status');
-          }
         }
         
-        // Don't show if already dismissed (only check in production, ignore in dev mode)
+        // Don't show if already dismissed (only in production; dev ignores so you can test repeatedly)
         const isDismissed = localStorage.getItem('desktop-popup-dismissed') === 'true';
-        if (import.meta.env.DEV) {
-          console.log('[Desktop Popup] Dev mode - isDismissed:', isDismissed, '(ignoring dismissal in dev mode)');
-        }
-        
-        // Only respect dismissal in production
         if (!import.meta.env.DEV && isDismissed) {
           return;
         }
