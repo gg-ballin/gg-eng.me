@@ -141,7 +141,7 @@ if (import.meta.env.DEV) {
       <slot />
     </main>
     
-    <!-- Desktop Detection Popup -->
+    <!-- Desktop Detection Popup with QR Code -->
     <div id="desktop-popup" class={`desktop-popup ${!isDesktopBrowser || currentPath.startsWith(`/${lang}/experience`) ? 'desktop-popup-hidden' : ''}`} role="dialog" aria-labelledby="desktop-popup-message" aria-hidden="true" data-is-desktop={isDesktopBrowser ? 'true' : 'false'}>
       <div class="desktop-popup-content">
         <p id="desktop-popup-message" class="desktop-popup-message">
@@ -156,7 +156,7 @@ if (import.meta.env.DEV) {
       </div>
     </div>
     
-    <!-- Recruiter Hint Popup -->
+    <!-- Recruiter Hint Popup with QR Code -->
     {!currentPath.startsWith(`/${lang}/contact`) && !currentPath.startsWith(`/${lang}/experience`) && (
       <div id="recruiter-hint-popup" class="recruiter-hint-popup" role="dialog" aria-labelledby="recruiter-hint-message" aria-hidden="true">
         <div class="recruiter-hint-popup-content">
