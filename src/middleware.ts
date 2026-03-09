@@ -21,11 +21,12 @@ export const onRequest = defineMiddleware(async (context, next) => {
     return next();
   }
   
-  // Root: redirect based on Accept-Language to /es/ or /en/
+  // Root: redirect based on Accept-Language to /es/ or /en/ (preserve query e.g. ?from=qr for QR scan)
   if (pathname === '/' || pathname === '') {
     const acceptLang = context.request.headers.get('Accept-Language');
     const locale = preferSpanish(acceptLang) ? 'es' : 'en';
-    return context.redirect(`/${locale}/`);
+    const search = context.url.search || '';
+    return context.redirect(`/${locale}/${search}`);
   }
   
   const response = await next();
