@@ -1,11 +1,18 @@
 import { defineMiddleware } from 'astro:middleware';
+import { EmailService } from '@/lib/emailService';
 
 const SPANISH_LOCALES = ['es'];
+const QR_SENT_COOKIE = 'qr_sent=1; Max-Age=60; Path=/; SameSite=Lax';
 
 function preferSpanish(acceptLanguage: string | null): boolean {
   if (!acceptLanguage) return false;
   const parts = acceptLanguage.split(',').map((p) => p.trim().split(';')[0].split('-')[0].toLowerCase());
   return parts.some((code) => SPANISH_LOCALES.includes(code));
+}
+
+function hasQRSentCookie(request: Request): boolean {
+  const cookie = request.headers.get('cookie');
+  return cookie !== null && cookie.includes('qr_sent=1');
 }
 
 export const onRequest = defineMiddleware(async (context, next) => {
@@ -26,7 +33,32 @@ export const onRequest = defineMiddleware(async (context, next) => {
     const acceptLang = context.request.headers.get('Accept-Language');
     const locale = preferSpanish(acceptLang) ? 'es' : 'en';
     const search = context.url.search || '';
-    return context.redirect(`/${locale}/${search}`);
+    // Absolute URL so Chrome (and other clients) preserve query string on redirect
+    const redirectUrl = `${context.url.origin}/${locale}/${search}`.replace(/\/\?/, '?');
+
+    const fromQR = context.url.searchParams.get('from') === 'qr';
+    if (fromQR) {
+      const apiKey = (context.locals.env?.RESEND_API_KEY as string | undefined)
+        || import.meta.env.RESEND_API_KEY;
+      if (apiKey && !hasQRSentCookie(context.request)) {
+        try {
+          const emailService = new EmailService(apiKey);
+          const userAgent = context.request.headers.get('user-agent') ?? undefined;
+          await emailService.sendQRScanNotification({ userAgent, path: '/' });
+        } catch (e) {
+          console.error('[QR scan] Middleware send failed:', e);
+        }
+      }
+      return new Response(null, {
+        status: 302,
+        headers: {
+          Location: redirectUrl,
+          'Set-Cookie': QR_SENT_COOKIE,
+        },
+      });
+    }
+
+    return context.redirect(redirectUrl);
   }
   
   const response = await next();
