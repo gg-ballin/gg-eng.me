@@ -4,7 +4,7 @@ import { getCurrentYear } from '@/utils/formatDate';
 import { useUserAgent } from 'astro-useragent';
 import { APP_VERSION } from '@/lib/version';
 import ScanMeTag from '@/components/ScanMeTag.astro';
-
+import { EmailService } from '@/lib/emailService';
 
 interface Props {
   title: string;
@@ -30,6 +30,19 @@ const contactPath = `/${lang}/contact`;
 // QR code in popup must encode this URL so scans trigger the notification email (absolute URL)
 const qrTargetUrl = `${Astro.url.origin}${currentPath}${currentPath.includes('?') ? '&' : '?'}from=qr`;
 const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&margin=1&data=${encodeURIComponent(qrTargetUrl)}`;
+
+// Server-side: if landed with ?from=qr (e.g. direct /es/?from=qr), send notification once per 60s (cookie)
+if (Astro.url.searchParams.get('from') === 'qr' && !Astro.cookies.get('qr_sent')?.value) {
+  const apiKey = (Astro.locals.env?.RESEND_API_KEY as string | undefined) || import.meta.env.RESEND_API_KEY;
+  if (apiKey) {
+    try {
+      const emailService = new EmailService(apiKey);
+      const userAgent = Astro.request.headers.get('user-agent') ?? undefined;
+      await emailService.sendQRScanNotification({ userAgent, path: currentPath });
+      Astro.cookies.set('qr_sent', '1', { maxAge: 60, path: '/' });
+    } catch (_) { /* no-op */ }
+  }
+}
 
 // Detect if user is on desktop browser (not mobile) using server-side user agent
 const uaString = Astro.request.headers.get('user-agent') ?? '';
@@ -351,11 +364,13 @@ if (import.meta.env.DEV) {
           return;
         }
         
-        // Check if popup has data-is-desktop attribute (server-side confirmed desktop)
-        const isDesktop = popup.getAttribute('data-is-desktop') === 'true';
+        // Check if popup has data-is-desktop attribute (server-side) or viewport is desktop (client fallback for UA misdetection e.g. Chrome)
+        const serverDesktop = popup.getAttribute('data-is-desktop') === 'true';
+        const viewportDesktop = window.innerWidth >= 768;
+        const isDesktop = serverDesktop || viewportDesktop;
         
         if (import.meta.env.DEV) {
-          console.log('[Desktop Popup] isDesktop:', isDesktop, 'data-is-desktop:', popup.getAttribute('data-is-desktop'));
+          console.log('[Desktop Popup] serverDesktop:', serverDesktop, 'viewportDesktop:', viewportDesktop, 'data-is-desktop:', popup.getAttribute('data-is-desktop'));
         }
         
         if (!isDesktop) {
