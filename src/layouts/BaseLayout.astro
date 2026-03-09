@@ -3,6 +3,8 @@ import { getTranslations, type Language } from '@/i18n/translations';
 import { getCurrentYear } from '@/utils/formatDate';
 import { useUserAgent } from 'astro-useragent';
 import { APP_VERSION } from '@/lib/version';
+import ScanMeTag from '@/components/ScanMeTag.astro';
+
 
 interface Props {
   title: string;
@@ -24,6 +26,10 @@ const bioPath = `/${lang}/`;
 const experiencePath = `/${lang}/experience`;
 const blogPath = `/${lang}/blog`;
 const contactPath = `/${lang}/contact`;
+
+// QR code in popup must encode this URL so scans trigger the notification email (absolute URL)
+const qrTargetUrl = `${Astro.url.origin}${currentPath}${currentPath.includes('?') ? '&' : '?'}from=qr`;
+const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&margin=1&data=${encodeURIComponent(qrTargetUrl)}`;
 
 // Detect if user is on desktop browser (not mobile) using server-side user agent
 const uaString = Astro.request.headers.get('user-agent') ?? '';
@@ -139,20 +145,22 @@ if (import.meta.env.DEV) {
       <slot />
     </main>
     
-    <!-- Desktop Detection Popup -->
+    <!-- Desktop Detection Popup with QR Code -->
     <div id="desktop-popup" class={`desktop-popup ${!isDesktopBrowser || currentPath.startsWith(`/${lang}/experience`) ? 'desktop-popup-hidden' : ''}`} role="dialog" aria-labelledby="desktop-popup-message" aria-hidden="true" data-is-desktop={isDesktopBrowser ? 'true' : 'false'}>
       <div class="desktop-popup-content">
         <p id="desktop-popup-message" class="desktop-popup-message">
           {getTranslations(lang).desktopPopup.message}
         </p>
         <div class="desktop-popup-qr-container">
-          <img src="/assets/qr/qr-light.png" alt="QR Code" class="qr-code qr-code-light" />
-          <img src="/assets/qr/qr-dark.png" alt="QR Code" class="qr-code qr-code-dark" />
+          <div class="qr-code-frame">
+            <img src={qrImageUrl} alt="QR Code" class="qr-code" width="200" height="200" />
+          </div>
+          <ScanMeTag label={getTranslations(lang).desktopPopup.scanMe} />
         </div>
       </div>
     </div>
     
-    <!-- Recruiter Hint Popup -->
+    <!-- Recruiter Hint Popup with QR Code -->
     {!currentPath.startsWith(`/${lang}/contact`) && !currentPath.startsWith(`/${lang}/experience`) && (
       <div id="recruiter-hint-popup" class="recruiter-hint-popup" role="dialog" aria-labelledby="recruiter-hint-message" aria-hidden="true">
         <div class="recruiter-hint-popup-content">
@@ -203,6 +211,23 @@ if (import.meta.env.DEV) {
     </footer>
 
     <script>
+      // Notify when someone landed via QR code (?from=qr); once per session (only mark sent after 200)
+      (function () {
+        try {
+          const params = new URLSearchParams(window.location.search);
+          console.log('SENDING QR SCAN NOTIFICATION');
+          if (params.get('from') !== 'qr') return;
+          if (sessionStorage.getItem('qr-scan-notified') === '1') return;
+          fetch('/api/qr-scan', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ path: window.location.pathname }),
+          }).then(function (res) {
+            if (res.ok) sessionStorage.setItem('qr-scan-notified', '1');
+          }).catch(function () { /* no-op */ });
+        } catch (_) { /* no-op */ }
+      })();
+
       const themeToggle = document.getElementById('theme-toggle');
       
       function updateThemeIcons() {
@@ -1364,31 +1389,26 @@ if (import.meta.env.DEV) {
   
   .desktop-popup-qr-container {
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
+    gap: 0.75rem;
     margin-top: 1rem;
+  }
+  
+  .qr-code-frame {
+    border: 2px solid var(--color-accent);
+    border-radius: 0.5rem;
+    padding: 0.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
   
   .qr-code {
     width: clamp(150px, 12vw, 220px);
     height: clamp(150px, 12vw, 220px);
     object-fit: contain;
-  }
-  
-  .qr-code-light {
-    display: block;
-  }
-  
-  .qr-code-dark {
-    display: none;
-  }
-  
-  [data-theme="dark"] .qr-code-light {
-    display: none;
-  }
-  
-  [data-theme="dark"] .qr-code-dark {
-    display: block;
   }
   
   

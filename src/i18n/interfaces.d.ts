@@ -118,6 +118,7 @@ export interface Translations {
   // Desktop Popup
   desktopPopup: {
     message: string;
+    scanMe: string;
   };
   
   // Language Switcher Hint

@@ -104,6 +104,7 @@ export const translations: Record<Language, Translations> = {
     },
     desktopPopup: {
       message: 'Noté que estás viendo este website desde tu computadora/laptop. ¡Escanea el QR para ver este sitio web en móvil! 😉',
+      scanMe: 'Escaneame',
     },
     languageHint: {
       message: 'Elegí el idioma en el que querés recibir el CV! 🤠',
@@ -210,6 +211,7 @@ export const translations: Record<Language, Translations> = {
     },
     desktopPopup: {
       message: 'Hey! Noticed that you are seeing this website from your computer/laptop. Scan the QR to see this website in mobile! 😉',
+      scanMe: 'Scan Me',
     },
     languageHint: {
       message: 'Choose the language you want to receive the CV in! 🤠',

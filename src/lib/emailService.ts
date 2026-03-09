@@ -195,6 +195,52 @@ export class EmailService {
       };
     }
   }
+
+  /**
+   * Sends a notification email when someone scans the site QR code (landed with ?from=qr).
+   */
+  async sendQRScanNotification(metadata: { userAgent?: string; path?: string }): Promise<{ success: boolean; error?: string }> {
+    try {
+      const personalEmail = getPersonalEmail();
+      const timestamp = new Date().toISOString();
+
+      const htmlContent = `
+        <!DOCTYPE html>
+        <html>
+          <head><meta charset="UTF-8"></head>
+          <body style="font-family: system-ui, sans-serif; line-height: 1.6; color: #1a1a1a;">
+            <div style="max-width: 560px; margin: 0 auto; padding: 20px;">
+              <h1 style="font-size: 20px;">QR code scanned - gg-eng.me</h1>
+              <p>Someone opened the site via the QR code.</p>
+              <table style="width: 100%; border-collapse: collapse;">
+                <tr><td style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>Time (UTC)</strong></td><td style="padding: 8px 0; border-bottom: 1px solid #eee;">${new Date(timestamp).toLocaleString('en-GB', { timeZone: 'UTC' })}</td></tr>
+                <tr><td style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>Path</strong></td><td style="padding: 8px 0; border-bottom: 1px solid #eee;">${metadata.path ?? '—'}</td></tr>
+                <tr><td style="padding: 8px 0;"><strong>User-Agent</strong></td><td style="padding: 8px 0;">${metadata.userAgent ?? '—'}</td></tr>
+              </table>
+              <p style="margin-top: 24px; font-size: 12px; color: #666;">Automated notification from gg-eng.me</p>
+            </div>
+          </body>
+        </html>
+      `;
+
+      const response = await sendEmailViaAPI(this.apiKey, {
+        from: 'German Gómez <noreply@gg-eng.me>',
+        to: [personalEmail],
+        subject: 'QR code scanned - gg-eng.me',
+        html: htmlContent,
+      });
+
+      if (!response.success) {
+        return { success: false, error: response.error };
+      }
+      return { success: true };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      };
+    }
+  }
   
   private generateEmailTemplate(data: ContactFormData): string {
     const isSpanish = data.language === 'es';

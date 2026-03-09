@@ -1,0 +1,43 @@
+---
+interface Props {
+  label: string;
+}
+
+const { label } = Astro.props;
+---
+
+<span class="scan-me-tag">
+  {label}
+</span>
+
+<style>
+  .scan-me-tag {
+    position: relative;
+    display: inline-block;
+    padding: 0.5rem 1.25rem;
+    background-color: var(--color-accent);
+    color: var(--color-code-bg);
+    font-size: clamp(0.875rem, 1vw + 0.5rem, 1rem);
+    font-weight: 600;
+    border-radius: 2rem;
+    box-sizing: border-box;
+  }
+
+  [data-theme="dark"] .scan-me-tag {
+    color: var(--color-code-bg);
+  }
+
+  /* Upward-pointing caret */
+  .scan-me-tag::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 0;
+    transform: translate(-50%, -100%);
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-bottom: 8px solid var(--color-accent);
+  }
+</style>
