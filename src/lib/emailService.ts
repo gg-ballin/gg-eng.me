@@ -1,6 +1,6 @@
 import type { ContactFormData } from './validation';
 import type { Language } from '@/i18n/translations';
-import { getCVBase64 } from './cv-data';
+import { CV_BASE64 } from './cv-data';
 
 // Use Resend REST API directly (Cloudflare Workers compatible)
 const RESEND_API_URL = 'https://api.resend.com/emails';
@@ -58,6 +58,49 @@ async function sendEmailViaAPI(
   }
 }
 
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function formatDeviceSummary(userAgent?: string): { summary: string } {
+  if (!userAgent) return { summary: 'Unknown device' };
+
+  let browser = 'Browser';
+  const edge = userAgent.match(/Edg\/([\d.]+)/);
+  const chrome = userAgent.match(/Chrome\/([\d.]+)/);
+  const firefox = userAgent.match(/Firefox\/([\d.]+)/);
+  const safari = !chrome && userAgent.match(/Version\/([\d.]+).*Safari/);
+
+  if (edge) browser = `Edge ${edge[1].split('.')[0]}`;
+  else if (chrome) browser = `Chrome ${chrome[1].split('.')[0]}`;
+  else if (firefox) browser = `Firefox ${firefox[1].split('.')[0]}`;
+  else if (safari) browser = `Safari ${safari[1].split('.')[0]}`;
+
+  let os = 'Unknown OS';
+  if (/iPhone|iPad|iPod/.test(userAgent)) os = 'iOS';
+  else if (/Android/.test(userAgent)) os = 'Android';
+  else if (/Windows NT/.test(userAgent)) os = 'Windows';
+  else if (/Mac OS X/.test(userAgent)) os = 'macOS';
+  else if (/Linux/.test(userAgent)) os = 'Linux';
+
+  return { summary: `${browser} · ${os}` };
+}
+
+function formatCountry(country?: string): string {
+  if (!country || country === 'XX' || country === 'T1') return '—';
+  return country.toUpperCase();
+}
+
+function localeFromPath(path?: string): string {
+  if (!path) return '—';
+  const match = path.match(/^\/(es|en)(?:\/|$)/);
+  return match ? match[1] : '—';
+}
+
 export class EmailService {
   private apiKey: string;
   
@@ -78,7 +121,7 @@ export class EmailService {
       const htmlContent = this.generateEmailTemplate(data);
       
       // Get CV as base64 string (Resend expects this format)
-      const cvBase64 = getCVBase64(data.language);
+      const cvBase64 = CV_BASE64[data.language];
       
       // Send email with CV attachment via Resend API
       const response = await sendEmailViaAPI(this.apiKey, {
@@ -198,26 +241,67 @@ export class EmailService {
 
   /**
    * Sends a notification email when someone scans the site QR code (landed with ?from=qr).
+   * Single SSR entrypoint — do not also call from the client.
    */
-  async sendQRScanNotification(metadata: { userAgent?: string; path?: string }): Promise<{ success: boolean; error?: string }> {
+  async sendQRScanNotification(metadata: {
+    userAgent?: string;
+    path?: string;
+    country?: string;
+  }): Promise<{ success: boolean; error?: string }> {
     try {
       const personalEmail = getPersonalEmail();
-      const timestamp = new Date().toISOString();
+      const now = new Date();
+      const device = formatDeviceSummary(metadata.userAgent);
+      const country = formatCountry(metadata.country);
+      const path = escapeHtml(metadata.path ?? '—');
+      const locale = localeFromPath(metadata.path);
+      const timeLocal = now.toLocaleString('en-GB', {
+        timeZone: 'America/Argentina/Buenos_Aires',
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+      });
+      const timeUtc = now.toLocaleString('en-GB', {
+        timeZone: 'UTC',
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+      });
+
+      const subjectParts = ['QR scan', device.summary];
+      if (country !== '—') subjectParts.push(country);
+      const subject = subjectParts.join(' · ');
+
+      const row = (label: string, value: string, last = false) => `
+        <tr>
+          <td style="padding: 14px 20px; ${last ? '' : 'border-bottom: 1px solid #e5e5e5;'} width: 110px; vertical-align: top; font-size: 12px; color: #666; letter-spacing: 0.04em; text-transform: uppercase;">${label}</td>
+          <td style="padding: 14px 20px; ${last ? '' : 'border-bottom: 1px solid #e5e5e5;'} font-size: 15px; color: #111; word-break: break-word;">${value}</td>
+        </tr>`;
 
       const htmlContent = `
         <!DOCTYPE html>
         <html>
-          <head><meta charset="UTF-8"></head>
-          <body style="font-family: system-ui, sans-serif; line-height: 1.6; color: #1a1a1a;">
-            <div style="max-width: 560px; margin: 0 auto; padding: 20px;">
-              <h1 style="font-size: 20px;">QR code scanned - gg-eng.me</h1>
-              <p>Someone opened the site via the QR code.</p>
-              <table style="width: 100%; border-collapse: collapse;">
-                <tr><td style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>Time (UTC)</strong></td><td style="padding: 8px 0; border-bottom: 1px solid #eee;">${new Date(timestamp).toLocaleString('en-GB', { timeZone: 'UTC' })}</td></tr>
-                <tr><td style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>Path</strong></td><td style="padding: 8px 0; border-bottom: 1px solid #eee;">${metadata.path ?? '—'}</td></tr>
-                <tr><td style="padding: 8px 0;"><strong>User-Agent</strong></td><td style="padding: 8px 0;">${metadata.userAgent ?? '—'}</td></tr>
+          <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width"></head>
+          <body style="margin: 0; padding: 0; background: #f7f8fa; font-family: Helvetica, Arial, sans-serif; line-height: 1.5; color: #111;">
+            <div style="max-width: 520px; margin: 0 auto; padding: 40px 24px;">
+              <p style="margin: 0 0 8px; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #666;">gg-eng.me</p>
+              <h1 style="margin: 0 0 8px; font-size: 22px; font-weight: 600; color: #000;">QR code scanned</h1>
+              <p style="margin: 0 0 28px; font-size: 15px; color: #444;">Someone opened the site via the QR code.</p>
+              <table role="presentation" style="width: 100%; border-collapse: collapse; background: #ffffff; border: 1px solid #e5e5e5;">
+                ${row('Device', escapeHtml(device.summary))}
+                ${row('Locale', escapeHtml(locale))}
+                ${row('Path', path)}
+                ${row('Country', escapeHtml(country))}
+                ${row('When', `${escapeHtml(timeLocal)} <span style="color:#666;">(UTC-3)</span><br/><span style="font-size:13px;color:#666;">${escapeHtml(timeUtc)} UTC</span>`, !metadata.userAgent)}
+                ${metadata.userAgent ? row('UA', `<span style="font-size:12px;color:#666;">${escapeHtml(metadata.userAgent)}</span>`, true) : ''}
               </table>
-              <p style="margin-top: 24px; font-size: 12px; color: #666;">Automated notification from gg-eng.me</p>
+              <p style="margin: 28px 0 0; font-size: 12px; color: #999;">Automated notification from gg-eng.me</p>
             </div>
           </body>
         </html>
@@ -226,7 +310,7 @@ export class EmailService {
       const response = await sendEmailViaAPI(this.apiKey, {
         from: 'German Gómez <noreply@gg-eng.me>',
         to: [personalEmail],
-        subject: 'QR code scanned - gg-eng.me',
+        subject,
         html: htmlContent,
       });
 

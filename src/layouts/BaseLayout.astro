@@ -31,14 +31,15 @@ const contactPath = `/${lang}/contact`;
 const qrTargetUrl = `${Astro.url.origin}${currentPath}${currentPath.includes('?') ? '&' : '?'}from=qr`;
 const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&margin=1&data=${encodeURIComponent(qrTargetUrl)}`;
 
-// Server-side: if landed with ?from=qr (e.g. direct /es/?from=qr), send notification once per 60s (cookie)
+// SSR-only: ?from=qr → one notification per 60s (cookie). Client fetch removed to avoid duplicates.
 if (Astro.url.searchParams.get('from') === 'qr' && !Astro.cookies.get('qr_sent')?.value) {
   const apiKey = (Astro.locals.env?.RESEND_API_KEY as string | undefined) || import.meta.env.RESEND_API_KEY;
   if (apiKey) {
     try {
       const emailService = new EmailService(apiKey);
       const userAgent = Astro.request.headers.get('user-agent') ?? undefined;
-      await emailService.sendQRScanNotification({ userAgent, path: currentPath });
+      const country = Astro.request.headers.get('cf-ipcountry') ?? undefined;
+      await emailService.sendQRScanNotification({ userAgent, path: currentPath, country });
       Astro.cookies.set('qr_sent', '1', { maxAge: 60, path: '/' });
     } catch (_) { /* no-op */ }
   }
@@ -224,23 +225,6 @@ if (import.meta.env.DEV) {
     </footer>
 
     <script>
-      // Notify when someone landed via QR code (?from=qr); once per session (only mark sent after 200)
-      (function () {
-        try {
-          const params = new URLSearchParams(window.location.search);
-          console.log('SENDING QR SCAN NOTIFICATION');
-          if (params.get('from') !== 'qr') return;
-          if (sessionStorage.getItem('qr-scan-notified') === '1') return;
-          fetch('/api/qr-scan', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ path: window.location.pathname }),
-          }).then(function (res) {
-            if (res.ok) sessionStorage.setItem('qr-scan-notified', '1');
-          }).catch(function () { /* no-op */ });
-        } catch (_) { /* no-op */ }
-      })();
-
       const themeToggle = document.getElementById('theme-toggle');
       
       function updateThemeIcons() {

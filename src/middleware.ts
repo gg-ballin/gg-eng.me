@@ -44,7 +44,8 @@ export const onRequest = defineMiddleware(async (context, next) => {
         try {
           const emailService = new EmailService(apiKey);
           const userAgent = context.request.headers.get('user-agent') ?? undefined;
-          await emailService.sendQRScanNotification({ userAgent, path: '/' });
+          const country = context.request.headers.get('cf-ipcountry') ?? undefined;
+          await emailService.sendQRScanNotification({ userAgent, path: '/', country });
         } catch (e) {
           console.error('[QR scan] Middleware send failed:', e);
         }
