@@ -96,26 +96,58 @@ if (import.meta.env.DEV) {
         <a 
           href={bioPath}
           class={`nav-link nav-link-1 hover:opacity-60 transition-opacity ${(currentPath === `/${lang}/` || currentPath === `/${lang}`) ? 'nav-link-active' : ''}`}
+          aria-label={t.bio}
         >
-          <span class="nav-text">{t.bio}</span>
+          <span class="nav-icon" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="12" cy="8" r="4"/>
+              <path d="M4 20c0-3.3 3.6-6 8-6s8 2.7 8 6"/>
+            </svg>
+          </span>
+          <span class="nav-text">
+            <span class="nav-label-desktop">{t.bio}</span>
+            <span class="nav-label-mobile">{t.home}</span>
+          </span>
         </a>
         <a 
           href={experiencePath}
           class={`nav-link nav-link-2 hover:opacity-60 transition-opacity ${currentPath.startsWith(`/${lang}/experience`) ? 'nav-link-active' : ''}`}
+          aria-label={t.experience}
         >
+          <span class="nav-icon" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+              <rect x="3" y="7" width="18" height="13" rx="2"/>
+              <path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/>
+              <path d="M3 12h18"/>
+            </svg>
+          </span>
           <span class="nav-text">{t.experience}</span>
         </a>
         <a 
           href={blogPath}
           class={`nav-link nav-link-3 hover:opacity-60 transition-opacity ${currentPath.startsWith(`/${lang}/blog`) ? 'nav-link-active' : ''}`}
+          aria-label={t.blog}
         >
+          <span class="nav-icon" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 20h9"/>
+              <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/>
+            </svg>
+          </span>
           <span class="nav-text">{t.blog}</span>
         </a>
         <a 
           href={contactPath}
           class={`nav-link nav-link-4 hover:opacity-60 transition-opacity ${currentPath.startsWith(`/${lang}/contact`) ? 'nav-link-active' : ''}`}
           id="contact-nav-link"
+          aria-label={t.contact}
         >
+          <span class="nav-icon" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+              <rect x="3" y="5" width="18" height="14" rx="2"/>
+              <path d="m3 7 9 6 9-6"/>
+            </svg>
+          </span>
           <span class="nav-text">{t.contact}</span>
         </a>
       </div>
@@ -140,6 +172,8 @@ if (import.meta.env.DEV) {
     <div id="language-loading" class="language-loading" style="display: none;" aria-hidden="true">
       <div class="language-loading-spinner"></div>
     </div>
+    <!-- Sliding door: detail content rides in one-way (R→L / T→B) -->
+    <div id="sliding-door" class="sliding-door" aria-hidden="true"></div>
     <main class="main-content">
       <!-- Social Links -->
       {!hideSocialLinks && (
@@ -162,6 +196,31 @@ if (import.meta.env.DEV) {
     <!-- Desktop Detection Popup with QR Code -->
     <div id="desktop-popup" class={`desktop-popup ${!isDesktopBrowser || currentPath.startsWith(`/${lang}/experience`) ? 'desktop-popup-hidden' : ''}`} role="dialog" aria-labelledby="desktop-popup-message" aria-hidden="true" data-is-desktop={isDesktopBrowser ? 'true' : 'false'}>
       <div class="desktop-popup-content">
+        <button
+          type="button"
+          id="desktop-popup-size-toggle"
+          class="desktop-popup-size-toggle"
+          aria-label={getTranslations(lang).desktopPopup.minimize}
+          data-label-minimize={getTranslations(lang).desktopPopup.minimize}
+          data-label-open={getTranslations(lang).desktopPopup.open}
+          aria-pressed="false"
+          aria-controls="desktop-popup"
+        >
+          <svg class="desktop-popup-icon-shrink" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="4 14 10 14 10 20"/>
+            <polyline points="20 10 14 10 14 4"/>
+            <line x1="14" y1="10" x2="21" y2="3"/>
+            <line x1="3" y1="21" x2="10" y2="14"/>
+          </svg>
+          <svg class="desktop-popup-icon-expand" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="15 3 21 3 21 9"/>
+            <polyline points="9 21 3 21 3 15"/>
+            <line x1="21" y1="3" x2="14" y2="10"/>
+            <line x1="3" y1="21" x2="10" y2="14"/>
+          </svg>
+          <span class="desktop-popup-size-label desktop-popup-size-label-minimize">{getTranslations(lang).desktopPopup.minimize}</span>
+          <span class="desktop-popup-size-label desktop-popup-size-label-open">{getTranslations(lang).desktopPopup.open}</span>
+        </button>
         <p id="desktop-popup-message" class="desktop-popup-message">
           {getTranslations(lang).desktopPopup.message}
         </p>
@@ -180,12 +239,20 @@ if (import.meta.env.DEV) {
         <div class="recruiter-hint-popup-content">
           <p id="recruiter-hint-message" class="recruiter-hint-popup-message">
             <span class="recruiter-hint-desktop">
-              {getTranslations(lang).nav.recruiterHint.message}{' '}
+              👋{' '}
+              <span
+                class="recruiter-audience"
+                data-audiences={JSON.stringify(getTranslations(lang).nav.recruiterHint.audiences)}
+              >{getTranslations(lang).nav.recruiterHint.audiences[0]}</span>{getTranslations(lang).nav.recruiterHint.messageAfter}{' '}
               <a href={contactPath} class="recruiter-hint-link">{getTranslations(lang).nav.recruiterHint.linkText}</a>.
             </span>
             <span class="recruiter-hint-mobile">
-              {getTranslations(lang).nav.recruiterHint.mobileMessage}{' '}
-              <span class="recruiter-hint-mobile-text">{getTranslations(lang).nav.recruiterHint.mobileLinkText}</span>.
+              👋{' '}
+              <span
+                class="recruiter-audience"
+                data-audiences={JSON.stringify(getTranslations(lang).nav.recruiterHint.audiences)}
+              >{getTranslations(lang).nav.recruiterHint.audiences[0]}</span>{getTranslations(lang).nav.recruiterHint.mobileMessageAfter}{' '}
+              <a href={contactPath} class="recruiter-hint-mobile-text">{getTranslations(lang).nav.recruiterHint.mobileLinkText}</a>.
             </span>
           </p>
         </div>
@@ -225,6 +292,188 @@ if (import.meta.env.DEV) {
     </footer>
 
     <script>
+      (() => {
+        const door = document.getElementById('sliding-door');
+        if (!door) return;
+
+        const DURATION_MS = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+          ? 0
+          : 600;
+        let isAnimating = false;
+        let overlayActive = false;
+        let listTitle = document.title;
+        let listUrl = window.location.href;
+        let detailPopHandler = null;
+
+        const waitForDoorTransition = () =>
+          new Promise((resolve) => {
+            if (DURATION_MS === 0) {
+              resolve();
+              return;
+            }
+            let done = false;
+            const finish = (event) => {
+              if (event && event.target !== door) return;
+              if (done) return;
+              done = true;
+              door.removeEventListener('transitionend', finish);
+              resolve();
+            };
+            door.addEventListener('transitionend', finish);
+            window.setTimeout(() => finish(), DURATION_MS + 80);
+          });
+
+        const injectPageStyles = (doc) => {
+          doc.querySelectorAll('style').forEach((styleEl) => {
+            const cssText = styleEl.textContent || '';
+            if (
+              !cssText.includes('experience-detail') &&
+              !cssText.includes('.detail-') &&
+              !cssText.includes('.back-button') &&
+              !cssText.includes('.project-') &&
+              !cssText.includes('employer-logo') &&
+              !cssText.includes('article-') &&
+              !cssText.includes('.prose')
+            ) {
+              return;
+            }
+            const clone = styleEl.cloneNode(true);
+            clone.setAttribute('data-sliding-door-style', 'true');
+            document.head.appendChild(clone);
+          });
+        };
+
+        const prepareDetailContent = (mainEl) => {
+          mainEl.querySelectorAll('.experience-detail-animate, .article-animate').forEach((el) => {
+            el.classList.remove('experience-detail-animate', 'article-animate');
+            el.style.opacity = '1';
+          });
+        };
+
+        const setOverlayUiState = (active) => {
+          overlayActive = active;
+          document.documentElement.classList.toggle('sliding-door-open', active);
+          document.body.style.overflow = active ? 'hidden' : '';
+        };
+
+        /** Full-page detail only (not overlay). Browser back → list */
+        const setupFullPageBackGuard = () => {
+          if (detailPopHandler) {
+            window.removeEventListener('popstate', detailPopHandler);
+            detailPopHandler = null;
+          }
+
+          const backButton = document.querySelector('main.main-content [data-sliding-door-back]');
+          const listPath = backButton?.dataset?.listPath || backButton?.dataset?.experiencePath;
+          if (!listPath || overlayActive) return;
+
+          history.pushState({ experienceDetailGuard: true }, '', window.location.href);
+          detailPopHandler = () => {
+            window.location.replace(listPath);
+          };
+          window.addEventListener('popstate', detailPopHandler);
+        };
+
+        const openDoorOverlay = async (listPath) => {
+          if (!overlayActive || isAnimating) return;
+          isAnimating = true;
+
+          door.classList.remove('is-closed');
+          await waitForDoorTransition();
+
+          door.classList.remove('is-visible');
+          door.innerHTML = '';
+          door.setAttribute('aria-hidden', 'true');
+          door.scrollTop = 0;
+          setOverlayUiState(false);
+
+          document.title = listTitle;
+
+          const target = listPath || listUrl;
+          if (target) {
+            const targetHref = new URL(target, window.location.origin).href;
+            if (window.location.href !== targetHref) {
+              history.replaceState({ slidingDoor: false }, '', target);
+            }
+          }
+
+          isAnimating = false;
+        };
+
+        const navigateWithDoor = async (href) => {
+          if (isAnimating || overlayActive) return;
+          isAnimating = true;
+
+          listTitle = document.title;
+          listUrl = window.location.href;
+
+          try {
+            const response = await fetch(href, { headers: { Accept: 'text/html' } });
+            if (!response.ok) throw new Error(`Failed to fetch ${href}`);
+
+            const html = await response.text();
+            const doc = new DOMParser().parseFromString(html, 'text/html');
+            const newMain = doc.querySelector('main.main-content');
+            if (!newMain) throw new Error('No main.main-content in response');
+
+            prepareDetailContent(newMain);
+            injectPageStyles(doc);
+
+            door.innerHTML = newMain.innerHTML;
+            door.setAttribute('aria-hidden', 'false');
+            door.classList.add('is-visible');
+            door.scrollTop = 0;
+            void door.offsetWidth;
+            door.classList.add('is-closed');
+            setOverlayUiState(true);
+
+            await waitForDoorTransition();
+
+            history.pushState({ slidingDoor: true }, '', href);
+            document.title = doc.title || document.title;
+          } catch (_) {
+            window.location.assign(href);
+          } finally {
+            isAnimating = false;
+          }
+        };
+
+        setupFullPageBackGuard();
+
+        document.addEventListener('click', (event) => {
+          const backBtn = event.target?.closest?.('[data-sliding-door-back]');
+          if (backBtn && overlayActive) {
+            event.preventDefault();
+            const listPath = backBtn.dataset.listPath || backBtn.dataset.experiencePath;
+            if (history.state && history.state.slidingDoor) {
+              history.back();
+            } else {
+              openDoorOverlay(listPath);
+            }
+            return;
+          }
+
+          const link = event.target?.closest?.('a[data-sliding-door]');
+          if (!link || !link.href) return;
+          if (event.defaultPrevented) return;
+          if (event.button !== 0) return;
+          if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+
+          event.preventDefault();
+          navigateWithDoor(link.href);
+        });
+
+        window.addEventListener('popstate', () => {
+          if (overlayActive) {
+            openDoorOverlay(listUrl);
+          }
+        });
+      })();
+    </script>
+      })();
+    </script>
+
+    <script>
       const themeToggle = document.getElementById('theme-toggle');
       
       function updateThemeIcons() {
@@ -255,16 +504,11 @@ if (import.meta.env.DEV) {
         // Dispatch custom event for theme change
         window.dispatchEvent(new CustomEvent('themeChange', { detail: { theme: newTheme } }));
         
-        // Retrigger nav-links animation on theme change (nav-controls won't re-animate due to nav-control-animated class)
+        // Retrigger nav-links animation on theme change
         retriggerNavAnimations();
       });
       
-      // Also listen for theme change events from other sources
-      window.addEventListener('themeChange', () => {
-        retriggerNavAnimations();
-      });
-      
-      // Function to retrigger nav animations
+      // Function to retrigger nav animations (init / lang / theme only — not detail back)
       function retriggerNavAnimations() {
         const html = document.documentElement;
         html.classList.remove('play-nav-animation');
@@ -321,13 +565,6 @@ if (import.meta.env.DEV) {
         }, 100);
       }
       
-      // Also retrigger on browser back/forward navigation
-      window.addEventListener('popstate', () => {
-        setTimeout(() => {
-          retriggerNavAnimations();
-        }, 100);
-      });
-      
       // Desktop detection popup (using server-side detection from astro-useragent)
       function showDesktopPopup() {
         const popup = document.getElementById('desktop-popup');
@@ -383,8 +620,35 @@ if (import.meta.env.DEV) {
         setTimeout(() => {
           popup.setAttribute('aria-hidden', 'false');
           popup.classList.add('desktop-popup-visible');
+
+          // Restore compact preference
+          if (localStorage.getItem('desktop-popup-compact') === 'true') {
+            setDesktopPopupCompact(true);
+          }
         }, 1500);
       }
+
+      function setDesktopPopupCompact(compact) {
+        const popup = document.getElementById('desktop-popup');
+        const toggle = document.getElementById('desktop-popup-size-toggle');
+        if (!popup || !toggle) return;
+
+        popup.classList.toggle('is-compact', compact);
+        toggle.classList.toggle('is-docked-out', compact);
+        toggle.setAttribute('aria-pressed', compact ? 'true' : 'false');
+        toggle.setAttribute(
+          'aria-label',
+          compact ? (toggle.dataset.labelOpen || 'open') : (toggle.dataset.labelMinimize || 'minimize')
+        );
+        localStorage.setItem('desktop-popup-compact', compact ? 'true' : 'false');
+      }
+
+      document.getElementById('desktop-popup-size-toggle')?.addEventListener('click', (event) => {
+        event.stopPropagation();
+        const popup = document.getElementById('desktop-popup');
+        if (!popup) return;
+        setDesktopPopupCompact(!popup.classList.contains('is-compact'));
+      });
       
       // Recruiter hint popup - position near contact nav link on mobile, bottom right on desktop
       function showRecruiterHintPopup() {
@@ -449,12 +713,53 @@ if (import.meta.env.DEV) {
           positionPopup(); // Position before showing
           popup.setAttribute('aria-hidden', 'false');
           popup.classList.add('recruiter-hint-popup-visible');
+          startRecruiterAudienceRotation();
           
           // Reposition after a brief delay to ensure layout is stable
           setTimeout(() => {
             positionPopup();
           }, 100);
         }, 2000);
+      }
+
+      function startRecruiterAudienceRotation() {
+        const nodes = document.querySelectorAll('.recruiter-audience');
+        if (!nodes.length) return;
+
+        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const intervalMs = reduceMotion ? 4000 : 2800;
+        const swapMs = reduceMotion ? 0 : 320;
+
+        nodes.forEach((node) => {
+          let audiences = [];
+          try {
+            audiences = JSON.parse(node.getAttribute('data-audiences') || '[]');
+          } catch (_) {
+            audiences = [];
+          }
+          if (!Array.isArray(audiences) || audiences.length < 2) return;
+
+          let index = 0;
+          window.setInterval(() => {
+            const next = (index + 1) % audiences.length;
+            if (swapMs === 0) {
+              index = next;
+              node.textContent = audiences[index];
+              return;
+            }
+
+            node.classList.add('is-exiting');
+            window.setTimeout(() => {
+              index = next;
+              node.textContent = audiences[index];
+              node.classList.remove('is-exiting');
+              node.classList.add('is-entering');
+              window.setTimeout(() => {
+                node.classList.remove('is-entering');
+              }, swapMs);
+            }, swapMs);
+          }, intervalMs);
+        });
       }
       
       // QR code shake animation - shake entire popup
@@ -661,7 +966,7 @@ if (import.meta.env.DEV) {
     overflow-x: hidden;
   }
   
-  /* Mobile-first: bottom tab bar */
+  /* Mobile-first: bottom tab bar — glossy glass */
   .nav-bar {
     position: fixed;
     left: 0;
@@ -675,9 +980,12 @@ if (import.meta.env.DEV) {
     justify-content: space-around;
     padding: 0.75rem 0.5rem;
     padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
-    background-color: var(--color-nav-bg);
-    border-top: 1px solid var(--color-border);
+    background-color: color-mix(in srgb, var(--color-nav-bg) 52%, transparent);
+    backdrop-filter: blur(18px) saturate(1.7);
+    -webkit-backdrop-filter: blur(18px) saturate(1.7);
+    border-top: 1px solid color-mix(in srgb, var(--color-text) 10%, transparent);
     box-shadow: 
+      inset 0 1px 0 rgba(255, 255, 255, 0.45),
       0 -4px 12px rgba(99, 102, 241, 0.15),
       0 -2px 4px var(--color-accent);
     animation: navGlowPulseMobile 3s ease-in-out infinite;
@@ -685,7 +993,10 @@ if (import.meta.env.DEV) {
   }
   
   [data-theme="dark"] .nav-bar {
+    background-color: color-mix(in srgb, var(--color-nav-bg) 48%, transparent);
+    border-top: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent);
     box-shadow: 
+      inset 0 1px 0 rgba(255, 255, 255, 0.08),
       0 -4px 12px rgba(0, 255, 136, 0.2),
       0 -2px 4px var(--color-accent);
     animation: navGlowPulseMobileDark 3s ease-in-out infinite;
@@ -694,11 +1005,13 @@ if (import.meta.env.DEV) {
   @keyframes navGlowPulseMobile {
     0%, 100% {
       box-shadow: 
+        inset 0 1px 0 rgba(255, 255, 255, 0.45),
         0 -4px 12px rgba(99, 102, 241, 0.15),
         0 -2px 4px var(--color-accent);
     }
     50% {
       box-shadow: 
+        inset 0 1px 0 rgba(255, 255, 255, 0.35),
         0 -4px 12px rgba(99, 102, 241, 0.08),
         0 -2px 2px var(--color-accent);
     }
@@ -707,11 +1020,13 @@ if (import.meta.env.DEV) {
   @keyframes navGlowPulseMobileDark {
     0%, 100% {
       box-shadow: 
+        inset 0 1px 0 rgba(255, 255, 255, 0.08),
         0 -4px 12px rgba(0, 255, 136, 0.2),
         0 -2px 4px var(--color-accent);
     }
     50% {
       box-shadow: 
+        inset 0 1px 0 rgba(255, 255, 255, 0.05),
         0 -4px 12px rgba(0, 255, 136, 0.1),
         0 -2px 2px var(--color-accent);
     }
@@ -800,9 +1115,10 @@ if (import.meta.env.DEV) {
       align-items: center;
       padding: 2rem 0;
       border-top: none;
-      border-right: 1px solid var(--color-border);
-      background-color: rgba(0, 0, 0, 0.02);
-      backdrop-filter: blur(8px);
+      border-right: 1px solid var(--color-nav-edge);
+      background-color: var(--color-nav-bg);
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
       box-shadow: 
         4px 0 12px rgba(99, 102, 241, 0.15),
         2px 0 4px var(--color-accent);
@@ -810,7 +1126,7 @@ if (import.meta.env.DEV) {
     }
     
     [data-theme="dark"] .nav-bar {
-      background-color: rgba(255, 255, 255, 0.02);
+      background-color: var(--color-nav-bg);
       box-shadow: 
         4px 0 12px rgba(0, 255, 136, 0.2),
         2px 0 4px var(--color-accent);
@@ -859,6 +1175,8 @@ if (import.meta.env.DEV) {
       text-orientation: mixed;
       white-space: nowrap;
       display: block;
+      flex-direction: unset;
+      gap: 0;
     }
     
     .nav-controls-glassy {
@@ -919,7 +1237,10 @@ if (import.meta.env.DEV) {
   
   .nav-link {
     display: inline-flex;
+    flex-direction: column;
     align-items: center;
+    justify-content: center;
+    gap: 0.2rem;
     font-size: 1rem;
     letter-spacing: 0.05em;
     text-transform: lowercase;
@@ -930,39 +1251,41 @@ if (import.meta.env.DEV) {
     transition: all 0.2s ease;
   }
   
+  /* Mobile-first: icon + label in the bottom tab bar */
   .nav-text {
-    font-size: 1.25rem;
+    display: block;
+    font-size: 0.625rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: lowercase;
+    line-height: 1.1;
     position: relative;
   }
+
+  .nav-label-desktop {
+    display: none;
+  }
+
+  .nav-label-mobile {
+    display: inline;
+  }
   
-  /* Active nav link - Mobile: Elevated + color change + arrow + animation */
+  .nav-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  /* Active nav link - Mobile: Elevated + color change + icon glow */
   .nav-link-active {
     transform: translateY(-4px);
     color: var(--color-text);
   }
   
-  .nav-link-active .nav-text::before {
-    content: '→';
-    margin-right: 0.5rem;
+  .nav-link-active .nav-icon {
     color: var(--color-accent);
-    display: inline-block;
-    vertical-align: middle;
-    animation: arrowPulseMobile 1.5s ease-in-out infinite;
-  }
-  
-  .nav-link-active .nav-text {
+    filter: drop-shadow(0 0 6px var(--color-accent));
     animation: textGlow 2s ease-in-out infinite;
-  }
-  
-  @keyframes arrowPulseMobile {
-    0%, 100% {
-      transform: translateX(0);
-      opacity: 1;
-    }
-    50% {
-      transform: translateX(4px);
-      opacity: 0.7;
-    }
   }
   
   @keyframes arrowPulseDesktop {
@@ -991,8 +1314,27 @@ if (import.meta.env.DEV) {
       font-size: 0.875rem;
     }
     
+    /* Desktop: text labels in the vertical sidebar, no icons */
+    .nav-icon {
+      display: none;
+    }
+    
     .nav-text {
+      display: inline;
       font-size: 1rem;
+    }
+
+    .nav-label-desktop {
+      display: inline;
+    }
+
+    .nav-label-mobile {
+      display: none;
+    }
+
+    .nav-link {
+      flex-direction: row;
+      gap: 0;
     }
     
     .nav-link-active {
@@ -1305,11 +1647,12 @@ if (import.meta.env.DEV) {
     }
   }
   
-  /* Desktop Popup */
+  /* Desktop Popup — top-right (original) */
   .desktop-popup {
     position: fixed;
     top: 1.5rem;
     right: 1rem;
+    bottom: auto;
     transform: translateY(-100px);
     max-width: calc(100% - 2rem);
     width: 100%;
@@ -1318,7 +1661,8 @@ if (import.meta.env.DEV) {
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55), 
-                transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+                transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55),
+                max-width 0.35s ease;
     visibility: hidden;
     display: none; /* Hidden by default on mobile */
   }
@@ -1359,11 +1703,101 @@ if (import.meta.env.DEV) {
     border: 2px solid var(--color-accent);
     border-radius: 1rem;
     padding: 1.5rem;
+    padding-bottom: 3.25rem;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
     position: relative;
     display: flex;
     flex-direction: column;
     gap: 1rem;
+    overflow: visible;
+    transition: padding 0.25s ease, gap 0.25s ease;
+  }
+
+  /* Toggle docked on the popup card bottom-right corner */
+  .desktop-popup-size-toggle {
+    position: absolute;
+    right: 0.55rem;
+    bottom: 0.55rem;
+    z-index: 3;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.3rem;
+    width: auto;
+    min-height: 2rem;
+    padding: 0.3rem 0.5rem;
+    border: 2px solid var(--color-text);
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    cursor: pointer;
+    font-family: var(--font-family-sans);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-transform: lowercase;
+    line-height: 1;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  .desktop-popup-size-toggle:hover {
+    background-color: var(--color-accent);
+    color: var(--color-bg);
+  }
+
+  .desktop-popup-icon-expand,
+  .desktop-popup-size-label-open {
+    display: none;
+  }
+
+  .desktop-popup.is-compact .desktop-popup-icon-shrink,
+  .desktop-popup.is-compact .desktop-popup-size-label-minimize,
+  .desktop-popup-size-toggle.is-docked-out .desktop-popup-icon-shrink,
+  .desktop-popup-size-toggle.is-docked-out .desktop-popup-size-label-minimize {
+    display: none;
+  }
+
+  .desktop-popup.is-compact .desktop-popup-icon-expand,
+  .desktop-popup.is-compact .desktop-popup-size-label-open,
+  .desktop-popup-size-toggle.is-docked-out .desktop-popup-icon-expand,
+  .desktop-popup-size-toggle.is-docked-out .desktop-popup-size-label-open {
+    display: inline-block;
+  }
+
+  .desktop-popup-size-label {
+    white-space: nowrap;
+  }
+
+  .desktop-popup.is-compact {
+    max-width: 168px;
+  }
+
+  .desktop-popup.is-compact .desktop-popup-content {
+    padding: 0.65rem 0.65rem 3rem;
+    gap: 0.4rem;
+  }
+
+  .desktop-popup.is-compact .desktop-popup-message {
+    display: none;
+  }
+
+  .desktop-popup.is-compact .desktop-popup-qr-container {
+    margin-top: 0;
+    margin-bottom: 0.35rem;
+    gap: 0.35rem;
+  }
+
+  .desktop-popup.is-compact .qr-code-frame {
+    padding: 0.3rem;
+  }
+
+  .desktop-popup.is-compact .qr-code {
+    width: 120px;
+    height: 120px;
+  }
+
+  .desktop-popup.is-compact :global(.scan-me-tag) {
+    font-size: 0.65rem;
+    padding: 0.25rem 0.65rem;
   }
   
   [data-theme="dark"] .desktop-popup-content {
@@ -1408,6 +1842,7 @@ if (import.meta.env.DEV) {
     .desktop-popup {
       top: 2rem;
       right: 2rem;
+      bottom: auto;
       transform: translateY(-100px);
       max-width: 400px;
     }
@@ -1452,21 +1887,29 @@ if (import.meta.env.DEV) {
   
   .recruiter-hint-popup-visible {
     opacity: 1 !important;
-    pointer-events: all !important;
+    /* Keep scroll gestures free; only CTA links capture clicks */
+    pointer-events: none !important;
     visibility: visible !important;
     display: block !important;
+  }
+
+  .recruiter-hint-popup-visible .recruiter-hint-link,
+  .recruiter-hint-popup-visible .recruiter-hint-mobile-text {
+    pointer-events: auto;
   }
   
   .recruiter-hint-popup-content {
     background-color: var(--color-bg);
     border: 2px solid var(--color-accent);
     border-radius: 1rem;
-    padding: 1rem 1.25rem;
+    padding: 0.75rem 1rem;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
     position: relative;
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+    width: max-content;
+    max-width: min(22rem, calc(100vw - 2rem));
   }
   
   [data-theme="dark"] .recruiter-hint-popup-content {
@@ -1484,12 +1927,12 @@ if (import.meta.env.DEV) {
   
   .recruiter-hint-popup-message {
     margin: 0;
-    font-size: clamp(0.875rem, 1.2vw + 0.5rem, 1.125rem);
-    line-height: 1.5;
+    font-size: clamp(0.8125rem, 1vw + 0.5rem, 1rem);
+    line-height: 1.4;
     color: var(--color-text);
     font-weight: 600;
-    text-align: center;
-    white-space: nowrap;
+    text-align: left;
+    white-space: normal;
   }
   
   .recruiter-hint-link {
@@ -1584,6 +2027,8 @@ if (import.meta.env.DEV) {
     
     .recruiter-hint-mobile-text {
       color: var(--color-text);
+      text-decoration: underline;
+      text-underline-offset: 2px;
     }
   }
   
@@ -1595,6 +2040,33 @@ if (import.meta.env.DEV) {
     
     .recruiter-hint-mobile {
       display: none;
+    }
+  }
+
+  .recruiter-audience {
+    display: inline;
+    transition: opacity 0.28s ease;
+  }
+
+  .recruiter-audience.is-exiting {
+    opacity: 0;
+  }
+
+  .recruiter-audience.is-entering {
+    opacity: 0;
+    animation: recruiterAudienceIn 0.28s ease forwards;
+  }
+
+  @keyframes recruiterAudienceIn {
+    to {
+      opacity: 1;
+    }
+  }
+
+  /* Clear scroll space under fixed recruiter bubble + bottom nav (mobile) */
+  @media (max-width: 767px) {
+    body:has(.recruiter-hint-popup-visible) .main-content {
+      padding-bottom: calc(max(0.75rem, env(safe-area-inset-bottom)) + 4.5rem + 7.5rem);
     }
   }
   

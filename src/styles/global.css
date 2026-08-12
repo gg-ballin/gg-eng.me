@@ -13,7 +13,9 @@
   --color-pre-bg: #1a1a1a;
   --color-pre-text: #ffffff;
   --color-accent: #6366f1;
-  --color-nav-bg: #ffffff;
+  /* Chrome rail: clearly recessed vs canvas (#fafafa) */
+  --color-nav-bg: #e0e0e0;
+  --color-nav-edge: #c8c8c8;
   
   /* Timeline colors */
   --timeline-item-bg: #FFFFFF;
@@ -33,7 +35,9 @@
   --color-pre-bg: #fafafa;
   --color-pre-text: #0a0a0a;
   --color-accent: #00ff88;
-  --color-nav-bg: #000000;
+  /* Chrome rail: elevated surface vs canvas (#0a0a0a) */
+  --color-nav-bg: #1a1a1a;
+  --color-nav-edge: #333333;
   
   /* Timeline colors - inverted for dark theme */
   --timeline-item-bg: #0a0a0a;
@@ -60,4 +64,75 @@ body {
 
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-family-serif);
+}
+
+/* Sliding door overlay: detail stacks above list; closes in, opens on back */
+.sliding-door {
+  --sliding-door-duration: 0.6s;
+  --sliding-door-easing: cubic-bezier(0.77, 0, 0.175, 1);
+  position: fixed;
+  z-index: 90; /* below nav (100), above main */
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  pointer-events: none;
+  visibility: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
+  box-sizing: border-box;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Mobile: door meets translucent bottom nav (extends under glass) */
+.sliding-door {
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 1.5rem;
+  padding-bottom: calc(max(0.75rem, env(safe-area-inset-bottom)) + 5.25rem);
+  transform: translate3d(0, -105%, 0);
+  border-bottom: none;
+  transition: transform var(--sliding-door-duration) var(--sliding-door-easing),
+              visibility 0s linear var(--sliding-door-duration);
+}
+
+.sliding-door.is-visible {
+  visibility: visible;
+  pointer-events: auto;
+  transition: transform var(--sliding-door-duration) var(--sliding-door-easing),
+              visibility 0s linear 0s;
+}
+
+.sliding-door.is-closed {
+  transform: translate3d(0, 0, 0);
+}
+
+/* Desktop: door slides from right → meets left nav */
+@media (min-width: 768px) {
+  .sliding-door {
+    top: 0;
+    left: 4rem;
+    right: 0;
+    bottom: 0;
+    padding: 3rem;
+    transform: translate3d(105%, 0, 0);
+    border-bottom: none;
+    border-left: 2px solid var(--color-accent);
+  }
+
+  .sliding-door.is-closed {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sliding-door {
+    --sliding-door-duration: 0.01s;
+  }
+}
+
+/* Hide experience Skills FAB while detail overlay is open (mobile) */
+html.sliding-door-open #skills-modal-toggle {
+  display: none !important;
+  pointer-events: none !important;
 }

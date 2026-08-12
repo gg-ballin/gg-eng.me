@@ -12,7 +12,7 @@ const { title, date, description, href, isHighlighted = false } = Astro.props;
 
 <article class={`timeline-item ${isHighlighted ? 'highlighted' : ''}`}>
   <div class="timeline-dot"></div>
-  <a href={href} class="timeline-content">
+  <a href={href} class="timeline-content" data-sliding-door>
     <div class="timeline-header">
       <h2 class="timeline-title">
         {title}

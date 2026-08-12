@@ -97,8 +97,8 @@ export const EXPERIENCE_TECH_ICONS: Record<ExperienceTechCategory, ExperienceTec
   stateManagement: [
     {
       id: 'redux',
-      name: 'Redux',
-      href: 'https://redux.js.org',
+      name: 'Redux Toolkit',
+      href: 'https://redux-toolkit.js.org',
       iconLight: '/assets/icons/experience/technologies/redux/redux_logo.svg',
       width: 45,
       showText: true,

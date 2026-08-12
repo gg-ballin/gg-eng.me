@@ -37,7 +37,7 @@ const { Content } = await entry.render();
   hideSocialLinks={true}
 >
   <article class="max-w-4xl article-animate">
-    <a href={`/${lang}/blog`} class="back-button">
+    <a href={`/${lang}/blog`} class="back-button" data-sliding-door-back data-list-path={`/${lang}/blog`}>
       ← {lang === 'es' ? 'Volver al blog' : 'Back to blog'}
     </a>
     <header class="article-header">

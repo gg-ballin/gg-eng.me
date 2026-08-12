@@ -1,0 +1,446 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import SkillIconLink from '@/components/SkillIconLink.astro';
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import { getTranslations, type Language } from '@/i18n/translations';
+import { getExperienceEntryBySlug, getSkillIconConfig } from '@/lib/experience-data';
+import { getEmployerLogo } from '@/lib/experience/employers';
+
+const { lang, slug } = Astro.params as { lang: Language; slug: string };
+
+// Validate lang parameter in SSR mode
+if (!['es', 'en'].includes(lang)) {
+  return Astro.redirect('/es/experience');
+}
+
+const entry = getExperienceEntryBySlug(lang, slug);
+
+if (!entry) {
+  return Astro.redirect(getRelativeLocaleUrl(lang, 'experience'));
+}
+
+const t = getTranslations(lang);
+const experiencePath = getRelativeLocaleUrl(lang, 'experience');
+const employerLogo = getEmployerLogo(entry.company);
+const isFreelance = entry.employmentType === 'freelance';
+const showCompanyText = employerLogo?.showText !== false;
+const pageTitle = `${entry.role} @ ${entry.company} - Germán Gómez`;
+---
+
+<BaseLayout 
+  title={pageTitle} 
+  description={entry.description}
+  lang={lang}
+  hideSocialLinks={true}
+>
+  <article class="max-w-4xl experience-detail-animate">
+    <a href={experiencePath} class="back-button" id="experience-back-button" data-sliding-door-back data-experience-path={experiencePath} data-list-path={experiencePath}>
+      ← {t.experience.backToExperience}
+    </a>
+    
+    <header class="detail-header">
+      <div class="detail-date">{entry.dateRange}</div>
+      <h1 class="detail-role">{entry.role}</h1>
+      <div class="detail-company-row">
+        {employerLogo && (
+          <span class="detail-logo-container">
+            {employerLogo.href ? (
+              <a href={employerLogo.href} target="_blank" rel="noopener noreferrer" class="detail-logo-link" aria-label={employerLogo.name}>
+                {employerLogo.iconDark && !employerLogo.isPng ? (
+                  <>
+                    <img 
+                      src={employerLogo.iconLight} 
+                      alt={employerLogo.name} 
+                      class="employer-logo employer-logo-light" 
+                      width={employerLogo.width || 100}
+                      height="auto"
+                    />
+                    <img 
+                      src={employerLogo.iconDark} 
+                      alt={employerLogo.name} 
+                      class="employer-logo employer-logo-dark" 
+                      width={employerLogo.width || 100}
+                      height="auto"
+                    />
+                  </>
+                ) : (
+                  <img 
+                    src={employerLogo.iconLight} 
+                    alt={employerLogo.name} 
+                    class="employer-logo" 
+                    width={employerLogo.width || 100}
+                    height="auto"
+                  />
+                )}
+              </a>
+            ) : (
+              <>
+                {employerLogo.iconDark && !employerLogo.isPng ? (
+                  <>
+                    <img 
+                      src={employerLogo.iconLight} 
+                      alt={employerLogo.name} 
+                      class="employer-logo employer-logo-light" 
+                      width={employerLogo.width || 100}
+                      height="auto"
+                    />
+                    <img 
+                      src={employerLogo.iconDark} 
+                      alt={employerLogo.name} 
+                      class="employer-logo employer-logo-dark" 
+                      width={employerLogo.width || 100}
+                      height="auto"
+                    />
+                  </>
+                ) : (
+                  <img 
+                    src={employerLogo.iconLight} 
+                    alt={employerLogo.name} 
+                    class="employer-logo" 
+                    width={employerLogo.width || 100}
+                    height="auto"
+                  />
+                )}
+              </>
+            )}
+          </span>
+        )}
+        {showCompanyText && (
+          <span class="detail-company">
+            {employerLogo?.href ? (
+              <a href={employerLogo.href} target="_blank" rel="noopener noreferrer" class="detail-company-link">{entry.company}</a>
+            ) : (
+              entry.company
+            )}
+          </span>
+        )}
+        {isFreelance && <span class="freelance-badge">{t.experience.freelanceBadge}</span>}
+      </div>
+    </header>
+    
+    <p class="detail-description">{entry.description}</p>
+    
+    {entry.skills && entry.skills.length > 0 && (
+      <div class="detail-skills">
+        {entry.skills.map((skill) => {
+          const iconConfig = getSkillIconConfig(skill);
+          if (iconConfig) {
+            return <SkillIconLink iconConfig={iconConfig} />;
+          }
+          return <span class="skill-tag">{skill}</span>;
+        })}
+      </div>
+    )}
+    
+    {entry.projects && entry.projects.length > 0 && (
+      <section class="detail-projects">
+        <h2 class="detail-projects-title">{t.experience.projectDeepDives}</h2>
+        {entry.projects.map((project) => (
+          <div class="project-item">
+            <h3 class="project-name">{project.name}</h3>
+            <ul class="project-achievements">
+              {project.achievements.map((achievement) => (
+                <li>{achievement}</li>
+              ))}
+            </ul>
+            {project.links && project.links.length > 0 && (
+              <div class="project-links">
+                {project.links.map((link) => (
+                  <a href={link.href} target="_blank" rel="noopener noreferrer" class="project-link">
+                    {link.label}
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                      <path d="M7 17 17 7M7 7h10v10"/>
+                    </svg>
+                  </a>
+                ))}
+              </div>
+            )}
+          </div>
+        ))}
+      </section>
+    )}
+  </article>
+</BaseLayout>
+
+<style>
+  /* Selected experience slides in from the left (direct loads / refresh) */
+  .experience-detail-animate {
+    opacity: 0;
+    animation: slide-in-left 0.6s ease-out forwards;
+  }
+  
+  @keyframes slide-in-left {
+    from {
+      transform: translateX(-40px);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+  
+  .back-button {
+    display: inline-block;
+    margin-bottom: 2rem;
+    padding: 0.75rem 1.5rem;
+    font-family: var(--font-family-sans);
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-text);
+    text-decoration: none;
+    border: 2px solid var(--color-text);
+    background-color: var(--color-bg);
+    transition: all 0.2s ease;
+  }
+  
+  .back-button:hover {
+    background-color: var(--color-accent);
+    color: var(--color-bg);
+    transform: translate(2px, -2px);
+    box-shadow: -2px 2px 0 var(--color-text);
+  }
+  
+  .detail-header {
+    border: 3px solid var(--color-accent);
+    padding: 2rem;
+    margin-bottom: 3rem;
+    position: relative;
+  }
+  
+  .detail-header::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    right: -8px;
+    bottom: -8px;
+    border: 3px solid var(--color-text);
+    z-index: -1;
+  }
+  
+  .detail-date {
+    display: inline-block;
+    font-family: 'Courier New', monospace;
+    font-size: 0.875rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    padding: 0.5rem 1rem;
+    background-color: var(--color-text);
+    color: var(--color-bg);
+    margin-bottom: 1rem;
+  }
+  
+  .detail-role {
+    font-family: var(--font-family-serif);
+    font-size: 2.5rem;
+    font-weight: 700;
+    line-height: 1.1;
+    margin-bottom: 1rem;
+  }
+  
+  @media (min-width: 768px) {
+    .detail-role {
+      font-size: 3.5rem;
+    }
+  }
+  
+  .detail-company-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+  
+  .detail-logo-container {
+    display: inline-flex;
+    align-items: center;
+  }
+  
+  .detail-logo-link {
+    display: inline-flex;
+    align-items: center;
+    transition: opacity 0.2s ease;
+  }
+  
+  .detail-logo-link:hover {
+    opacity: 0.7;
+  }
+  
+  .employer-logo {
+    display: inline-block;
+    max-width: 120px;
+    height: auto;
+    object-fit: contain;
+  }
+  
+  .detail-company {
+    font-family: var(--font-family-sans);
+    font-size: 1rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    opacity: 0.8;
+  }
+  
+  .detail-company-link {
+    color: var(--color-text);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    transition: opacity 0.2s ease;
+  }
+  
+  .detail-company-link:hover {
+    opacity: 0.7;
+  }
+  
+  .freelance-badge {
+    font-family: var(--font-family-sans);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 0.125rem 0.5rem;
+    border: 2px solid var(--color-accent);
+    color: var(--color-accent);
+    line-height: 1.4;
+  }
+  
+  .detail-description {
+    font-size: 1.125rem;
+    line-height: 1.75;
+    margin-bottom: 2rem;
+    opacity: 0.9;
+  }
+  
+  .detail-skills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 3rem;
+  }
+  
+  .skill-tag {
+    font-family: var(--font-family-sans);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.375rem 0.75rem;
+    border: 2px solid var(--color-text);
+    background-color: var(--color-bg);
+    color: var(--color-text);
+  }
+  
+  .detail-projects {
+    padding-top: 2rem;
+    border-top: 2px solid var(--color-border);
+  }
+  
+  .detail-projects-title {
+    font-family: var(--font-family-serif);
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 2rem;
+  }
+  
+  .project-item {
+    margin-bottom: 2.5rem;
+  }
+  
+  .project-item:last-child {
+    margin-bottom: 0;
+  }
+  
+  .project-name {
+    font-family: var(--font-family-sans);
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    position: relative;
+    padding-left: 1rem;
+  }
+  
+  .project-name::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: var(--color-accent);
+  }
+  
+  .project-achievements {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .project-achievements li {
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: 0.5rem;
+    padding-left: 1.5rem;
+    position: relative;
+    opacity: 0.9;
+  }
+  
+  .project-achievements li::before {
+    content: '•';
+    position: absolute;
+    left: 0;
+    color: var(--color-accent);
+    font-weight: bold;
+  }
+  
+  .project-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+    padding-left: 1.5rem;
+  }
+  
+  .project-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-family: var(--font-family-sans);
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    transition: opacity 0.2s ease;
+  }
+  
+  .project-link:hover {
+    opacity: 0.7;
+  }
+</style>
+
+<style is:global>
+  /* Theme-based employer logo visibility (also defined in ExperienceEntry, which is not rendered here) */
+  [data-theme="dark"] .employer-logo-light {
+    display: none !important;
+  }
+  
+  [data-theme="dark"] .employer-logo-dark {
+    display: inline-block !important;
+  }
+  
+  [data-theme="light"] .employer-logo-light,
+  :root:not([data-theme="dark"]) .employer-logo-light {
+    display: inline-block !important;
+  }
+  
+  [data-theme="light"] .employer-logo-dark,
+  :root:not([data-theme="dark"]) .employer-logo-dark {
+    display: none !important;
+  }
+</style>

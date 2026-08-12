@@ -2,12 +2,22 @@
 import type { ExperienceTechIconConfig, ExperienceTechCategory } from './experience/technologies';
 import { getTechIconById } from './experience/technologies';
 
+export interface ProjectLink {
+  label: string;
+  href: string;
+}
+
 export interface ProjectDeepDive {
   name: string;
   achievements: string[];
+  links?: ProjectLink[];
 }
 
+export type EmploymentType = 'full-time' | 'freelance';
+
 export interface ExperienceEntry {
+  /** Stable URL identifier, shared between locales (e.g. 'blockdaemon') */
+  slug: string;
   dateRange: string;
   role: string;
   company: string;
@@ -15,6 +25,8 @@ export interface ExperienceEntry {
   skills: string[];
   projects?: ProjectDeepDive[];
   highlight?: boolean;
+  /** 'freelance' entries are web-only: shown on the site but intentionally left out of the CV PDFs */
+  employmentType?: EmploymentType;
 }
 
 export interface SkillsData {
@@ -48,6 +60,10 @@ const skillToIconIdMap: Record<string, string> = {
   'Redux': 'redux',
   'redux': 'redux',
   'REDUX': 'redux',
+  'Redux Toolkit': 'redux',
+  'redux toolkit': 'redux',
+  'REDUX TOOLKIT': 'redux',
+  'redux-toolkit': 'redux',
   'MobX': 'mobx',
   'mobx': 'mobx',
   'MOBX': 'mobx',
@@ -161,14 +177,26 @@ export const experienceEntriesEN: ExperienceEntry[] = [
   {
     dateRange: 'APR 2024 - DEC 2025',
     role: 'Senior Mobile Engineer',
+    slug: 'blockdaemon',
     company: 'Blockdaemon',
     description: 'Ported a native iOS application to a cross-platform solution using React Native with Expo, achieving feature parity in 4 months. Integrated custom native modules in Swift and Kotlin to bridge secure functionalities into the React Native environment. Developed a secure approver application for institutional wallets leveraging Multi-Party Computation (MPC). Managed migration from Okta to Auth0 SSO and upgraded Expo SDK from v51 to v54.',
     skills: ['EXPO', 'SWIFT', 'KOTLIN', 'Expo EAS', 'zustand', 'mobx', 'jest', 'Sentry', 'OKTA', 'AUTH0', 'CURSOR'],
     highlight: true,
+    projects: [
+      {
+        name: 'Institutional Wallet Approver App (MPC)',
+        achievements: [
+          'Wrote custom native modules in Swift and Kotlin to bridge secure signing functionality into React Native.',
+          'The codebase went through a security audit performed by Zellic, a top-tier security research firm specialized in emerging technologies.',
+        ],
+        links: [{ label: 'Zellic — Security Audits', href: 'https://www.zellic.io/' }],
+      },
+    ],
   },
   {
     dateRange: 'JUN 2023 - OCT 2023',
     role: 'Lead Mobile Engineer',
+    slug: 'mecena',
     company: 'Mecena',
     description: 'Led a team of two Senior Developers in building a FinTech application for content creators. Defined the mobile architecture using a layered approach, with extensive use of custom hooks, i18n, and implemented private login flows. Built animated brutalist UI components (Reanimated v3) and contributed to a design system following atomic design principles.',
     skills: ['REACT NATIVE', 'TYPESCRIPT', 'REDUX', 'Sentry', 'Firebase', 'App Center', 'Jest'],
@@ -176,6 +204,7 @@ export const experienceEntriesEN: ExperienceEntry[] = [
   {
     dateRange: 'APR 2023 - JUN 2023',
     role: 'Senior Mobile Engineer',
+    slug: 'devbase',
     company: 'DevBase',
     description: 'Maintained and implemented features for an e-commerce app for technicians using JS and TypeScript. Fixed UI bugs across JavaScript and TypeScript while the app was mid-migration to TypeScript.',
     skills: ['REACT NATIVE', 'JAVASCRIPT', 'TYPESCRIPT', 'App Center', 'Jest', 'Firebase'],
@@ -183,6 +212,7 @@ export const experienceEntriesEN: ExperienceEntry[] = [
   {
     dateRange: 'APR 2022 - OCT 2022',
     role: 'Senior Mobile Engineer',
+    slug: 'coderio',
     company: 'Coderio',
     description: 'Developed a surfing industry app with 70+ screens, integrating public weather APIs, OAuth integrations and Stripe payments. Integrated OAuth login/account creation with Google, Facebook, and Apple; also integrated Stripe SDK for payments.',
     skills: ['REACT NATIVE', 'TYPESCRIPT', 'App Center', 'Jest', 'Firebase'],
@@ -190,6 +220,7 @@ export const experienceEntriesEN: ExperienceEntry[] = [
   {
     dateRange: 'SEP 2021 - APR 2022',
     role: 'Lead Mobile Engineer',
+    slug: 'dept',
     company: 'DEPT',
     description: 'Led a team of 3 Senior Engineers to build a hydroponics startup client from the ground up. Acted as first engineer, making all core architecture and stack decisions. Drove alignment through recurring product and stakeholder meetings with the client\'s Product Owner.',
     skills: ['REACT NATIVE', 'TYPESCRIPT', 'GraphQL', 'Apollo', 'AWS Amplify', 'AWS Cognito', 'App Center'],
@@ -198,6 +229,7 @@ export const experienceEntriesEN: ExperienceEntry[] = [
   {
     dateRange: 'SEP 2017 - SEP 2021',
     role: 'Mobile Engineer',
+    slug: 'paisanos',
     company: 'Paisanos',
     description: 'Delivered over 10 mobile applications for FinTech, AgTech, and Healthcare using React Native. Performed major React Native version migrations (v0.51 to v0.59) using RN Upgrade Helper. Adapted quickly across a high-rotation project environment, ramping into different products and requirements.',
     skills: ['REACT NATIVE', 'TYPESCRIPT', 'JAVASCRIPT','AWS S3', 'Firebase', 'Swift', 'Kotlin', 'Bitrise' ],
@@ -206,6 +238,7 @@ export const experienceEntriesEN: ExperienceEntry[] = [
   {
     dateRange: 'DEC 2016 - MAY 2019',
     role: 'Full Stack Engineer',
+    slug: 'bits0',
     company: 'Bits0',
     description: 'Developed two mobile applications from the ground up using React Native with Expo and Redux. Built a comprehensive mobile solution for an aesthetic medical center, including features for discounts, coupons, and reservations. Developed and maintained a backend system using PHP and MySQL to support mobile REST APIs. Performed maintenance and bug fixing for a domotic system application for intelligent housing. Managed manual deployments to both App Store and Google Play Store in the early stages of the Expo ecosystem.',
     skills: ['REACT NATIVE', 'EXPO', 'REDUX', 'JAVASCRIPT'],
@@ -217,14 +250,26 @@ export const experienceEntriesES: ExperienceEntry[] = [
   {
     dateRange: 'ABR 2024 - DIC 2025',
     role: 'Senior Mobile Engineer',
+    slug: 'blockdaemon',
     company: 'Blockdaemon',
     description: 'Migración de una aplicación nativa de iOS a una solución multiplataforma utilizando React Native con Expo, logrando paridad de funciones en 4 meses. Integración de módulos nativos personalizados en Swift y Kotlin para conectar funcionalidades seguras al entorno de React Native. Desarrollo de una aplicación de aprobación segura para billeteras institucionales utilizando Computación Multipartita (MPC). Gestión de la migración de Okta a Auth0 SSO y actualización del SDK de Expo de v51 a v54.',
     skills: ['EXPO', 'SWIFT', 'KOTLIN', 'Expo EAS', 'zustand', 'mobx', 'jest', 'Sentry', 'OKTA', 'AUTH0', 'CURSOR'],
     highlight: true,
+    projects: [
+      {
+        name: 'App de aprobación para billeteras institucionales (MPC)',
+        achievements: [
+          'Desarrollo de módulos nativos personalizados en Swift y Kotlin para integrar funcionalidad segura de firmas en React Native.',
+          'El código pasó por una auditoría de seguridad realizada por Zellic, una firma de investigación en seguridad de primer nivel especializada en tecnologías emergentes.',
+        ],
+        links: [{ label: 'Zellic — Auditorías de seguridad', href: 'https://www.zellic.io/' }],
+      },
+    ],
   },
   {
     dateRange: 'JUN 2023 - OCT 2023',
     role: 'Lead Mobile Engineer',
+    slug: 'mecena',
     company: 'Mecena',
     description: 'Liderazgo de un equipo de dos desarrolladores Senior en la creación de una aplicación FinTech para creadores de contenido. Definición de la arquitectura móvil mediante un enfoque por capas, uso extensivo de hooks personalizados, i18n e implementación de flujos de inicio de sesión privados. Construcción de componentes de interfaz de usuario de estilo brutalista animados (Reanimated v3) y contribución a un sistema de diseño siguiendo principios de diseño atómico.',
     skills: ['REACT NATIVE', 'TYPESCRIPT', 'REDUX', 'Sentry', 'Firebase', 'App Center', 'Jest'],
@@ -232,6 +277,7 @@ export const experienceEntriesES: ExperienceEntry[] = [
   {
     dateRange: 'ABR 2023 - JUN 2023',
     role: 'Senior Mobile Engineer',
+    slug: 'devbase',
     company: 'DevBase',
     description: 'Mantenimiento e implementación de funciones para una aplicación de comercio electrónico para técnicos utilizando JS y TypeScript. Corrección de errores de interfaz de usuario en JavaScript y TypeScript mientras la aplicación se encontraba en medio de la migración a TypeScript.',
     skills: ['REACT NATIVE', 'JAVASCRIPT', 'TYPESCRIPT', 'App Center', 'Jest', 'Firebase'],
@@ -239,6 +285,7 @@ export const experienceEntriesES: ExperienceEntry[] = [
   {
     dateRange: 'ABR 2022 - OCT 2022',
     role: 'Senior Mobile Engineer',
+    slug: 'coderio',
     company: 'Coderio',
     description: 'Desarrollo de una aplicación para la industria del surf con más de 70 pantallas, integrando APIs meteorológicas públicas, OAuth y pagos con Stripe. Integración de inicio de sesión/creación de cuenta con Google, Facebook y Apple; también se integró el SDK de Stripe para pagos.',
     skills: ['REACT NATIVE', 'TYPESCRIPT', 'App Center', 'Jest', 'Firebase'],
@@ -246,6 +293,7 @@ export const experienceEntriesES: ExperienceEntry[] = [
   {
     dateRange: 'SEP 2021 - ABR 2022',
     role: 'Lead Mobile Engineer',
+    slug: 'dept',
     company: 'DEPT',
     description: 'Liderazgo de un equipo de 3 ingenieros Senior para construir el cliente de una startup de hidroponía desde cero. Primer ingeniero en el proyecto, tomando todas las decisiones sobre la arquitectura principal y el stack tecnológico. Alineación mediante reuniones recurrentes de producto y con stakeholders (Product Owner del cliente).',
     skills: ['REACT NATIVE', 'TYPESCRIPT', 'GraphQL', 'Apollo', 'AWS Amplify', 'AWS Cognito', 'App Center'],
@@ -254,6 +302,7 @@ export const experienceEntriesES: ExperienceEntry[] = [
   {
     dateRange: 'SEP 2017 - SEP 2021',
     role: 'Mobile Engineer',
+    slug: 'paisanos',
     company: 'Paisanos',
     description: 'Entrega de más de 10 aplicaciones móviles para FinTech, AgTech y Healthcare utilizando React Native. Realización de migraciones mayores de versiones de React Native (v0.51 a v0.59) utilizando RN Upgrade Helper. Adaptación rápida en un entorno de proyectos de alta rotación, integrándose a diferentes productos y requisitos.',
     skills: ['REACT NATIVE', 'TYPESCRIPT', 'JAVASCRIPT','AWS S3', 'Firebase', 'Swift', 'Kotlin', 'Bitrise' ],
@@ -262,6 +311,7 @@ export const experienceEntriesES: ExperienceEntry[] = [
   {
     dateRange: 'DIC 2016 - MAYO 2019',
     role: 'Full Stack Engineer',
+    slug: 'bits0',
     company: 'Bits0',
     description: 'Desarrollo de dos aplicaciones móviles desde cero utilizando React Native con Expo y Redux. Creación de una solución móvil integral para un centro de medicina estética, incluyendo funciones de descuentos, cupones y reservas. Desarrollo y mantenimiento de un sistema backend utilizando PHP y MySQL para dar soporte a REST APIs móviles. Mantenimiento y corrección de errores para una aplicación de sistema domótico para viviendas inteligentes. Gestión de despliegues manuales tanto en App Store como en Google Play Store en las etapas iniciales del ecosistema Expo.',
     skills: ['REACT NATIVE', 'EXPO', 'REDUX', 'JAVASCRIPT'],
@@ -271,9 +321,9 @@ export const experienceEntriesES: ExperienceEntry[] = [
 // Skills data - English
 export const skillsDataEN: SkillsData = {
   hardSkillsByCategory: {
-    mobileFrameworks: ['React Native', 'Expo'],
+    mobileFrameworks: ['Expo', 'React Native'],
     languages: ['TypeScript', 'JavaScript', 'Swift', 'Kotlin'],
-    stateManagement: ['Redux', 'MobX', 'Zustand'],
+    stateManagement: ['Redux Toolkit', 'MobX', 'Zustand'],
     backendCloud: ['AWS Amplify', 'AWS Cognito', 'AWS S3', 'Firebase'],
     developmentTools: ['Android Studio', 'Google Play Console', 'Xcode', 'App Store Connect', 'Cursor'],
     deployment: ['Expo EAS', 'App Center', 'Bitrise'],
@@ -299,9 +349,9 @@ export const skillsDataEN: SkillsData = {
 // Skills data - Spanish
 export const skillsDataES: SkillsData = {
   hardSkillsByCategory: {
-    mobileFrameworks: ['React Native', 'Expo'],
+    mobileFrameworks: ['Expo', 'React Native'],
     languages: ['TypeScript', 'JavaScript', 'Swift', 'Kotlin'],
-    stateManagement: ['Redux', 'MobX', 'Zustand'],
+    stateManagement: ['Redux Toolkit', 'MobX', 'Zustand'],
     backendCloud: ['AWS Amplify', 'AWS Cognito', 'AWS S3', 'Firebase'],
     developmentTools: ['Android Studio', 'Google Play Console', 'Xcode', 'App Store Connect', 'Cursor'],
     deployment: ['Expo EAS', 'App Center', 'Bitrise'],
@@ -326,6 +376,10 @@ export const skillsDataES: SkillsData = {
 
 export function getExperienceEntries(lang: 'es' | 'en'): ExperienceEntry[] {
   return lang === 'es' ? experienceEntriesES : experienceEntriesEN;
+}
+
+export function getExperienceEntryBySlug(lang: 'es' | 'en', slug: string): ExperienceEntry | undefined {
+  return getExperienceEntries(lang).find((entry) => entry.slug === slug);
 }
 
 export function getSkillsData(lang: 'es' | 'en'): SkillsData {

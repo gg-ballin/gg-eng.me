@@ -8,14 +8,16 @@ export interface Translations {
   // Navigation
   nav: {
     bio: string;
+    home: string;
     experience: string;
     blog: string;
     contact: string;
     theme: string;
     recruiterHint: {
-      message: string;
+      audiences: string[];
+      messageAfter: string;
       linkText: string;
-      mobileMessage: string;
+      mobileMessageAfter: string;
       mobileLinkText: string;
     };
   };
@@ -74,6 +76,10 @@ export interface Translations {
     softSkills: string;
     languages: string;
     downloadCv: string;
+    projectDeepDives: string;
+    freelanceBadge: string;
+    backToExperience: string;
+    viewDetail: string;
   };
   
   // Contact
@@ -119,6 +125,8 @@ export interface Translations {
   desktopPopup: {
     message: string;
     scanMe: string;
+    minimize: string;
+    open: string;
   };
   
   // Language Switcher Hint

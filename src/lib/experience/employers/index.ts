@@ -25,6 +25,7 @@ export const EMPLOYER_LOGOS: Record<string, EmployerLogoConfig> = {
     iconLight: '/assets/icons/experience/employers/bits0/bits0_logo_light.svg',
     iconDark: '/assets/icons/experience/employers/bits0/bits0_logo_dark.svg',
     width: 80,
+    showText: false,
   },
   blockdaemon: {
     id: 'blockdaemon',
@@ -32,6 +33,7 @@ export const EMPLOYER_LOGOS: Record<string, EmployerLogoConfig> = {
     iconLight: '/assets/icons/experience/employers/blockdaemon/blockdaemon_logo_light.svg',
     iconDark: '/assets/icons/experience/employers/blockdaemon/blockdaemon_logo_dark.svg',
     width: 120,
+    showText: false,
   },
   coderio: {
     id: 'coderio',
@@ -39,6 +41,7 @@ export const EMPLOYER_LOGOS: Record<string, EmployerLogoConfig> = {
     iconLight: '/assets/icons/experience/employers/coderio/coderio.png',
     isPng: true,
     width: 100,
+    showText: false,
   },
   dept: {
     id: 'dept',
@@ -46,6 +49,7 @@ export const EMPLOYER_LOGOS: Record<string, EmployerLogoConfig> = {
     iconLight: '/assets/icons/experience/employers/DEPT/dept_logo_light.svg',
     iconDark: '/assets/icons/experience/employers/DEPT/dept_logo_dark.svg',
     width: 45,
+    showText: false,
   },
   devbase: {
     id: 'devbase',
@@ -53,6 +57,7 @@ export const EMPLOYER_LOGOS: Record<string, EmployerLogoConfig> = {
     iconLight: '/assets/icons/experience/employers/devBase/devbase_logo_light.svg',
     iconDark: '/assets/icons/experience/employers/devBase/devbase_logo_dark.svg',
     width: 100,
+    showText: false,
   },
   iplayme2: {
     id: 'iplayme2',
@@ -81,6 +86,7 @@ export const EMPLOYER_LOGOS: Record<string, EmployerLogoConfig> = {
     iconLight: '/assets/icons/experience/employers/paisanos/paisanos_light.svg',
     iconDark: '/assets/icons/experience/employers/paisanos/paisanos_dark.svg',
     width: 100,
+    showText: false,
   },
 };
 

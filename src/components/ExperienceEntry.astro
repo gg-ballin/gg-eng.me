@@ -3,14 +3,20 @@ import type { ExperienceEntry } from '@/lib/experience-data';
 import SkillIconLink from './SkillIconLink.astro';
 import { getSkillIconConfig } from '@/lib/experience-data';
 import { getEmployerLogo } from '@/lib/experience/employers';
+import { getTranslations, type Language } from '@/i18n/translations';
+import { getRelativeLocaleUrl } from 'astro:i18n';
 
 interface Props {
   entry: ExperienceEntry;
+  lang: Language;
 }
 
-const { entry } = Astro.props;
+const { entry, lang } = Astro.props;
+const t = getTranslations(lang).experience;
 const employerLogo = getEmployerLogo(entry.company);
 const isHighlighted = entry.highlight === true;
+const isFreelance = entry.employmentType === 'freelance';
+const detailPath = getRelativeLocaleUrl(lang, `experience/${entry.slug}`);
 ---
 
 <article class="experience-entry">
@@ -91,7 +97,10 @@ const isHighlighted = entry.highlight === true;
           )}
         </div>
       )}
-      <p class="experience-company">{entry.company}</p>
+      <div class="experience-company-row">
+        <p class="experience-company">{entry.company}</p>
+        {isFreelance && <span class="freelance-badge">{t.freelanceBadge}</span>}
+      </div>
     </div>
     <p class="experience-description">{entry.description}</p>
     
@@ -108,21 +117,15 @@ const isHighlighted = entry.highlight === true;
       </div>
     )}
     
-    {entry.projects && entry.projects.length > 0 && (
-      <div class="experience-projects">
-        <h4 class="projects-title">PROJECT DEEP DIVES</h4>
-        {entry.projects.map((project) => (
-          <div class="project-item">
-            <h5 class="project-name">{project.name}</h5>
-            <ul class="project-achievements">
-              {project.achievements.map((achievement) => (
-                <li>{achievement}</li>
-              ))}
-            </ul>
-          </div>
-        ))}
-      </div>
-    )}
+    <span class="view-detail-cta" aria-hidden="true">
+      {t.viewDetail}
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+        <path d="M5 12h14M13 6l6 6-6 6"/>
+      </svg>
+    </span>
+    
+    <!-- Stretched link: makes the whole card navigate to the detail page -->
+    <a href={detailPath} class="experience-card-link" data-sliding-door aria-label={`${entry.role} @ ${entry.company}`}></a>
   </div>
 </article>
 
@@ -333,6 +336,12 @@ const isHighlighted = entry.highlight === true;
     display: none;
   }
   
+  .experience-company-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  
   .experience-company {
     font-family: var(--font-family-sans);
     font-size: 0.875rem;
@@ -341,6 +350,18 @@ const isHighlighted = entry.highlight === true;
     letter-spacing: 0.05em;
     opacity: 0.8;
     margin: 0;
+  }
+  
+  .freelance-badge {
+    font-family: var(--font-family-sans);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 0.125rem 0.5rem;
+    border: 2px solid var(--color-accent);
+    color: var(--color-accent);
+    line-height: 1.4;
   }
   
   .experience-description {
@@ -354,7 +375,40 @@ const isHighlighted = entry.highlight === true;
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  /* Stretched link: covers the whole card; interactive children sit above it */
+  .experience-card-link {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+  }
+  
+  .employer-logo-container,
+  .experience-skills {
+    position: relative;
+    z-index: 2;
+  }
+  
+  .view-detail-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-family: var(--font-family-sans);
+    font-size: 0.8125rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-accent);
+  }
+  
+  .view-detail-cta svg {
+    transition: transform 0.2s ease;
+  }
+  
+  .experience-content:hover .view-detail-cta svg {
+    transform: translateX(4px);
   }
   
   .skill-tag {
@@ -367,77 +421,6 @@ const isHighlighted = entry.highlight === true;
     border: 2px solid var(--color-text);
     background-color: var(--color-bg);
     color: var(--color-text);
-  }
-  
-  .experience-projects {
-    margin-top: 2rem;
-    padding-top: 2rem;
-    border-top: 2px solid var(--color-border);
-  }
-  
-  .projects-title {
-    font-family: var(--font-family-sans);
-    font-size: 0.875rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin-bottom: 1.5rem;
-  }
-  
-  .project-item {
-    margin-bottom: 2rem;
-  }
-  
-  .project-item:last-child {
-    margin-bottom: 0;
-  }
-  
-  .project-name {
-    font-family: var(--font-family-sans);
-    font-size: 1rem;
-    font-weight: 600;
-    margin-bottom: 0.75rem;
-    position: relative;
-    padding-left: 1rem;
-  }
-  
-  .project-name::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background-color: var(--color-accent);
-  }
-  
-  .project-achievements {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-  
-  .project-achievements li {
-    font-size: 0.9375rem;
-    line-height: 1.6;
-    margin-bottom: 0.5rem;
-    padding-left: 1.5rem;
-    position: relative;
-    opacity: 0.9;
-  }
-  
-  .project-achievements li::before {
-    content: '•';
-    position: absolute;
-    left: 0;
-    color: var(--color-accent);
-    font-weight: bold;
-  }
-  
-  .project-achievements li:last-child {
-    margin-bottom: 0;
   }
   
   @media (max-width: 768px) {

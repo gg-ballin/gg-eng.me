@@ -10,14 +10,16 @@ export const translations: Record<Language, Translations> = {
     },
     nav: {
       bio: 'bio',
+      home: 'inicio',
       experience: 'experiencia',
       blog: 'blog',
       contact: 'contacto',
       theme: 'Theme',
       recruiterHint: {
-        message: '👋 Tech Recruiters: Para solicitar mi CV, ir a',
+        audiences: ['Tech Recruiters', 'Hiring Managers', "CTO's/CEO's"],
+        messageAfter: ': Para solicitar mi CV, ir a',
         linkText: 'contacto',
-        mobileMessage: '👋 Tech Recruiters:',
+        mobileMessageAfter: ':',
         mobileLinkText: 'Solicitar mi CV aquí',
       },
     },
@@ -25,7 +27,7 @@ export const translations: Record<Language, Translations> = {
       name: 'hola hola! soy Germán Gómez',
       role: 'Senior Mobile Engineer',
       location: 'Buenos Aires, Argentina',
-      description: 'Más de 8 años desarrollando aplicaciones móviles híbridas con React Native, viví la evolución completa del ecosistema: desde los inicios de `expo` (cuándo era difícil renderizar un mapa!) y de `react-native-cli` con Javascript (y sus obsoletos `PropTypes`) hasta los estándares de performance de la era de la Nueva Arquitectura, Fabric. Expo, Typescript, Swift y Kotlin, sintaxis obligatoria que un ingeniero móvil debe dominar para crear aplicaciones, performantes, mantenibles y escalables.',
+      description: 'Más de 9 años desarrollando aplicaciones móviles híbridas con React Native, viví la evolución completa del ecosistema: desde los inicios de `expo` (cuándo era difícil renderizar un mapa!) y de `react-native-cli` con Javascript (y sus obsoletos `PropTypes`) hasta los estándares de performance de la era de la Nueva Arquitectura, Fabric. Expo, Typescript, Swift y Kotlin, sintaxis obligatoria que un ingeniero móvil debe dominar para crear aplicaciones, performantes, mantenibles y escalables.',
       techExplanation: {
         intro: 'Este sitio web está construido con:',
         categories: {
@@ -68,6 +70,10 @@ export const translations: Record<Language, Translations> = {
       softSkills: 'Habilidades Blandas',
       languages: 'Idiomas',
       downloadCv: 'Descargar CV',
+      projectDeepDives: 'Detalle de proyectos',
+      freelanceBadge: 'freelance',
+      backToExperience: 'Volver a experiencia',
+      viewDetail: 'ver detalle',
     },
     contact: {
       title: 'Contacto - Germán Gómez',
@@ -105,6 +111,8 @@ export const translations: Record<Language, Translations> = {
     desktopPopup: {
       message: 'Noté que estás viendo este website desde tu computadora/laptop. ¡Escanea el QR para ver este sitio web en móvil! 😉',
       scanMe: 'Escaneame',
+      minimize: 'minimizar',
+      open: 'abrir',
     },
     languageHint: {
       message: 'Elegí el idioma en el que querés recibir el CV! 🤠',
@@ -117,14 +125,16 @@ export const translations: Record<Language, Translations> = {
     },
     nav: {
       bio: 'bio',
+      home: 'home',
       experience: 'experience',
       blog: 'blog',
       contact: 'contact',
       theme: 'Theme',
       recruiterHint: {
-        message: '👋 Tech Recruiters: To request my CV, go to',
+        audiences: ['Tech Recruiters', 'Hiring Managers', "CTO's/CEO's"],
+        messageAfter: ': To request my CV, go to',
         linkText: 'contact',
-        mobileMessage: '👋 Tech Recruiters:',
+        mobileMessageAfter: ':',
         mobileLinkText: 'Request my CV here',
       },
     },
@@ -132,7 +142,7 @@ export const translations: Record<Language, Translations> = {
       name: 'hello there! i\'m Germán Gómez',
       role: 'Senior Mobile Engineer',
       location: 'based in Buenos Aires, Argentina',
-      description: '8+ years developing hybrid mobile applications with React Native. I\'ve lived through the ecosystem\'s full evolution: from the early days of `expo` (when rendering a map was a nightmare!) and `react-native-cli` with JavaScript (and its now-obsolete `PropTypes`) to the high-performance standards of the New Architecture era, Fabric.\n\nExpo, TypeScript, Swift, and Kotlin are now the essential stack a mobile engineer must master to build high-performance, maintainable, and scalable applications.',
+      description: '9+ years developing hybrid mobile applications with React Native. I\'ve lived through the ecosystem\'s full evolution: from the early days of `expo` (when rendering a map was a nightmare!) and `react-native-cli` with JavaScript (and its now-obsolete `PropTypes`) to the high-performance standards of the New Architecture era, Fabric.\n\nExpo, TypeScript, Swift, and Kotlin are now the essential stack a mobile engineer must master to build high-performance, maintainable, and scalable applications.',
       techExplanation: {
         intro: 'This website is built with:',
         categories: {
@@ -175,6 +185,10 @@ export const translations: Record<Language, Translations> = {
       softSkills: 'Soft Skills',
       languages: 'Languages',
       downloadCv: 'Download CV',
+      projectDeepDives: 'Project deep dives',
+      freelanceBadge: 'freelance',
+      backToExperience: 'Back to experience',
+      viewDetail: 'view detail',
     },
     contact: {
       title: 'Contact - Germán Gómez',
@@ -212,6 +226,8 @@ export const translations: Record<Language, Translations> = {
     desktopPopup: {
       message: 'Hey! Noticed that you are seeing this website from your computer/laptop. Scan the QR to see this website in mobile! 😉',
       scanMe: 'Scan Me',
+      minimize: 'minimize',
+      open: 'open',
     },
     languageHint: {
       message: 'Choose the language you want to receive the CV in! 🤠',
