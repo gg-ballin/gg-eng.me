@@ -323,24 +323,67 @@ if (import.meta.env.DEV) {
             window.setTimeout(() => finish(), DURATION_MS + 80);
           });
 
+        const DETAIL_STYLE_MARKERS = [
+          'experience-detail',
+          '.detail-',
+          '.back-button',
+          '.project-',
+          'employer-logo',
+          'article-',
+          '.prose',
+        ];
+
+        const isDetailStyleText = (cssText) =>
+          DETAIL_STYLE_MARKERS.some((marker) => cssText.includes(marker));
+
+        const clearInjectedPageStyles = () => {
+          document
+            .querySelectorAll('[data-sliding-door-style="true"]')
+            .forEach((el) => el.remove());
+        };
+
+        /**
+         * Prod builds extract page CSS to <link rel="stylesheet">; astro dev keeps
+         * it in <style>. Sliding-door only fetches HTML — inject both so detail
+         * styles apply in Cloudflare Pages the same way they do locally.
+         */
         const injectPageStyles = (doc) => {
+          clearInjectedPageStyles();
+
+          const existingHrefs = new Set(
+            [...document.querySelectorAll('link[rel="stylesheet"]')].map((link) => link.href)
+          );
+
+          const pendingSheets = [];
+
+          doc.querySelectorAll('link[rel="stylesheet"]').forEach((linkEl) => {
+            const href = linkEl.getAttribute('href');
+            if (!href) return;
+            const absoluteHref = new URL(href, window.location.origin).href;
+            if (existingHrefs.has(absoluteHref)) return;
+
+            const clone = document.createElement('link');
+            clone.rel = 'stylesheet';
+            clone.href = absoluteHref;
+            clone.setAttribute('data-sliding-door-style', 'true');
+            pendingSheets.push(
+              new Promise((resolve) => {
+                clone.addEventListener('load', resolve, { once: true });
+                clone.addEventListener('error', resolve, { once: true });
+              })
+            );
+            document.head.appendChild(clone);
+          });
+
           doc.querySelectorAll('style').forEach((styleEl) => {
             const cssText = styleEl.textContent || '';
-            if (
-              !cssText.includes('experience-detail') &&
-              !cssText.includes('.detail-') &&
-              !cssText.includes('.back-button') &&
-              !cssText.includes('.project-') &&
-              !cssText.includes('employer-logo') &&
-              !cssText.includes('article-') &&
-              !cssText.includes('.prose')
-            ) {
-              return;
-            }
+            if (!isDetailStyleText(cssText)) return;
             const clone = styleEl.cloneNode(true);
             clone.setAttribute('data-sliding-door-style', 'true');
             document.head.appendChild(clone);
           });
+
+          return Promise.all(pendingSheets);
         };
 
         const prepareDetailContent = (mainEl) => {
@@ -385,6 +428,7 @@ if (import.meta.env.DEV) {
           door.innerHTML = '';
           door.setAttribute('aria-hidden', 'true');
           door.scrollTop = 0;
+          clearInjectedPageStyles();
           setOverlayUiState(false);
 
           document.title = listTitle;
@@ -417,7 +461,7 @@ if (import.meta.env.DEV) {
             if (!newMain) throw new Error('No main.main-content in response');
 
             prepareDetailContent(newMain);
-            injectPageStyles(doc);
+            await injectPageStyles(doc);
 
             door.innerHTML = newMain.innerHTML;
             door.setAttribute('aria-hidden', 'false');
@@ -468,8 +512,6 @@ if (import.meta.env.DEV) {
             openDoorOverlay(listUrl);
           }
         });
-      })();
-    </script>
       })();
     </script>
 
