@@ -40,8 +40,10 @@ const displayText = text ?? (showText ? name : undefined);
 
 <style>
   .skill-icon-link {
-    display: flex;
+    display: inline-flex;
     align-items: center;
+    flex: 0 0 auto;
+    width: fit-content;
     gap: 0.25rem;
     padding: 0.45rem 0.75rem;
     border: 2px solid var(--color-text);
@@ -73,6 +75,7 @@ const displayText = text ?? (showText ? name : undefined);
     object-fit: contain;
     flex-shrink: 0;
     height: 20px;
+    max-width: none; /* override Tailwind img max-width:100% flex sizing cycle */
   }
   
   /* Theme-based icon visibility */
