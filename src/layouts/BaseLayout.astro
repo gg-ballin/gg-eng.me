@@ -296,6 +296,8 @@ if (import.meta.env.DEV) {
     </footer>
 
     <script>
+      import { lockScroll, unlockScroll } from '@/lib/scroll-lock';
+
       (() => {
         const door = document.getElementById('sliding-door');
         if (!door) return;
@@ -400,7 +402,11 @@ if (import.meta.env.DEV) {
         const setOverlayUiState = (active) => {
           overlayActive = active;
           document.documentElement.classList.toggle('sliding-door-open', active);
-          document.body.style.overflow = active ? 'hidden' : '';
+          if (active) {
+            lockScroll('sliding-door');
+          } else {
+            unlockScroll('sliding-door');
+          }
         };
 
         const resolveFreelanceReturnPath = (fallbackPath) => {

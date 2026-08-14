@@ -78,8 +78,14 @@ h1, h2, h3, h4, h5, h6 {
   visibility: hidden;
   overflow-x: hidden;
   overflow-y: auto;
+  overscroll-behavior: contain;
   box-sizing: border-box;
   -webkit-overflow-scrolling: touch;
+}
+
+.sliding-door.is-scroll-locked {
+  overflow: hidden;
+  touch-action: none;
 }
 
 /* Mobile: door meets translucent bottom nav (extends under glass) */
