@@ -558,6 +558,7 @@ if (import.meta.env.DEV) {
         });
 
         window.addEventListener('popstate', () => {
+          if (history.state?.slidingDoor) return;
           if (overlayActive) {
             openDoorOverlay(listUrl);
           }

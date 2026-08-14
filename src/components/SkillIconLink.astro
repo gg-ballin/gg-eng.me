@@ -4,10 +4,12 @@ import type { ExperienceTechIconConfig } from '@/lib/experience/technologies';
 interface Props {
   iconConfig: ExperienceTechIconConfig;
   text?: string; // Optional text override
+  href?: string; // Optional href override (e.g. localized docs)
 }
 
-const { iconConfig, text } = Astro.props;
-const { href, name, iconLight, iconDark, width = 45, showText } = iconConfig;
+const { iconConfig, text, href: hrefOverride } = Astro.props;
+const { href: configHref, name, iconLight, iconDark, width = 45, showText } = iconConfig;
+const href = hrefOverride ?? configHref;
 const height = 40; // Fixed height
 const displayText = text ?? (showText ? name : undefined);
 ---

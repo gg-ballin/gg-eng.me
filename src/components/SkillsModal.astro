@@ -17,7 +17,6 @@ interface Props {
 
 const { skillsData, translations, lang } = Astro.props;
 
-// Get all categories that have skills
 const categoriesWithSkills = (Object.keys(skillsData.hardSkillsByCategory) as ExperienceTechCategory[]).filter(
   (category) => skillsData.hardSkillsByCategory[category].length > 0
 );
@@ -25,7 +24,8 @@ const categoriesWithSkills = (Object.keys(skillsData.hardSkillsByCategory) as Ex
 
 <div id="skills-modal" class="skills-modal" role="dialog" aria-labelledby="skills-modal-title" aria-hidden="true">
   <div class="skills-modal-backdrop" id="skills-modal-backdrop"></div>
-  <div class="skills-modal-content">
+  <div class="skills-modal-content" id="skills-modal-content">
+    <div class="skills-modal-drag-handle" aria-hidden="true"></div>
     <div class="skills-modal-header">
       <h2 id="skills-modal-title" class="skills-modal-title">Skills</h2>
       <button class="skills-modal-close" id="skills-modal-close" aria-label={translations.close}>
@@ -41,12 +41,16 @@ const categoriesWithSkills = (Object.keys(skillsData.hardSkillsByCategory) as Ex
           title={getCategoryDisplayName(category, lang)}
           skills={skillsData.hardSkillsByCategory[category]}
           useIcons={true}
+          linkBadges={true}
+          lang={lang}
         />
       ))}
       <SkillsSection 
         title={translations.softSkills}
         skills={skillsData.softSkills}
         useIcons={false}
+        linkBadges={true}
+        lang={lang}
       />
       <LanguagesSection 
         languages={skillsData.languages}
@@ -98,17 +102,31 @@ const categoriesWithSkills = (Object.keys(skillsData.hardSkillsByCategory) as Ex
     background-color: var(--color-bg);
     border-top: 3px solid var(--color-text);
     border-radius: 1rem 1rem 0 0;
-    padding: 1.5rem;
+    padding: 0.75rem 1.5rem 1.5rem;
     overflow-y: auto;
     overscroll-behavior: contain;
     -webkit-overflow-scrolling: touch;
     transform: translateY(100%);
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 1;
+    will-change: transform;
+  }
+
+  .skills-modal-content.is-dragging {
+    transition: none;
   }
   
   .skills-modal[aria-hidden="false"] .skills-modal-content {
     transform: translateY(0);
+  }
+
+  .skills-modal-drag-handle {
+    width: 2.5rem;
+    height: 0.25rem;
+    margin: 0.25rem auto 0.75rem;
+    border-radius: 999px;
+    background-color: color-mix(in srgb, var(--color-text) 35%, transparent);
+    flex-shrink: 0;
   }
   
   .skills-modal-header {
@@ -161,47 +179,137 @@ const categoriesWithSkills = (Object.keys(skillsData.hardSkillsByCategory) as Ex
 <script>
   import { lockScroll, unlockScroll } from '@/lib/scroll-lock';
 
-  // Modal control logic
-  (function() {
+  (function () {
     const modal = document.getElementById('skills-modal');
     const backdrop = document.getElementById('skills-modal-backdrop');
     const closeBtn = document.getElementById('skills-modal-close');
     const toggleBtn = document.getElementById('skills-modal-toggle');
-    
-    if (!modal || !backdrop || !closeBtn) return;
-    
-    // TypeScript: modal is guaranteed to be non-null after the check above
+    const content = document.getElementById('skills-modal-content');
+
+    if (!modal || !backdrop || !closeBtn || !content) return;
+
     const modalElement = modal;
-    
-    function openModal() {
+    const contentElement = content;
+    const DISMISS_THRESHOLD = 100;
+    let skipHistorySync = false;
+    let dragStartY = 0;
+    let dragOffset = 0;
+    let isDragging = false;
+
+    function isOpen(): boolean {
+      return modalElement.getAttribute('aria-hidden') === 'false';
+    }
+
+    function resetSheetTransform(): void {
+      contentElement.classList.remove('is-dragging');
+      contentElement.style.removeProperty('transform');
+    }
+
+    function openModal(): void {
       modalElement.setAttribute('aria-hidden', 'false');
       lockScroll('skills-modal');
+      toggleBtn?.setAttribute('aria-expanded', 'true');
+
+      if (!history.state?.skillsModal) {
+        history.pushState({ skillsModal: true }, '');
+      }
     }
-    
-    function closeModal() {
+
+    function closeModal(fromPopState = false): void {
+      if (!isOpen()) return;
+
       modalElement.setAttribute('aria-hidden', 'true');
       unlockScroll('skills-modal');
+      toggleBtn?.setAttribute('aria-expanded', 'false');
+      resetSheetTransform();
+
+      if (!fromPopState && history.state?.skillsModal) {
+        skipHistorySync = true;
+        history.back();
+      }
     }
-    
-    closeBtn.addEventListener('click', closeModal);
-    backdrop.addEventListener('click', closeModal);
-    
-    if (toggleBtn) {
-      toggleBtn.addEventListener('click', () => {
-        const isHidden = modal.getAttribute('aria-hidden') === 'true';
-        if (isHidden) {
-          openModal();
-        } else {
+
+    function setupSwipeDismiss(): void {
+      contentElement.addEventListener(
+        'touchstart',
+        (event) => {
+          if (!isOpen() || event.touches.length !== 1) return;
+          if (contentElement.scrollTop > 0) return;
+
+          isDragging = true;
+          dragStartY = event.touches[0].clientY;
+          dragOffset = 0;
+          contentElement.classList.add('is-dragging');
+        },
+        { passive: true }
+      );
+
+      contentElement.addEventListener(
+        'touchmove',
+        (event) => {
+          if (!isDragging || event.touches.length !== 1) return;
+
+          const deltaY = event.touches[0].clientY - dragStartY;
+          if (deltaY <= 0) {
+            dragOffset = 0;
+            contentElement.style.transform = 'translateY(0)';
+            return;
+          }
+
+          dragOffset = deltaY;
+          contentElement.style.transform = `translateY(${deltaY}px)`;
+          event.preventDefault();
+        },
+        { passive: false }
+      );
+
+      const finishDrag = (): void => {
+        if (!isDragging) return;
+
+        isDragging = false;
+        contentElement.classList.remove('is-dragging');
+
+        if (dragOffset >= DISMISS_THRESHOLD) {
           closeModal();
+          return;
         }
-      });
+
+        resetSheetTransform();
+        dragOffset = 0;
+      };
+
+      contentElement.addEventListener('touchend', finishDrag, { passive: true });
+      contentElement.addEventListener('touchcancel', finishDrag, { passive: true });
     }
-    
-    // Close on Escape key
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && modal && modal.getAttribute('aria-hidden') === 'false') {
+
+    closeBtn.addEventListener('click', () => closeModal());
+    backdrop.addEventListener('click', () => closeModal());
+
+    toggleBtn?.addEventListener('click', () => {
+      if (isOpen()) {
+        closeModal();
+      } else {
+        openModal();
+      }
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && isOpen()) {
         closeModal();
       }
     });
+
+    window.addEventListener('popstate', () => {
+      if (skipHistorySync) {
+        skipHistorySync = false;
+        return;
+      }
+
+      if (isOpen()) {
+        closeModal(true);
+      }
+    });
+
+    setupSwipeDismiss();
   })();
 </script>

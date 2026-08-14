@@ -143,6 +143,130 @@ export function getSkillIconConfig(skillName: string): ExperienceTechIconConfig 
   return getTechIconById(iconId) || null;
 }
 
+const LOCALIZED_TECH_DOCS: Partial<Record<string, { en: string; es: string }>> = {
+  javascript: {
+    en: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript',
+    es: 'https://developer.mozilla.org/es/docs/Web/JavaScript',
+  },
+  typescript: {
+    en: 'https://www.typescriptlang.org/docs/',
+    es: 'https://www.typescriptlang.org/docs/',
+  },
+  swift: {
+    en: 'https://docs.swift.org/swift-book/documentation/the-swift-programming-language/',
+    es: 'https://docs.swift.org/swift-book/documentation/the-swift-programming-language/',
+  },
+  kotlin: {
+    en: 'https://kotlinlang.org/docs/home.html',
+    es: 'https://kotlinlang.org/docs/home.html',
+  },
+  firebase: {
+    en: 'https://firebase.google.com/docs',
+    es: 'https://firebase.google.com/docs?hl=es-419',
+  },
+  jest: {
+    en: 'https://jestjs.io/docs/getting-started',
+    es: 'https://jestjs.io/es/docs/getting-started',
+  },
+  graphql: {
+    en: 'https://graphql.org/learn/',
+    es: 'https://graphql.org/learn/',
+  },
+  'aws-amplify': {
+    en: 'https://docs.amplify.aws/',
+    es: 'https://docs.amplify.aws/es/',
+  },
+  'aws-cognito': {
+    en: 'https://docs.aws.amazon.com/cognito/',
+    es: 'https://docs.aws.amazon.com/es_es/cognito/',
+  },
+  'aws-s3': {
+    en: 'https://docs.aws.amazon.com/AmazonS3/latest/userguide/',
+    es: 'https://docs.aws.amazon.com/es_es/AmazonS3/latest/userguide/',
+  },
+  'android-studio': {
+    en: 'https://developer.android.com/studio/intro',
+    es: 'https://developer.android.com/studio/intro?hl=es-419',
+  },
+  'google-play-console': {
+    en: 'https://support.google.com/googleplay/android-developer/',
+    es: 'https://support.google.com/googleplay/android-developer/?hl=es',
+  },
+  xcode: {
+    en: 'https://developer.apple.com/documentation/xcode',
+    es: 'https://developer.apple.com/documentation/xcode',
+  },
+  'app-store-connect': {
+    en: 'https://developer.apple.com/help/app-store-connect/',
+    es: 'https://developer.apple.com/help/app-store-connect/',
+  },
+  auth0: {
+    en: 'https://auth0.com/docs',
+    es: 'https://auth0.com/docs/es',
+  },
+  okta: {
+    en: 'https://developer.okta.com/docs/',
+    es: 'https://developer.okta.com/docs/',
+  },
+};
+
+type SoftSkillDocKey = 'leadership' | 'async' | 'scrum' | 'kanban' | 'prReview';
+
+const SOFT_SKILL_DOC_KEYS: Record<string, SoftSkillDocKey> = {
+  'proven team leadership': 'leadership',
+  'liderazgo de equipo comprobado': 'leadership',
+  'asynchronous communication': 'async',
+  'comunicación asíncrona': 'async',
+  SCRUM: 'scrum',
+  scrum: 'scrum',
+  kanban: 'kanban',
+  KANBAN: 'kanban',
+  'code review': 'prReview',
+  "revisión de PR's": 'prReview',
+};
+
+const SOFT_SKILL_DOC_URLS: Record<SoftSkillDocKey, { en: string; es: string }> = {
+  leadership: {
+    en: 'https://www.atlassian.com/team-playbook/plays/team-health-monitor',
+    es: 'https://www.atlassian.com/es/team-playbook/plays/team-health-monitor',
+  },
+  async: {
+    en: 'https://about.gitlab.com/company/culture/all-remote/asynchronous/',
+    es: 'https://about.gitlab.com/es/company/culture/all-remote/asynchronous/',
+  },
+  scrum: {
+    en: 'https://scrumguides.org/scrum-guide.html',
+    es: 'https://scrumguides.org/scrum-guide.html',
+  },
+  kanban: {
+    en: 'https://kanban.university/kanban-guide/',
+    es: 'https://kanban.university/kanban-guide/',
+  },
+  prReview: {
+    en: 'https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/reviewing-changes-in-pull-requests',
+    es: 'https://docs.github.com/es/pull-requests/collaborating-with-pull-requests/reviewing-changes-in-pull-requests',
+  },
+};
+
+/** Official documentation URL for a hard skill, localized when available. */
+export function getSkillDocHref(skillName: string, lang: 'es' | 'en'): string | null {
+  const iconConfig = getSkillIconConfig(skillName);
+  if (!iconConfig) return null;
+
+  const iconId = skillToIconIdMap[skillName];
+  const localized = iconId ? LOCALIZED_TECH_DOCS[iconId] : undefined;
+  if (localized) return localized[lang];
+
+  return iconConfig.href ?? null;
+}
+
+/** Official documentation URL for a soft skill badge. */
+export function getSoftSkillDocUrl(skillLabel: string, lang: 'es' | 'en'): string | null {
+  const key = SOFT_SKILL_DOC_KEYS[skillLabel];
+  if (!key) return null;
+  return SOFT_SKILL_DOC_URLS[key][lang];
+}
+
 /**
  * Get all skill icon configurations for an array of skill names
  */
@@ -371,7 +495,7 @@ export const skillsDataES: SkillsData = {
     'comunicación asíncrona',
     'SCRUM',
     'kanban',
-    'revisión de código',
+    "revisión de PR's",
   ],
   languages: [
     { name: 'Español', level: 'Nativo' },
