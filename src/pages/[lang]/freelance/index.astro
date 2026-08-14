@@ -1,0 +1,101 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import FreelanceEntry from '@/components/FreelanceEntry.astro';
+import FreelanceBackButton from '@/components/FreelanceBackButton.astro';
+import Reveal from '@/components/Reveal.astro';
+import { getTranslations, type Language } from '@/i18n/translations';
+import { getFreelanceEntries } from '@/lib/freelance-data';
+
+const { lang } = Astro.params as { lang: Language };
+
+if (!['es', 'en'].includes(lang)) {
+  return Astro.redirect('/es/freelance');
+}
+
+const t = getTranslations(lang);
+const fromParam = Astro.url.searchParams.get('from');
+const freelanceEntries = getFreelanceEntries(lang);
+---
+
+<BaseLayout
+  title={t.freelance.title}
+  description={t.freelance.description}
+  lang={lang}
+>
+  <div class="freelance-container">
+    <FreelanceBackButton lang={lang} fromParam={fromParam} />
+
+    <Reveal>
+      <header class="freelance-header">
+        <h1 class="freelance-heading">{t.freelance.heading}</h1>
+        <p class="freelance-intro">{t.freelance.intro}</p>
+        <p class="freelance-note">{t.freelance.portfolioNote}</p>
+      </header>
+    </Reveal>
+
+    <div class="freelance-list freelance-list-animate">
+      {freelanceEntries.map((entry) => (
+        <FreelanceEntry entry={entry} lang={lang} />
+      ))}
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .freelance-container {
+    margin-top: 1rem;
+    padding-bottom: 4rem;
+    max-width: 900px;
+  }
+
+  .freelance-header {
+    margin-bottom: 3rem;
+  }
+
+  .freelance-heading {
+    font-family: var(--font-family-sans);
+    font-size: 3rem;
+    font-weight: 700;
+    text-transform: lowercase;
+    margin-bottom: 1.25rem;
+    line-height: 1.1;
+  }
+
+  @media (min-width: 768px) {
+    .freelance-heading {
+      font-size: 3.75rem;
+    }
+  }
+
+  .freelance-intro {
+    font-size: 1.125rem;
+    line-height: 1.7;
+    opacity: 0.9;
+    max-width: 42rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .freelance-note {
+    font-family: var(--font-family-sans);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    opacity: 0.65;
+  }
+
+  .freelance-list-animate {
+    animation: slideUpFromBottom 0.8s ease-out 0.2s both;
+  }
+
+  @keyframes slideUpFromBottom {
+    from {
+      opacity: 0;
+      transform: translateY(40px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>

@@ -24,6 +24,9 @@ const switcherPath = currentPath.replace(`/${lang}/`, `/${otherLang}/`);
 
 const bioPath = `/${lang}/`;
 const experiencePath = `/${lang}/experience`;
+const freelancePath = `/${lang}/freelance`;
+const isExperienceLikePage =
+  currentPath.startsWith(experiencePath) || currentPath.startsWith(freelancePath);
 const blogPath = `/${lang}/blog`;
 const contactPath = `/${lang}/contact`;
 
@@ -95,7 +98,7 @@ if (import.meta.env.DEV) {
       <div class="nav-links">
         <a 
           href={bioPath}
-          class={`nav-link nav-link-1 hover:opacity-60 transition-opacity ${(currentPath === `/${lang}/` || currentPath === `/${lang}`) ? 'nav-link-active' : ''}`}
+          class={`nav-link nav-link-1 ${(currentPath === `/${lang}/` || currentPath === `/${lang}`) ? 'nav-link-active' : ''}`}
           aria-label={t.bio}
         >
           <span class="nav-icon" aria-hidden="true">
@@ -111,7 +114,7 @@ if (import.meta.env.DEV) {
         </a>
         <a 
           href={experiencePath}
-          class={`nav-link nav-link-2 hover:opacity-60 transition-opacity ${currentPath.startsWith(`/${lang}/experience`) ? 'nav-link-active' : ''}`}
+          class={`nav-link nav-link-2 ${currentPath.startsWith(`/${lang}/experience`) || currentPath.startsWith(`/${lang}/freelance`) ? 'nav-link-active' : ''}`}
           aria-label={t.experience}
         >
           <span class="nav-icon" aria-hidden="true">
@@ -125,7 +128,7 @@ if (import.meta.env.DEV) {
         </a>
         <a 
           href={blogPath}
-          class={`nav-link nav-link-3 hover:opacity-60 transition-opacity ${currentPath.startsWith(`/${lang}/blog`) ? 'nav-link-active' : ''}`}
+          class={`nav-link nav-link-3 ${currentPath.startsWith(`/${lang}/blog`) ? 'nav-link-active' : ''}`}
           aria-label={t.blog}
         >
           <span class="nav-icon" aria-hidden="true">
@@ -138,7 +141,7 @@ if (import.meta.env.DEV) {
         </a>
         <a 
           href={contactPath}
-          class={`nav-link nav-link-4 hover:opacity-60 transition-opacity ${currentPath.startsWith(`/${lang}/contact`) ? 'nav-link-active' : ''}`}
+          class={`nav-link nav-link-4 ${currentPath.startsWith(`/${lang}/contact`) ? 'nav-link-active' : ''}`}
           id="contact-nav-link"
           aria-label={t.contact}
         >
@@ -151,31 +154,8 @@ if (import.meta.env.DEV) {
           <span class="nav-text">{t.contact}</span>
         </a>
       </div>
-      <div id="nav-controls-glassy" class="nav-controls-glassy">
-      <div class="nav-controls">
-        <button id="theme-toggle" class="nav-control nav-control-1 theme-toggle-btn" aria-label={t.theme}>
-          <span id="theme-icon" class="theme-icon-wrapper">
-            <svg id="theme-icon-sun" class="theme-icon theme-icon-sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-              <circle cx="12" cy="12" r="4" fill="currentColor"/>
-              <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
-            </svg>
-            <svg id="theme-icon-moon" class="theme-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-            </svg>
-          </span>
-        </button>
-        <a href={switcherPath} class="nav-control nav-control-2 lang-switcher">{otherLang}</a>
-        </div>
-      </div>
     </nav>
-    <!-- Language Change Loading Indicator -->
-    <div id="language-loading" class="language-loading" style="display: none;" aria-hidden="true">
-      <div class="language-loading-spinner"></div>
-    </div>
-    <!-- Sliding door: detail content rides in one-way (R→L / T→B) -->
-    <div id="sliding-door" class="sliding-door" aria-hidden="true"></div>
-    <main class="main-content">
-      <!-- Social Links -->
+    <header class={`site-top-bar ${hideSocialLinks ? 'site-top-bar--detail' : ''}`}>
       {!hideSocialLinks && (
       <div class="social-links-container">
         <a href="https://www.linkedin.com/in/german-gomez-781040152/" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="LinkedIn">
@@ -190,11 +170,35 @@ if (import.meta.env.DEV) {
         </a>
       </div>
       )}
+      <div id="nav-controls-glassy" class="nav-controls-glassy">
+        <div class="nav-controls">
+          <button id="theme-toggle" class="nav-control nav-control-1 theme-toggle-btn" aria-label={t.theme}>
+            <span id="theme-icon" class="theme-icon-wrapper">
+              <svg id="theme-icon-sun" class="theme-icon theme-icon-sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <circle cx="12" cy="12" r="4" fill="currentColor"/>
+                <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+              </svg>
+              <svg id="theme-icon-moon" class="theme-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+              </svg>
+            </span>
+          </button>
+          <a href={switcherPath} class="nav-control nav-control-2 lang-switcher">{otherLang}</a>
+        </div>
+      </div>
+    </header>
+    <!-- Language Change Loading Indicator -->
+    <div id="language-loading" class="language-loading" style="display: none;" aria-hidden="true">
+      <div class="language-loading-spinner"></div>
+    </div>
+    <!-- Sliding door: detail content rides in one-way (R→L / T→B) -->
+    <div id="sliding-door" class="sliding-door" aria-hidden="true"></div>
+    <main class={`main-content ${hideSocialLinks ? 'main-content--detail' : ''}`}>
       <slot />
     </main>
     
     <!-- Desktop Detection Popup with QR Code -->
-    <div id="desktop-popup" class={`desktop-popup ${!isDesktopBrowser || currentPath.startsWith(`/${lang}/experience`) ? 'desktop-popup-hidden' : ''}`} role="dialog" aria-labelledby="desktop-popup-message" aria-hidden="true" data-is-desktop={isDesktopBrowser ? 'true' : 'false'}>
+    <div id="desktop-popup" class={`desktop-popup ${!isDesktopBrowser || isExperienceLikePage ? 'desktop-popup-hidden' : ''}`} role="dialog" aria-labelledby="desktop-popup-message" aria-hidden="true" data-is-desktop={isDesktopBrowser ? 'true' : 'false'}>
       <div class="desktop-popup-content">
         <button
           type="button"
@@ -234,7 +238,7 @@ if (import.meta.env.DEV) {
     </div>
     
     <!-- Recruiter Hint Popup with QR Code -->
-    {!currentPath.startsWith(`/${lang}/contact`) && !currentPath.startsWith(`/${lang}/experience`) && (
+    {!currentPath.startsWith(`/${lang}/contact`) && !isExperienceLikePage && (
       <div id="recruiter-hint-popup" class="recruiter-hint-popup" role="dialog" aria-labelledby="recruiter-hint-message" aria-hidden="true">
         <div class="recruiter-hint-popup-content">
           <p id="recruiter-hint-message" class="recruiter-hint-popup-message">
@@ -260,7 +264,7 @@ if (import.meta.env.DEV) {
       </div>
     )}
     
-    <footer class={`footer ${currentPath.startsWith(`/${lang}/experience`) ? 'footer-experience' : ''}`}>
+    <footer class={`footer ${isExperienceLikePage ? 'footer-experience' : ''}`}>
       {!hideSocialLinks && (
       <div class="social-links-container-footer">
         <a href="https://www.linkedin.com/in/german-gomez-781040152/" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="LinkedIn">
@@ -399,6 +403,28 @@ if (import.meta.env.DEV) {
           document.body.style.overflow = active ? 'hidden' : '';
         };
 
+        const resolveFreelanceReturnPath = (fallbackPath) => {
+          const stored = sessionStorage.getItem('freelanceReturnTo');
+          const pageLang = document.documentElement.lang || 'es';
+          if (stored === 'bio') return `/${pageLang}/`;
+          if (stored === 'experience') return `/${pageLang}/experience`;
+          return fallbackPath;
+        };
+
+        const patchFreelanceBackButtons = (root = document) => {
+          const stored = sessionStorage.getItem('freelanceReturnTo') || 'experience';
+          const pageLang = document.documentElement.lang || 'es';
+          const target =
+            stored === 'bio' ? `/${pageLang}/` : `/${pageLang}/experience`;
+
+          root.querySelectorAll('[data-freelance-back]').forEach((el) => {
+            el.setAttribute('href', target);
+            el.dataset.listPath = target;
+            el.dataset.experiencePath = target;
+            el.dataset.returnOrigin = stored;
+          });
+        };
+
         /** Full-page detail only (not overlay). Browser back → list */
         const setupFullPageBackGuard = () => {
           if (detailPopHandler) {
@@ -464,6 +490,7 @@ if (import.meta.env.DEV) {
             await injectPageStyles(doc);
 
             door.innerHTML = newMain.innerHTML;
+            patchFreelanceBackButtons(door);
             door.setAttribute('aria-hidden', 'false');
             door.classList.add('is-visible');
             door.scrollTop = 0;
@@ -486,15 +513,32 @@ if (import.meta.env.DEV) {
 
         document.addEventListener('click', (event) => {
           const backBtn = event.target?.closest?.('[data-sliding-door-back]');
-          if (backBtn && overlayActive) {
-            event.preventDefault();
+          if (backBtn) {
             const listPath = backBtn.dataset.listPath || backBtn.dataset.experiencePath;
-            if (history.state && history.state.slidingDoor) {
-              history.back();
-            } else {
-              openDoorOverlay(listPath);
+            const forceNavigate = backBtn.dataset.slidingDoorBackNavigate === 'true';
+
+            if (forceNavigate && listPath) {
+              event.preventDefault();
+              const targetPath = backBtn.hasAttribute('data-freelance-back')
+                ? resolveFreelanceReturnPath(listPath)
+                : listPath;
+              setOverlayUiState(false);
+              door.classList.remove('is-visible', 'is-closed');
+              door.innerHTML = '';
+              clearInjectedPageStyles();
+              window.location.assign(targetPath);
+              return;
             }
-            return;
+
+            if (overlayActive) {
+              event.preventDefault();
+              if (history.state && history.state.slidingDoor) {
+                history.back();
+              } else {
+                openDoorOverlay(listPath);
+              }
+              return;
+            }
           }
 
           const link = event.target?.closest?.('a[data-sliding-door]');
@@ -577,34 +621,33 @@ if (import.meta.env.DEV) {
         markControlsAnimated();
       }, 1200);
       
+      const hideLanguageLoading = () => {
+        const loadingIndicator = document.getElementById('language-loading');
+        if (loadingIndicator) {
+          loadingIndicator.style.display = 'none';
+        }
+        sessionStorage.removeItem('languageChanging');
+      };
+
       // Retrigger animations when language is changed (only nav-links, not controls)
       const langSwitcher = document.querySelector('.lang-switcher');
       langSwitcher?.addEventListener('click', () => {
-        // Show loading indicator
         const loadingIndicator = document.getElementById('language-loading');
         if (loadingIndicator) {
           loadingIndicator.style.display = 'flex';
         }
-        // Store flag that language is being changed
         sessionStorage.setItem('languageChanging', 'true');
       });
-      
-      // Check if language was just changed on page load
+
+      window.addEventListener('pageshow', hideLanguageLoading);
+      window.addEventListener('popstate', hideLanguageLoading);
+
       const languageChanging = sessionStorage.getItem('languageChanging');
       if (languageChanging === 'true') {
-        // Hide loading indicator
-        const loadingIndicator = document.getElementById('language-loading');
-        if (loadingIndicator) {
-          setTimeout(() => {
-            loadingIndicator.style.display = 'none';
-          }, 300);
-        }
-        // Clear the flag
-        sessionStorage.removeItem('languageChanging');
-        // Trigger animation after a short delay to ensure page is loaded
         setTimeout(() => {
+          hideLanguageLoading();
           retriggerNavAnimations();
-        }, 100);
+        }, 300);
       }
       
       // Desktop detection popup (using server-side detection from astro-useragent)
@@ -620,7 +663,7 @@ if (import.meta.env.DEV) {
         }
         
         // Don't show on experience page
-        if (window.location.pathname.includes('/experience')) {
+        if (window.location.pathname.includes('/experience') || window.location.pathname.includes('/freelance')) {
           if (import.meta.env.DEV) {
             console.log('[Desktop Popup] On experience page, skipping');
           }
@@ -702,7 +745,7 @@ if (import.meta.env.DEV) {
         }
         
         // Don't show on experience page
-        if (window.location.pathname.includes('/experience')) {
+        if (window.location.pathname.includes('/experience') || window.location.pathname.includes('/freelance')) {
           return;
         }
         
@@ -945,27 +988,26 @@ if (import.meta.env.DEV) {
       
       // Glassy effect for nav controls on scroll (mobile only)
       function setupGlassyNavControls() {
+        const topBar = document.querySelector('.site-top-bar');
         const glassyWrapper = document.getElementById('nav-controls-glassy');
-        if (!glassyWrapper) return;
+        if (!topBar && !glassyWrapper) return;
         
         let scrollTimeout: ReturnType<typeof setTimeout> | null = null;
         
         function handleScroll() {
-          if (!glassyWrapper) return;
-          
           if (window.innerWidth >= 768) {
-            // Desktop: always show (no glassy effect needed)
-            glassyWrapper.classList.remove('scrolled');
+            topBar?.classList.remove('scrolled');
+            glassyWrapper?.classList.remove('scrolled');
             return;
           }
           
-          // Mobile: show glassy effect when scrolled
           const scrollY = window.scrollY || document.documentElement.scrollTop;
-          if (scrollY > 50) {
-            glassyWrapper.classList.add('scrolled');
-          } else {
-            glassyWrapper.classList.remove('scrolled');
-          }
+          const door = document.getElementById('sliding-door');
+          const doorScrollY = door?.classList.contains('is-closed') ? door.scrollTop : 0;
+          const isScrolled = scrollY > 24 || doorScrollY > 24;
+
+          topBar?.classList.toggle('scrolled', isScrolled);
+          glassyWrapper?.classList.toggle('scrolled', isScrolled);
         }
         
         // Initial check
@@ -978,6 +1020,8 @@ if (import.meta.env.DEV) {
           }
           scrollTimeout = setTimeout(handleScroll, 10);
         }, { passive: true });
+
+        document.getElementById('sliding-door')?.addEventListener('scroll', handleScroll, { passive: true });
         
         // Handle resize
         window.addEventListener('resize', handleScroll, { passive: true });
@@ -993,6 +1037,46 @@ if (import.meta.env.DEV) {
         document.addEventListener('DOMContentLoaded', setupGlassyNavControls);
       } else {
         setupGlassyNavControls();
+      }
+
+      function scrollToTop() {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        document.getElementById('sliding-door')?.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
+      if (!document.documentElement.dataset.scrollToTopInit) {
+        document.documentElement.dataset.scrollToTopInit = 'true';
+
+        document.addEventListener('click', (event) => {
+          const target = event.target;
+          if (!(target instanceof Element)) return;
+
+          const activeNav = target.closest('.nav-link.nav-link-active');
+          if (activeNav instanceof HTMLAnchorElement) {
+            const href = activeNav.getAttribute('href');
+            if (href) {
+              const targetPath = new URL(href, window.location.origin).pathname;
+              if (targetPath === window.location.pathname) {
+                event.preventDefault();
+                scrollToTop();
+                return;
+              }
+            }
+          }
+
+          if (target.closest('#theme-toggle')) {
+            if ((window.scrollY || document.documentElement.scrollTop) > 0) {
+              scrollToTop();
+            }
+            return;
+          }
+
+          if (target.closest('.site-top-bar') && !target.closest('a[target="_blank"]') && !target.closest('.lang-switcher')) {
+            if ((window.scrollY || document.documentElement.scrollTop) > 0) {
+              scrollToTop();
+            }
+          }
+        });
       }
     </script>
   </body>
@@ -1100,13 +1184,65 @@ if (import.meta.env.DEV) {
   }
   
   .nav-controls-glassy {
-    position: fixed;
-    top: 1.5rem;
-    right: 1rem;
-    left: auto;
-    z-index: 100;
-    padding: 0.5rem;
+    position: static;
+    z-index: 1;
+    padding: 0;
     border-radius: 0.75rem;
+  }
+
+  .site-top-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 101;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    min-height: 3.5rem;
+    padding:
+      max(1rem, env(safe-area-inset-top))
+      max(1rem, env(safe-area-inset-right))
+      0.875rem
+      max(1rem, env(safe-area-inset-left));
+    pointer-events: none;
+  }
+
+  @media (max-width: 767px) {
+    .site-top-bar {
+      background-color: color-mix(in srgb, var(--color-nav-bg) 42%, transparent);
+      backdrop-filter: blur(14px) saturate(1.5);
+      -webkit-backdrop-filter: blur(14px) saturate(1.5);
+      border-bottom: 1px solid color-mix(in srgb, var(--color-text) 8%, transparent);
+      transition: background-color 0.3s ease, border-color 0.3s ease;
+    }
+
+    [data-theme="dark"] .site-top-bar {
+      background-color: color-mix(in srgb, var(--color-nav-bg) 38%, transparent);
+      border-bottom-color: color-mix(in srgb, var(--color-text) 10%, transparent);
+    }
+
+    .site-top-bar.scrolled,
+    .site-top-bar.site-top-bar--detail {
+      background-color: color-mix(in srgb, var(--color-nav-bg) 58%, transparent);
+      border-bottom-color: color-mix(in srgb, var(--color-accent) 22%, transparent);
+      box-shadow: 0 4px 16px color-mix(in srgb, var(--color-accent) 12%, transparent);
+    }
+
+    [data-theme="dark"] .site-top-bar.scrolled,
+    [data-theme="dark"] .site-top-bar.site-top-bar--detail {
+      background-color: color-mix(in srgb, var(--color-nav-bg) 52%, transparent);
+      box-shadow: 0 4px 16px rgba(0, 255, 136, 0.12);
+    }
+  }
+
+  .site-top-bar > * {
+    pointer-events: auto;
+  }
+
+  .site-top-bar:not(:has(.social-links-container)) {
+    justify-content: flex-end;
   }
   
   .nav-controls-glassy::before {
@@ -1221,12 +1357,22 @@ if (import.meta.env.DEV) {
       gap: 0;
     }
     
+    .site-top-bar {
+      display: contents;
+    }
+
     .nav-controls-glassy {
-      position: static;
+      position: fixed;
       top: auto;
       right: auto;
-      left: auto;
-      padding: 0.5rem;
+      left: 0;
+      bottom: 2rem;
+      width: 4rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0;
+      z-index: 101;
     }
     
     .nav-controls-glassy::before {
@@ -1257,6 +1403,7 @@ if (import.meta.env.DEV) {
     margin-left: 0;
     margin-right: 0;
     padding: 1.5rem;
+    padding-top: calc(max(1rem, env(safe-area-inset-top)) + 5.25rem);
     padding-bottom: 5rem;
     min-height: 100vh;
     background-color: var(--color-bg);
@@ -1265,12 +1412,23 @@ if (import.meta.env.DEV) {
     max-width: 100%;
     box-sizing: border-box;
   }
+
+  @media (max-width: 767px) {
+    .main-content--detail {
+      padding-top: calc(max(1rem, env(safe-area-inset-top)) + 5.75rem);
+    }
+
+    .main-content--detail .back-button {
+      margin-top: 0.25rem;
+    }
+  }
   
   @media (min-width: 768px) {
     .main-content {
       margin-left: 4rem;
       margin-right: 0;
       padding: 3rem;
+      padding-top: 3rem;
       padding-bottom: 3rem;
       width: calc(100% - 4rem);
       max-width: none;
@@ -1286,11 +1444,35 @@ if (import.meta.env.DEV) {
     font-size: 1rem;
     letter-spacing: 0.05em;
     text-transform: lowercase;
-    font-weight: 700;
-    color: var(--color-accent);
+    font-weight: 600;
+    color: var(--color-text);
+    opacity: 0.38;
     text-decoration: none;
     position: relative;
-    transition: all 0.2s ease;
+    transition: color 0.2s ease, opacity 0.2s ease, transform 0.2s ease;
+    min-width: 3.25rem;
+    padding: 0.25rem 0.35rem 0.15rem;
+  }
+
+  .nav-link .nav-icon {
+    color: var(--color-text);
+    opacity: 0.55;
+    transition: color 0.2s ease, opacity 0.2s ease, filter 0.2s ease;
+  }
+
+  .nav-link .nav-text {
+    color: var(--color-text);
+    opacity: 0.55;
+    transition: color 0.2s ease, opacity 0.2s ease;
+  }
+
+  .nav-link:hover:not(.nav-link-active) {
+    opacity: 0.62;
+  }
+
+  .nav-link:hover:not(.nav-link-active) .nav-icon,
+  .nav-link:hover:not(.nav-link-active) .nav-text {
+    opacity: 0.72;
   }
   
   /* Mobile-first: icon + label in the bottom tab bar */
@@ -1318,16 +1500,23 @@ if (import.meta.env.DEV) {
     justify-content: center;
   }
   
-  /* Active nav link - Mobile: Elevated + color change + icon glow */
+  /* Active nav link - Mobile: accent + indicator + elevation */
   .nav-link-active {
+    opacity: 1;
     transform: translateY(-4px);
-    color: var(--color-text);
+    color: var(--color-accent);
   }
-  
+
   .nav-link-active .nav-icon {
     color: var(--color-accent);
+    opacity: 1;
     filter: drop-shadow(0 0 6px var(--color-accent));
-    animation: textGlow 2s ease-in-out infinite;
+  }
+
+  .nav-link-active .nav-text {
+    color: var(--color-accent);
+    opacity: 1;
+    font-weight: 700;
   }
   
   @keyframes arrowPulseDesktop {
@@ -1354,6 +1543,14 @@ if (import.meta.env.DEV) {
   @media (min-width: 768px) {
     .nav-link {
       font-size: 0.875rem;
+      opacity: 0.55;
+      min-width: auto;
+      padding: 0;
+    }
+
+    .nav-link .nav-icon,
+    .nav-link .nav-text {
+      opacity: 1;
     }
     
     /* Desktop: text labels in the vertical sidebar, no icons */
@@ -1381,6 +1578,16 @@ if (import.meta.env.DEV) {
     
     .nav-link-active {
       transform: translateX(4px);
+      opacity: 1;
+      color: var(--color-text);
+    }
+
+    .nav-link-active .nav-icon {
+      color: var(--color-text);
+      filter: none;
+    }
+
+    .nav-link-active .nav-text {
       color: var(--color-text);
     }
     
@@ -1494,31 +1701,24 @@ if (import.meta.env.DEV) {
   }
   
   .social-links-container {
-    position: absolute;
-    top: 1.5rem;
-    left: 1rem;
-    display: none; /* Hide on mobile */
+    position: static;
+    display: flex;
+    align-items: center;
     gap: 1rem;
-    z-index: 50;
+    z-index: 1;
   }
-  
+
   @media (min-width: 768px) {
     .social-links-container {
-      display: flex; /* Show on desktop */
+      position: fixed;
+      top: 1.5rem;
+      left: calc(4rem + 1.5rem);
+      z-index: 50;
     }
   }
   
   .social-links-container-footer {
-    display: flex;
-    justify-content: center;
-    gap: 1rem;
-    margin-bottom: 1rem;
-  }
-  
-  @media (min-width: 768px) {
-    .social-links-container-footer {
-      display: none; /* Hide on desktop */
-    }
+    display: none;
   }
   
   .social-link {

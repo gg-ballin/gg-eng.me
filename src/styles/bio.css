@@ -22,6 +22,30 @@
   [data-theme="dark"] .bio-cta:hover {
     box-shadow: 0 4px 20px rgba(0, 255, 136, 0.4);
   }
+
+  .bio-freelance-cta {
+    display: inline-flex;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding: 0.75rem 1.25rem;
+    font-family: var(--font-family-sans);
+    font-size: 0.875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-accent);
+    text-decoration: none;
+    border: 2px solid var(--color-accent);
+    background-color: transparent;
+    transition: all 0.2s ease;
+  }
+
+  .bio-freelance-cta:hover {
+    background-color: var(--color-accent);
+    color: var(--color-bg);
+    transform: translate(2px, -2px);
+    box-shadow: -2px 2px 0 var(--color-text);
+  }
   
   .bio-dots {
     position: absolute;

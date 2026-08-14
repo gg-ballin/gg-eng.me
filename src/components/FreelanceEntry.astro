@@ -1,0 +1,307 @@
+---
+import type { FreelanceEntry } from '@/lib/freelance-data';
+import SkillIconLink from './SkillIconLink.astro';
+import PlatformBadge from './PlatformBadge.astro';
+import { getFreelanceSkillIconConfigs } from '@/lib/freelance-data';
+import { getEmployerLogo } from '@/lib/experience/employers';
+import { getTranslations, type Language } from '@/i18n/translations';
+import { getRelativeLocaleUrl } from 'astro:i18n';
+
+interface Props {
+  entry: FreelanceEntry;
+  lang: Language;
+}
+
+const { entry, lang } = Astro.props;
+const t = getTranslations(lang).freelance;
+const employerLogo = getEmployerLogo(entry.slug) ?? getEmployerLogo(entry.company);
+const isHighlighted = entry.highlight === true;
+const detailPath = getRelativeLocaleUrl(lang, `freelance/${entry.slug}`);
+---
+
+<article class="freelance-entry">
+  <div class="freelance-date">{entry.dateRange}</div>
+  <div class={`freelance-content ${isHighlighted ? 'freelance-content-highlighted' : ''}`}>
+    {isHighlighted && (
+      <div class="highlight-badge">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+        </svg>
+      </div>
+    )}
+    <h3 class="freelance-role">{entry.role}</h3>
+    <div class="freelance-company-wrapper">
+      {employerLogo && (
+        <div class="employer-logo-container">
+          {employerLogo.iconDark && !employerLogo.isPng ? (
+            <>
+              <img
+                src={employerLogo.iconLight}
+                alt={employerLogo.name}
+                class="employer-logo employer-logo-light"
+                width={employerLogo.width || 100}
+                height="auto"
+              />
+              <img
+                src={employerLogo.iconDark}
+                alt={employerLogo.name}
+                class="employer-logo employer-logo-dark"
+                width={employerLogo.width || 100}
+                height="auto"
+              />
+            </>
+          ) : (
+            <img
+              src={employerLogo.iconLight}
+              alt={employerLogo.name}
+              class="employer-logo"
+              width={employerLogo.width || 100}
+              height="auto"
+            />
+          )}
+        </div>
+      )}
+      <div class="freelance-meta-row">
+        <p class="freelance-company">{entry.company}</p>
+        <div class="platform-badges">
+          {entry.platforms.map((platform) => (
+            <PlatformBadge platform={platform} lang={lang} />
+          ))}
+        </div>
+      </div>
+    </div>
+    <p class="freelance-description">{entry.description}</p>
+
+    {entry.skills.length > 0 && (
+      <div class="freelance-skills">
+        {entry.skills.map((skill) => {
+          const iconConfig = getFreelanceSkillIconConfigs([skill])[0];
+          if (iconConfig) {
+            return <SkillIconLink iconConfig={iconConfig} />;
+          }
+          return <span class="skill-tag">{skill}</span>;
+        })}
+      </div>
+    )}
+
+    <span class="view-detail-cta" aria-hidden="true">
+      {t.viewDetail}
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+        <path d="M5 12h14M13 6l6 6-6 6"/>
+      </svg>
+    </span>
+
+    <a href={detailPath} class="freelance-card-link" data-sliding-door aria-label={`${entry.role} @ ${entry.company}`}></a>
+  </div>
+</article>
+
+<style>
+  .freelance-entry {
+    margin-bottom: 3rem;
+    position: relative;
+    padding-left: 2rem;
+  }
+
+  .freelance-entry:last-child {
+    margin-bottom: 0;
+  }
+
+  .freelance-date {
+    font-family: var(--font-family-sans);
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    margin-bottom: 1rem;
+    color: var(--color-accent);
+    opacity: 0.8;
+  }
+
+  .freelance-content {
+    border: 3px solid var(--color-text);
+    padding: 1.5rem;
+    background-color: var(--timeline-item-bg);
+    transition: all 0.2s ease;
+    position: relative;
+  }
+
+  .freelance-content:hover {
+    transform: translate(4px, -4px);
+    box-shadow: -4px 4px 0 var(--color-accent);
+  }
+
+  .freelance-content-highlighted {
+    border: 3px solid var(--color-text);
+    position: relative;
+    background: var(--timeline-item-bg);
+  }
+
+  .freelance-content-highlighted:hover {
+    transform: translate(4px, -4px);
+    box-shadow:
+      0 0 20px rgba(0, 255, 136, 0.4),
+      0 0 40px rgba(0, 255, 136, 0.3);
+  }
+
+  .highlight-badge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    z-index: 10;
+    color: var(--color-accent);
+    animation: starPulse 2s ease-in-out infinite;
+    filter: drop-shadow(0 0 4px currentColor);
+  }
+
+  @keyframes starPulse {
+    0%, 100% {
+      transform: scale(1) rotate(0deg);
+      opacity: 1;
+    }
+    50% {
+      transform: scale(1.1) rotate(180deg);
+      opacity: 0.9;
+    }
+  }
+
+  .freelance-role {
+    font-family: var(--font-family-serif);
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 0.5rem;
+    padding-right: 2rem;
+  }
+
+  .freelance-company-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .employer-logo-container {
+    display: flex;
+    align-items: center;
+    position: relative;
+    z-index: 2;
+  }
+
+  .employer-logo {
+    display: inline-block;
+    max-width: 100%;
+    height: auto;
+    object-fit: contain;
+  }
+
+  .freelance-meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .freelance-company {
+    font-family: var(--font-family-sans);
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    opacity: 0.8;
+    margin: 0;
+  }
+
+  .platform-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+  }
+
+  .freelance-description {
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+    opacity: 0.9;
+  }
+
+  .freelance-skills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+    z-index: 2;
+  }
+
+  .freelance-card-link {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+  }
+
+  .view-detail-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-family: var(--font-family-sans);
+    font-size: 0.8125rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-accent);
+  }
+
+  .view-detail-cta svg {
+    transition: transform 0.2s ease;
+  }
+
+  .freelance-content:hover .view-detail-cta svg {
+    transform: translateX(4px);
+  }
+
+  .skill-tag {
+    font-family: var(--font-family-sans);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.375rem 0.75rem;
+    border: 2px solid var(--color-text);
+    background-color: var(--color-bg);
+    color: var(--color-text);
+  }
+
+  @media (max-width: 768px) {
+    .freelance-entry {
+      padding-left: 1.5rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .freelance-content {
+      padding: 1.25rem;
+    }
+
+    .freelance-role {
+      font-size: 1.25rem;
+    }
+  }
+</style>
+
+<style is:global>
+  [data-theme='dark'] .freelance-entry .employer-logo-light {
+    display: none !important;
+  }
+
+  [data-theme='dark'] .freelance-entry .employer-logo-dark {
+    display: inline-block !important;
+  }
+
+  [data-theme='light'] .freelance-entry .employer-logo-light,
+  :root:not([data-theme='dark']) .freelance-entry .employer-logo-light {
+    display: inline-block !important;
+  }
+
+  [data-theme='light'] .freelance-entry .employer-logo-dark,
+  :root:not([data-theme='dark']) .freelance-entry .employer-logo-dark {
+    display: none !important;
+  }
+</style>

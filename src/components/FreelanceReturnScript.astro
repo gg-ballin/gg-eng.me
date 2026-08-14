@@ -1,0 +1,58 @@
+---
+import type { Language } from '@/i18n/translations';
+import { getFreelanceBackLabel, getReturnPathForOrigin, FREELANCE_RETURN_KEY } from '@/lib/freelance-navigation';
+
+interface Props {
+  lang: Language;
+  fromParam?: string | null;
+}
+
+const { lang, fromParam = null } = Astro.props;
+
+const labels = {
+  bio: getFreelanceBackLabel(lang, 'bio'),
+  experience: getFreelanceBackLabel(lang, 'experience'),
+};
+
+const paths = {
+  bio: getReturnPathForOrigin(lang, 'bio'),
+  experience: getReturnPathForOrigin(lang, 'experience'),
+};
+---
+
+<script define:vars={{ fromParam, labels, paths, storageKey: FREELANCE_RETURN_KEY }}>
+  function applyFreelanceReturn(origin) {
+    if (origin !== 'bio' && origin !== 'experience') return;
+
+    sessionStorage.setItem(storageKey, origin);
+
+    const returnPath = paths[origin];
+    const label = labels[origin];
+
+    document.querySelectorAll('[data-freelance-back]').forEach((el) => {
+      el.setAttribute('href', returnPath);
+      el.dataset.listPath = returnPath;
+      el.dataset.experiencePath = returnPath;
+      el.dataset.returnOrigin = origin;
+
+      const labelEl = el.querySelector('[data-freelance-back-label]');
+      if (labelEl) {
+        labelEl.textContent = `← ${label}`;
+      }
+    });
+  }
+
+  const urlFrom = new URLSearchParams(window.location.search).get('from');
+  const paramFrom = fromParam || urlFrom;
+
+  if (paramFrom === 'bio' || paramFrom === 'experience') {
+    applyFreelanceReturn(paramFrom);
+  } else {
+    const stored = sessionStorage.getItem(storageKey);
+    if (stored === 'bio' || stored === 'experience') {
+      applyFreelanceReturn(stored);
+    } else {
+      applyFreelanceReturn('experience');
+    }
+  }
+</script>

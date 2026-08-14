@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import ContactForm from '@/components/ContactForm.astro';
-import Reveal from '@/components/Reveal';
+import Reveal from '@/components/Reveal.astro';
 import { getTranslations, type Language } from '@/i18n/translations';
 
 const { lang } = Astro.params as { lang: Language };
@@ -20,7 +20,7 @@ const t = getTranslations(lang);
   lang={lang}
 >
   <div class="max-w-4xl contact-container">
-    <Reveal client:load>
+    <Reveal>
       <h1 class="text-5xl md:text-6xl page-title mt-10" style="text-transform: lowercase;">{t.contact.heading}</h1>
     </Reveal>
     

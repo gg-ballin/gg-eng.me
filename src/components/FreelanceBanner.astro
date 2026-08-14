@@ -1,0 +1,65 @@
+---
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import { appendFreelanceOrigin } from '@/lib/freelance-navigation';
+import type { Language } from '@/i18n/translations';
+import { getTranslations } from '@/i18n/translations';
+
+interface Props {
+  lang: Language;
+}
+
+const { lang } = Astro.props;
+const t = getTranslations(lang).freelance;
+const freelancePath = appendFreelanceOrigin(getRelativeLocaleUrl(lang, 'freelance'), 'experience');
+---
+
+<a href={freelancePath} class="freelance-banner">
+  <span class="freelance-banner-label">{t.bannerLabel}</span>
+  <span class="freelance-banner-text">{t.bannerText}</span>
+  <span class="freelance-banner-arrow" aria-hidden="true">→</span>
+</a>
+
+<style>
+  .freelance-banner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 1rem;
+    margin-bottom: 2.5rem;
+    padding: 1rem 1.25rem;
+    border: 2px solid var(--color-accent);
+    background-color: var(--timeline-item-bg);
+    color: var(--color-text);
+    text-decoration: none;
+    transition: all 0.2s ease;
+    max-width: 42rem;
+  }
+
+  .freelance-banner:hover {
+    transform: translate(2px, -2px);
+    box-shadow: -2px 2px 0 var(--color-accent);
+  }
+
+  .freelance-banner-label {
+    font-family: var(--font-family-sans);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--color-accent);
+  }
+
+  .freelance-banner-text {
+    font-family: var(--font-family-sans);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    flex: 1;
+    min-width: 12rem;
+  }
+
+  .freelance-banner-arrow {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--color-accent);
+  }
+</style>

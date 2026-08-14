@@ -1,10 +1,11 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import FreelanceBanner from '@/components/FreelanceBanner.astro';
 import ExperienceEntry from '@/components/ExperienceEntry.astro';
 import SkillsSection from '@/components/SkillsSection.astro';
 import LanguagesSection from '@/components/LanguagesSection.astro';
 import SkillsModal from '@/components/SkillsModal.astro';
-import Reveal from '@/components/Reveal';
+import Reveal from '@/components/Reveal.astro';
 import { getTranslations, type Language } from '@/i18n/translations';
 import { getExperienceEntries, getSkillsData, getCategoryDisplayName } from '@/lib/experience-data';
 import type { ExperienceTechCategory } from '@/lib/experience/technologies';
@@ -32,9 +33,11 @@ const categoriesWithSkills = (Object.keys(skillsData.hardSkillsByCategory) as Ex
   lang={lang}
 >
   <div class="experience-container">
-    <Reveal client:load>
-      <h1 class="text-5xl md:text-6xl font-bold mb-16 mt-10 max-w-4xl" style="font-family: var(--font-family-sans); text-transform: lowercase;">{t.experience.heading}</h1>
+    <Reveal>
+      <h1 class="text-5xl md:text-6xl font-bold mb-8 mt-10 max-w-4xl" style="font-family: var(--font-family-sans); text-transform: lowercase;">{t.experience.heading}</h1>
     </Reveal>
+
+    <FreelanceBanner lang={lang} />
     
     <div class="experience-layout">
       <!-- Left Column: Experience Timeline -->

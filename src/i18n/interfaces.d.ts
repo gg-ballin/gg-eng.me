@@ -47,11 +47,13 @@ export interface Translations {
         cloudflareKV: string;
         github: string;
         npm: string;
+        bun: string;
         cursor: string;
       };
       whyWebpage: string;
       mobileVsWeb: string;
     };
+    freelanceCta: string;
   };
   
   // Year Progress
@@ -76,10 +78,31 @@ export interface Translations {
     softSkills: string;
     languages: string;
     downloadCv: string;
-    projectDeepDives: string;
+    detail: string;
     freelanceBadge: string;
     backToExperience: string;
     viewDetail: string;
+  };
+
+  // Freelance
+  freelance: {
+    title: string;
+    description: string;
+    heading: string;
+    intro: string;
+    portfolioNote: string;
+    detail: string;
+    viewDetail: string;
+    backToFreelance: string;
+    backToBio: string;
+    bannerLabel: string;
+    bannerText: string;
+    bioCta: string;
+    platforms: {
+      web: string;
+      ios: string;
+      android: string;
+    };
   };
   
   // Contact

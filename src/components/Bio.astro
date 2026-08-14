@@ -1,6 +1,8 @@
 ---
 import { getTranslations, type Language } from '../i18n/translations';
-import Reveal from './Reveal';
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import { appendFreelanceOrigin } from '@/lib/freelance-navigation';
+import Reveal from './Reveal.astro';
 import YearProgress from './YearProgress';
 import TechIconLink from './TechIconLink.astro';
 import { TECH_ICONS, type TechCategory } from '../lib/tech-icons';
@@ -13,6 +15,7 @@ interface Props {
 
 const { lang } = Astro.props;
 const t = getTranslations(lang).bio;
+const freelancePath = appendFreelanceOrigin(getRelativeLocaleUrl(lang, 'freelance'), 'bio');
 
 // Parse markdown - content is from trusted translations, no sanitization needed
 const descriptionHtml = marked.parse(t.description, { breaks: true }) as string;
@@ -23,14 +26,14 @@ const descriptionHtml = marked.parse(t.description, { breaks: true }) as string;
   <div class="bio-dots" aria-hidden="true"></div>
   
   <div class="bio-content-wrapper">
-    <div class="relative z-10 mt-12 bio-main-content">
-      <Reveal client:load>
+    <div class="relative z-10 mt-8 md:mt-12 bio-main-content">
+      <Reveal>
         <h2 class="bio-title font-bold mb-8 leading-tight" style="font-family: var(--font-family-sans);">{t.name}<span class="bio-accent">.</span>
         </h2>
       </Reveal>
       
       <div style="display: flex; flex-direction: column;">
-        <Reveal client:load delay={0.2}>
+        <Reveal delay={0.2}>
           <p class="text-2xl md:text-3xl mb-12" set:html={(() => {
             const words = t.role.split(' ');
             const parts: string[] = [];
@@ -43,10 +46,16 @@ const descriptionHtml = marked.parse(t.description, { breaks: true }) as string;
           })()} />
         </Reveal>
         
-        <Reveal client:load delay={0.3}>
+        <Reveal delay={0.35}>
           <p class="text-base md:text-lg opacity-70 mb-8 md:mb-12">
             {t.location} 🇦🇷
           </p>
+        </Reveal>
+
+        <Reveal delay={0.4}>
+          <a href={freelancePath} class="bio-freelance-cta">
+            {t.freelanceCta}
+          </a>
         </Reveal>
       </div>
        
@@ -162,7 +171,7 @@ const descriptionHtml = marked.parse(t.description, { breaks: true }) as string;
         </div>
       </div>
       <div class="year-progress-wrapper year-progress-sticky">
-        <YearProgress client:load lang={lang} />
+        <YearProgress client:only="react" lang={lang} />
       </div>
     </div>
     

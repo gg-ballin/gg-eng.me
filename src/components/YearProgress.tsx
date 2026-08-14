@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import { getTranslations, type Language } from '../i18n/translations';
 
 interface YearProgressProps {
@@ -6,16 +5,6 @@ interface YearProgressProps {
 }
 
 export default function YearProgress({ lang }: YearProgressProps) {
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) {
-    return null;
-  }
-
   const t = getTranslations(lang).yearProgress;
   const now = new Date();
   const year = now.getFullYear();

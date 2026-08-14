@@ -7,11 +7,14 @@ export interface ProjectLink {
   href: string;
 }
 
-export interface ProjectDeepDive {
+export interface DetailBlock {
   name: string;
   achievements: string[];
   links?: ProjectLink[];
 }
+
+/** @deprecated Use DetailBlock */
+export type ProjectDeepDive = DetailBlock;
 
 export type EmploymentType = 'full-time' | 'freelance';
 
@@ -23,7 +26,9 @@ export interface ExperienceEntry {
   company: string;
   description: string;
   skills: string[];
-  projects?: ProjectDeepDive[];
+  details?: DetailBlock[];
+  /** @deprecated Use details */
+  projects?: DetailBlock[];
   highlight?: boolean;
   /** 'freelance' entries are web-only: shown on the site but intentionally left out of the CV PDFs */
   employmentType?: EmploymentType;

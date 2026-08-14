@@ -1,0 +1,60 @@
+---
+import type { Language } from '@/i18n/translations';
+import {
+  getFreelanceBackLabel,
+  getReturnPathForOrigin,
+  resolveFreelanceOrigin,
+} from '@/lib/freelance-navigation';
+import FreelanceReturnScript from '@/components/FreelanceReturnScript.astro';
+
+interface Props {
+  lang: Language;
+  fromParam?: string | null;
+  slidingDoor?: boolean;
+}
+
+const { lang, fromParam = null, slidingDoor = false } = Astro.props;
+const origin = resolveFreelanceOrigin(fromParam);
+const returnPath = getReturnPathForOrigin(lang, origin);
+const label = getFreelanceBackLabel(lang, origin);
+---
+
+<a
+  href={returnPath}
+  class="back-button"
+  data-freelance-back
+  data-sliding-door-back={slidingDoor || undefined}
+  data-sliding-door-back-navigate={slidingDoor ? 'true' : undefined}
+  data-list-path={returnPath}
+  data-experience-path={returnPath}
+  data-return-origin={origin}
+>
+  <span data-freelance-back-label>← {label}</span>
+</a>
+
+<FreelanceReturnScript lang={lang} fromParam={fromParam} />
+
+<style>
+  .back-button {
+    display: inline-block;
+    margin-bottom: 2rem;
+    padding: 0.75rem 1.5rem;
+    font-family: var(--font-family-sans);
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-text);
+    text-decoration: none;
+    border: 2px solid var(--color-text);
+    background-color: var(--color-bg);
+    transition: all 0.2s ease;
+  }
+
+  .back-button:hover {
+    background-color: var(--color-accent);
+    color: var(--color-bg);
+    transform: translate(2px, -2px);
+    box-shadow: -2px 2px 0 var(--color-text);
+  }
+</style>

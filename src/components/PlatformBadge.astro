@@ -1,0 +1,35 @@
+---
+import type { Platform } from '@/lib/freelance-data';
+import type { Language } from '@/i18n/translations';
+import { getTranslations } from '@/i18n/translations';
+
+interface Props {
+  platform: Platform;
+  lang: Language;
+}
+
+const { platform, lang } = Astro.props;
+const label = getTranslations(lang).freelance.platforms[platform];
+---
+
+<span class="platform-badge" data-platform={platform}>{label}</span>
+
+<style>
+  .platform-badge {
+    font-family: var(--font-family-sans);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 0.125rem 0.5rem;
+    border: 2px solid var(--color-text);
+    color: var(--color-text);
+    line-height: 1.4;
+    background-color: var(--color-bg);
+  }
+
+  .platform-badge[data-platform='web'] {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+  }
+</style>

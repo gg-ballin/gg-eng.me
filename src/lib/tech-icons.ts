@@ -12,6 +12,7 @@ export interface TechIconConfig {
     cloudflareKV: string;
     github: string;
     npm: string;
+    bun: string;
     cursor: string;
   };
   iconLight: string;
@@ -81,8 +82,8 @@ export const TECH_ICONS: Record<TechCategory, TechIconConfig[]> = {
   ],
   packageManager: [
     {
-      href: 'https://www.npmjs.com',
-      titleKey: 'npm',
+      href: 'https://bun.sh',
+      titleKey: 'bun',
       iconLight: '/assets/icons/tech/npm/Npm_logo.svg',
       showText: true,
     },

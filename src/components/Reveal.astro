@@ -1,0 +1,63 @@
+---
+import '../styles/reveal.css';
+
+interface Props {
+  delay?: number;
+}
+
+const { delay = 0 } = Astro.props;
+---
+
+<span class="reveal-root" style={`--reveal-delay: ${delay}s`} data-reveal>
+  <span class="reveal-content">
+    <slot />
+    <span class="reveal-mask" aria-hidden="true"></span>
+  </span>
+</span>
+
+<script>
+  function initReveal(root: HTMLElement) {
+    if (root.dataset.revealInit === 'true') return;
+    root.dataset.revealInit = 'true';
+
+    const mask = root.querySelector('.reveal-mask');
+    if (!mask) return;
+
+    const reveal = () => mask.classList.add('reveal-mask--active');
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      reveal();
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          reveal();
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    observer.observe(root);
+  }
+
+  function initAllReveals() {
+    document.querySelectorAll<HTMLElement>('[data-reveal]').forEach(initReveal);
+  }
+
+  initAllReveals();
+
+  window.addEventListener('themeChange', () => {
+    document.querySelectorAll<HTMLElement>('[data-reveal]').forEach((root) => {
+      const mask = root.querySelector('.reveal-mask');
+      if (!mask) return;
+      mask.classList.remove('reveal-mask--active');
+      void mask.getBoundingClientRect();
+      mask.classList.add('reveal-mask--active');
+    });
+  });
+
+  document.addEventListener('astro:page-load', initAllReveals);
+</script>

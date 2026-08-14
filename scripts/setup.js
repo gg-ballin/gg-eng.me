@@ -5,7 +5,19 @@ import { platform, arch } from 'os';
 const ARCH_FILE = '.arch-lock';
 const detectedArch = `${platform()}-${arch()}`;
 
-// Read previous architecture from .arch-lock
+const NATIVE_BINARIES = [
+  { parent: 'rollup', binary: `@rollup/rollup-${detectedArch}` },
+  { parent: 'lightningcss', binary: `lightningcss-${detectedArch}` },
+  { parent: 'esbuild', binary: `@esbuild/${detectedArch}` },
+];
+
+function findMissingNativeBinaries() {
+  return NATIVE_BINARIES.filter(
+    ({ parent, binary }) =>
+      existsSync(`node_modules/${parent}`) && !existsSync(`node_modules/${binary}`)
+  ).map(({ binary }) => binary);
+}
+
 let previousArch = null;
 if (existsSync(ARCH_FILE)) {
   previousArch = readFileSync(ARCH_FILE, 'utf-8').trim();
@@ -13,7 +25,6 @@ if (existsSync(ARCH_FILE)) {
 
 console.log(`🔍 Detected architecture: ${detectedArch}`);
 
-// Check if architecture has changed
 let needsReinstall = false;
 
 if (!previousArch) {
@@ -24,12 +35,17 @@ if (!previousArch) {
   needsReinstall = true;
 } else {
   console.log('✓ Architecture matches');
+
+  const missing = findMissingNativeBinaries();
+  if (missing.length > 0) {
+    console.log(`⚠️  Missing native binaries for ${detectedArch}: ${missing.join(', ')}`);
+    needsReinstall = true;
+  }
 }
 
-// Clean and reinstall if needed
 if (needsReinstall) {
   console.log('🧹 Cleaning node_modules...');
-  
+
   try {
     if (existsSync('node_modules')) {
       rmSync('node_modules', { recursive: true, force: true });
@@ -40,21 +56,22 @@ if (needsReinstall) {
   } catch (error) {
     console.warn('⚠️  Warning during cleanup:', error.message);
   }
-  
-  console.log(`📦 Installing dependencies for ${detectedArch} using npm...`);
-  console.log('💡 Using npm ensures correct platform-specific binaries');
-  execSync('npm install', { stdio: 'inherit' });
-  
-  // Save detected architecture
+
+  console.log(`📦 Installing dependencies for ${detectedArch} using bun...`);
+  execSync('bun install', { stdio: 'inherit' });
+
+  const stillMissing = findMissingNativeBinaries();
+  if (stillMissing.length > 0) {
+    console.error(`❌ Native binaries still missing after install: ${stillMissing.join(', ')}`);
+    process.exit(1);
+  }
+
   writeFileSync(ARCH_FILE, detectedArch);
   console.log('✅ Setup complete!');
+} else if (!existsSync('node_modules')) {
+  console.log('📦 node_modules not found, running bun install...');
+  execSync('bun install', { stdio: 'inherit' });
+  console.log('✅ Dependencies installed!');
 } else {
-  // Architecture matches - only install if node_modules is missing
-  if (!existsSync('node_modules')) {
-    console.log('📦 node_modules not found, running npm install...');
-    execSync('npm install', { stdio: 'inherit' });
-    console.log('✅ Dependencies installed!');
-  } else {
-    console.log('✅ Dependencies already installed, skipping npm install');
-  }
+  console.log('✅ Dependencies already installed, skipping bun install');
 }
