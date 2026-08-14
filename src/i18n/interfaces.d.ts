@@ -90,14 +90,22 @@ export interface Translations {
     description: string;
     heading: string;
     intro: string;
-    portfolioNote: string;
     detail: string;
     viewDetail: string;
     backToFreelance: string;
     backToBio: string;
     bannerLabel: string;
-    bannerText: string;
+    bannerDescription: string;
+    bannerCta: string;
     bioCta: string;
+    sidebarSummary: string;
+    sidebarPlatforms: string;
+    sidebarModalities: string;
+    sidebarModalitiesList: string;
+    sidebarStack: string;
+    sidebarContactCta: string;
+    sidebarProjects: string;
+    skillsMore: string;
     platforms: {
       web: string;
       ios: string;

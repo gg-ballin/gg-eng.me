@@ -156,20 +156,23 @@ if (import.meta.env.DEV) {
       </div>
     </nav>
     <header class={`site-top-bar ${hideSocialLinks ? 'site-top-bar--detail' : ''}`}>
-      {!hideSocialLinks && (
-      <div class="social-links-container">
-        <a href="https://www.linkedin.com/in/german-gomez-781040152/" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="LinkedIn">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-            <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
-          </svg>
-        </a>
-        <a href="https://github.com/gg-ballin" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="GitHub">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-          </svg>
-        </a>
+      <div class="header-context-pill" data-header-pill>
+        {!hideSocialLinks && (
+        <div class="social-links-container">
+          <a href="https://www.linkedin.com/in/german-gomez-781040152/" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="LinkedIn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+              <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+            </svg>
+          </a>
+          <a href="https://github.com/gg-ballin" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="GitHub">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+            </svg>
+          </a>
+        </div>
+        )}
+        <span class="sticky-page-title" data-sticky-title aria-hidden="true"></span>
       </div>
-      )}
       <div id="nav-controls-glassy" class="nav-controls-glassy">
         <div class="nav-controls">
           <button id="theme-toggle" class="nav-control nav-control-1 theme-toggle-btn" aria-label={t.theme}>
@@ -311,6 +314,9 @@ if (import.meta.env.DEV) {
         let listUrl = window.location.href;
         let detailPopHandler = null;
 
+        const topBar = document.querySelector('.site-top-bar');
+        const topBarIsDetailLayout = topBar?.classList.contains('site-top-bar--detail') ?? false;
+
         const waitForDoorTransition = () =>
           new Promise((resolve) => {
             if (DURATION_MS === 0) {
@@ -402,11 +408,19 @@ if (import.meta.env.DEV) {
         const setOverlayUiState = (active) => {
           overlayActive = active;
           document.documentElement.classList.toggle('sliding-door-open', active);
+          if (topBar) {
+            if (active) {
+              topBar.classList.add('site-top-bar--detail');
+            } else if (!topBarIsDetailLayout) {
+              topBar.classList.remove('site-top-bar--detail');
+            }
+          }
           if (active) {
             lockScroll('sliding-door');
           } else {
             unlockScroll('sliding-door');
           }
+          document.dispatchEvent(new CustomEvent('sliding-door:change', { detail: { active } }));
         };
 
         const resolveFreelanceReturnPath = (fallbackPath) => {
@@ -1002,16 +1016,16 @@ if (import.meta.env.DEV) {
         let scrollTimeout: ReturnType<typeof setTimeout> | null = null;
         
         function handleScroll() {
-          if (window.innerWidth >= 768) {
-            topBar?.classList.remove('scrolled');
-            glassyWrapper?.classList.remove('scrolled');
-            return;
-          }
-          
           const scrollY = window.scrollY || document.documentElement.scrollTop;
           const door = document.getElementById('sliding-door');
           const doorScrollY = door?.classList.contains('is-closed') ? door.scrollTop : 0;
           const isScrolled = scrollY > 24 || doorScrollY > 24;
+
+          if (window.innerWidth >= 768) {
+            topBar?.classList.toggle('scrolled', isScrolled);
+            glassyWrapper?.classList.remove('scrolled');
+            return;
+          }
 
           topBar?.classList.toggle('scrolled', isScrolled);
           glassyWrapper?.classList.toggle('scrolled', isScrolled);
@@ -1044,6 +1058,72 @@ if (import.meta.env.DEV) {
         document.addEventListener('DOMContentLoaded', setupGlassyNavControls);
       } else {
         setupGlassyNavControls();
+      }
+
+      function setupStickyPageTitle() {
+        const sticky = document.querySelector('[data-sticky-title]');
+        if (!sticky) return;
+
+        let headingObserver: IntersectionObserver | null = null;
+
+        const disconnectObserver = () => {
+          headingObserver?.disconnect();
+          headingObserver = null;
+        };
+
+        const bindHeadingSource = () => {
+          disconnectObserver();
+
+          const door = document.getElementById('sliding-door');
+          const doorOpen = door?.classList.contains('is-closed') ?? false;
+          const source = doorOpen
+            ? door?.querySelector('[data-page-heading]')
+            : document.querySelector('main.main-content [data-page-heading]');
+
+          if (!(source instanceof HTMLElement)) {
+            sticky.textContent = '';
+            sticky.classList.remove('is-visible');
+            sticky.setAttribute('aria-hidden', 'true');
+            document.querySelector('[data-header-pill]')?.classList.remove('header-context-pill--with-title');
+            return;
+          }
+
+          sticky.textContent = source.textContent?.trim() ?? '';
+          sticky.setAttribute('aria-hidden', 'true');
+
+          headingObserver = new IntersectionObserver(
+            ([entry]) => {
+              const visible = !entry.isIntersecting;
+              sticky.classList.toggle('is-visible', visible);
+              sticky.setAttribute('aria-hidden', visible ? 'false' : 'true');
+              document.querySelector('[data-header-pill]')?.classList.toggle('header-context-pill--with-title', visible);
+            },
+            {
+              root: doorOpen ? door : null,
+              rootMargin: '-56px 0px 0px 0px',
+              threshold: 0,
+            }
+          );
+
+          headingObserver.observe(source);
+        };
+
+        bindHeadingSource();
+
+        window.addEventListener('resize', bindHeadingSource, { passive: true });
+        document.addEventListener('sliding-door:change', () => {
+          const delay = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 650;
+          window.setTimeout(bindHeadingSource, delay);
+        });
+        document.addEventListener('astro:page-load', () => {
+          window.setTimeout(bindHeadingSource, 100);
+        });
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', setupStickyPageTitle);
+      } else {
+        setupStickyPageTitle();
       }
 
       function scrollToTop() {
@@ -1203,44 +1283,113 @@ if (import.meta.env.DEV) {
     left: 0;
     right: 0;
     z-index: 101;
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr auto;
     align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
+    gap: 0.75rem;
     min-height: 3.5rem;
     padding:
-      max(1rem, env(safe-area-inset-top))
+      max(0.75rem, env(safe-area-inset-top))
       max(1rem, env(safe-area-inset-right))
-      0.875rem
+      0.75rem
       max(1rem, env(safe-area-inset-left));
     pointer-events: none;
   }
 
+  .header-context-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    min-width: 0;
+    max-width: 100%;
+    padding: 0.3125rem 0.5rem;
+    border-radius: 9999px;
+    border: 1px solid color-mix(in srgb, var(--color-text) 14%, transparent);
+    background-color: color-mix(in srgb, var(--color-nav-bg) 78%, transparent);
+    backdrop-filter: blur(16px) saturate(1.6);
+    -webkit-backdrop-filter: blur(16px) saturate(1.6);
+    box-shadow:
+      inset 0 1px 0 color-mix(in srgb, var(--color-text) 10%, transparent),
+      0 4px 16px color-mix(in srgb, var(--color-bg) 35%, transparent);
+    isolation: isolate;
+    transition:
+      background-color 0.25s ease,
+      border-color 0.25s ease,
+      box-shadow 0.25s ease,
+      padding 0.25s ease;
+  }
+
+  .header-context-pill--with-title {
+    padding-right: 0.875rem;
+  }
+
+  .sticky-page-title {
+    min-width: 0;
+    max-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family: var(--font-family-sans);
+    font-size: 0.875rem;
+    font-weight: 700;
+    text-transform: lowercase;
+    letter-spacing: 0.02em;
+    color: var(--color-text);
+    opacity: 0;
+    padding: 0;
+    border-left: 1px solid transparent;
+    margin-left: 0;
+    transform: none;
+    transition:
+      opacity 0.2s ease,
+      max-width 0.25s ease,
+      padding 0.25s ease,
+      margin 0.25s ease,
+      border-color 0.25s ease;
+    pointer-events: none;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .sticky-page-title.is-visible {
+    opacity: 1;
+    max-width: min(14rem, 42vw);
+    padding-left: 0.625rem;
+    margin-left: 0.125rem;
+    border-left-color: color-mix(in srgb, var(--color-text) 22%, transparent);
+  }
+
+  .site-top-bar:not(:has(.social-links-container)) .header-context-pill {
+    padding-left: 0.875rem;
+  }
+
+  .site-top-bar:not(:has(.social-links-container)) .sticky-page-title.is-visible {
+    max-width: min(18rem, 52vw);
+    padding-left: 0;
+    margin-left: 0;
+    border-left-color: transparent;
+  }
+
+  .site-top-bar--detail .header-context-pill:not(.header-context-pill--with-title) {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
   @media (max-width: 767px) {
-    .site-top-bar {
-      background-color: color-mix(in srgb, var(--color-nav-bg) 42%, transparent);
-      backdrop-filter: blur(14px) saturate(1.5);
-      -webkit-backdrop-filter: blur(14px) saturate(1.5);
-      border-bottom: 1px solid color-mix(in srgb, var(--color-text) 8%, transparent);
-      transition: background-color 0.3s ease, border-color 0.3s ease;
+    .site-top-bar.scrolled .header-context-pill,
+    .site-top-bar.site-top-bar--detail .header-context-pill {
+      background-color: color-mix(in srgb, var(--color-nav-bg) 88%, transparent);
+      border-color: color-mix(in srgb, var(--color-accent) 24%, transparent);
+      box-shadow:
+        inset 0 1px 0 color-mix(in srgb, var(--color-text) 12%, transparent),
+        0 4px 16px color-mix(in srgb, var(--color-accent) 14%, transparent);
     }
 
-    [data-theme="dark"] .site-top-bar {
-      background-color: color-mix(in srgb, var(--color-nav-bg) 38%, transparent);
-      border-bottom-color: color-mix(in srgb, var(--color-text) 10%, transparent);
-    }
-
-    .site-top-bar.scrolled,
-    .site-top-bar.site-top-bar--detail {
-      background-color: color-mix(in srgb, var(--color-nav-bg) 58%, transparent);
-      border-bottom-color: color-mix(in srgb, var(--color-accent) 22%, transparent);
-      box-shadow: 0 4px 16px color-mix(in srgb, var(--color-accent) 12%, transparent);
-    }
-
-    [data-theme="dark"] .site-top-bar.scrolled,
-    [data-theme="dark"] .site-top-bar.site-top-bar--detail {
-      background-color: color-mix(in srgb, var(--color-nav-bg) 52%, transparent);
-      box-shadow: 0 4px 16px rgba(0, 255, 136, 0.12);
+    [data-theme='dark'] .site-top-bar.scrolled .header-context-pill,
+    [data-theme='dark'] .site-top-bar.site-top-bar--detail .header-context-pill {
+      box-shadow:
+        inset 0 1px 0 color-mix(in srgb, var(--color-text) 10%, transparent),
+        0 4px 16px rgba(0, 255, 136, 0.14);
     }
   }
 
@@ -1248,8 +1397,28 @@ if (import.meta.env.DEV) {
     pointer-events: auto;
   }
 
-  .site-top-bar:not(:has(.social-links-container)) {
-    justify-content: flex-end;
+  @media (min-width: 768px) {
+    .header-context-pill {
+      position: fixed;
+      top: max(1.25rem, env(safe-area-inset-top));
+      left: calc(4rem + 1.5rem);
+      z-index: 102;
+      max-width: min(28rem, calc(100vw - 4rem - 3rem));
+    }
+
+    .site-top-bar.scrolled .header-context-pill {
+      background-color: color-mix(in srgb, var(--color-nav-bg) 88%, transparent);
+      border-color: color-mix(in srgb, var(--color-accent) 22%, transparent);
+      box-shadow:
+        inset 0 1px 0 color-mix(in srgb, var(--color-text) 12%, transparent),
+        0 6px 20px color-mix(in srgb, var(--color-accent) 12%, transparent);
+    }
+
+    [data-theme='dark'] .site-top-bar.scrolled .header-context-pill {
+      box-shadow:
+        inset 0 1px 0 color-mix(in srgb, var(--color-text) 10%, transparent),
+        0 6px 20px rgba(0, 255, 136, 0.14);
+    }
   }
   
   .nav-controls-glassy::before {
@@ -1269,7 +1438,7 @@ if (import.meta.env.DEV) {
   }
   
   .nav-controls-glassy.scrolled::before {
-    opacity: 1;
+    opacity: 0;
   }
   
   .nav-controls {
@@ -1439,6 +1608,10 @@ if (import.meta.env.DEV) {
       padding-bottom: 3rem;
       width: calc(100% - 4rem);
       max-width: none;
+    }
+
+    .main-content:not(.main-content--detail) {
+      padding-top: var(--site-context-inset-top);
     }
   }
   
@@ -1711,17 +1884,9 @@ if (import.meta.env.DEV) {
     position: static;
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 0.125rem;
     z-index: 1;
-  }
-
-  @media (min-width: 768px) {
-    .social-links-container {
-      position: fixed;
-      top: 1.5rem;
-      left: calc(4rem + 1.5rem);
-      z-index: 50;
-    }
+    flex-shrink: 0;
   }
   
   .social-links-container-footer {
@@ -1730,29 +1895,32 @@ if (import.meta.env.DEV) {
   
   .social-link {
     color: var(--color-text);
-    transition: color 0.3s ease, transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    transition: color 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
     display: flex;
     align-items: center;
     justify-content: center;
-    opacity: 0.6;
+    width: 2rem;
+    height: 2rem;
+    opacity: 1;
+    border: none;
+    border-radius: 9999px;
+    background: transparent;
+    -webkit-font-smoothing: antialiased;
   }
   
   .social-link:hover {
     color: var(--color-accent);
-    transform: scale(1.15);
-    opacity: 1;
+    background: color-mix(in srgb, var(--color-accent) 14%, transparent);
+    transform: scale(1.06);
   }
   
   .social-link:active {
-    transform: scale(0.95);
+    transform: scale(0.96);
   }
   
   .social-link svg {
-    transition: filter 0.3s ease;
-  }
-  
-  .social-link:hover svg {
-    filter: drop-shadow(0 0 8px var(--color-accent));
+    display: block;
+    flex-shrink: 0;
   }
   
   /* Desktop-only nav animations (sidebar as it was) */

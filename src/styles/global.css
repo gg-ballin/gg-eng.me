@@ -66,6 +66,17 @@ h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-family-serif);
 }
 
+/* Desktop: clear fixed LinkedIn/GitHub pill above main content */
+@media (min-width: 768px) {
+  :root {
+    --site-context-inset-top: calc(max(1.25rem, env(safe-area-inset-top)) + 3.75rem);
+  }
+
+  .main-content:not(.main-content--detail) .back-button {
+    margin-top: 0.75rem;
+  }
+}
+
 /* Sliding door overlay: detail stacks above list; closes in, opens on back */
 .sliding-door {
   --sliding-door-duration: 0.6s;

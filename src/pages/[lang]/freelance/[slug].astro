@@ -40,7 +40,7 @@ const pageTitle = `${entry.role} @ ${entry.company} — ${t.freelance.heading}`;
 
     <header class="detail-header">
       <div class="detail-date">{entry.dateRange}</div>
-      <h1 class="detail-role">{entry.role}</h1>
+      <h1 data-page-heading class="detail-role">{entry.role}</h1>
       <div class="detail-company-row">
         {employerLogo && (
           <span class="detail-logo-container">

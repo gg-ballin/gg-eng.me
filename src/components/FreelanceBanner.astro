@@ -1,6 +1,7 @@
 ---
 import { getRelativeLocaleUrl } from 'astro:i18n';
 import { appendFreelanceOrigin } from '@/lib/freelance-navigation';
+import { getFreelanceEntries } from '@/lib/freelance-data';
 import type { Language } from '@/i18n/translations';
 import { getTranslations } from '@/i18n/translations';
 
@@ -10,24 +11,31 @@ interface Props {
 
 const { lang } = Astro.props;
 const t = getTranslations(lang).freelance;
+const projectCount = getFreelanceEntries(lang).length;
 const freelancePath = appendFreelanceOrigin(getRelativeLocaleUrl(lang, 'freelance'), 'experience');
+const ctaLabel = t.bannerCta.replace('{count}', String(projectCount));
 ---
 
 <a href={freelancePath} class="freelance-banner">
   <span class="freelance-banner-label">{t.bannerLabel}</span>
-  <span class="freelance-banner-text">{t.bannerText}</span>
-  <span class="freelance-banner-arrow" aria-hidden="true">→</span>
+  <p class="freelance-banner-description">{t.bannerDescription}</p>
+  <span class="freelance-banner-cta">
+    {ctaLabel}
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M5 12h14M13 6l6 6-6 6"/>
+    </svg>
+  </span>
 </a>
 
 <style>
   .freelance-banner {
     display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.5rem 1rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
     margin-bottom: 2.5rem;
-    padding: 1rem 1.25rem;
-    border: 2px solid var(--color-accent);
+    padding: 1.25rem;
+    border: 3px solid var(--color-text);
     background-color: var(--timeline-item-bg);
     color: var(--color-text);
     text-decoration: none;
@@ -36,8 +44,8 @@ const freelancePath = appendFreelanceOrigin(getRelativeLocaleUrl(lang, 'freelanc
   }
 
   .freelance-banner:hover {
-    transform: translate(2px, -2px);
-    box-shadow: -2px 2px 0 var(--color-accent);
+    transform: translate(4px, -4px);
+    box-shadow: -4px 4px 0 var(--color-accent);
   }
 
   .freelance-banner-label {
@@ -49,17 +57,33 @@ const freelancePath = appendFreelanceOrigin(getRelativeLocaleUrl(lang, 'freelanc
     color: var(--color-accent);
   }
 
-  .freelance-banner-text {
+  .freelance-banner-description {
     font-family: var(--font-family-sans);
     font-size: 0.9375rem;
     font-weight: 500;
-    flex: 1;
-    min-width: 12rem;
+    line-height: 1.5;
+    margin: 0;
+    opacity: 0.9;
   }
 
-  .freelance-banner-arrow {
-    font-size: 1.125rem;
+  .freelance-banner-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    margin-top: 0.25rem;
+    font-family: var(--font-family-sans);
+    font-size: 0.8125rem;
     font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
     color: var(--color-accent);
+  }
+
+  .freelance-banner-cta svg {
+    transition: transform 0.2s ease;
+  }
+
+  .freelance-banner:hover .freelance-banner-cta svg {
+    transform: translateX(4px);
   }
 </style>

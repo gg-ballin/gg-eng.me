@@ -21,7 +21,7 @@ const t = getTranslations(lang);
 >
   <div class="max-w-4xl contact-container">
     <Reveal>
-      <h1 class="text-5xl md:text-6xl page-title mt-10" style="text-transform: lowercase;">{t.contact.heading}</h1>
+      <h1 data-page-heading class="text-5xl md:text-6xl page-title mt-10" style="text-transform: lowercase;">{t.contact.heading}</h1>
     </Reveal>
     
     <!-- Request CV Section -->
@@ -34,10 +34,10 @@ const t = getTranslations(lang);
 
   </div>
   
-  <!-- Language Switcher Hint Animation -->
+  <!-- Language Switcher Hint Animation
   <div id="language-hint-container" class="language-hint-container" data-lang={lang}>
     <!-- Desktop: Arrow from bottom left pointing to top right language switcher -->
-    <div class="language-hint-desktop">
+    <!-- <div class="language-hint-desktop">
       <div class="language-hint-popup-desktop">
         <p class="language-hint-message">{t.languageHint.message}</p>
       </div>
@@ -46,10 +46,10 @@ const t = getTranslations(lang);
           <path d="M78.1,0v6.2c22.4,0,40.5,18.2,40.5,40.6s-18.1,40.6-40.5,40.6H17.9l27.9-28l-4.5-4.5L5.5,90.8l0,0l0,0L41.5,127l4.5-4.5L17.2,93.6h60.9c25.8,0,46.7-21,46.7-46.8S103.9,0,78.1,0z" fill="var(--color-accent)"/>
         </svg>
       </div>
-    </div>
+    </div> -->
     
     <!-- Mobile: Arrow pointing from bottom to language switcher -->
-    <div class="language-hint-mobile">
+    <!-- <div class="language-hint-mobile">
       <div class="language-hint-arrow-mobile">
         <svg width="32" height="32" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M78.1,0v6.2c22.4,0,40.5,18.2,40.5,40.6s-18.1,40.6-40.5,40.6H17.9l27.9-28l-4.5-4.5L5.5,90.8l0,0l0,0L41.5,127l4.5-4.5L17.2,93.6h60.9c25.8,0,46.7-21,46.7-46.8S103.9,0,78.1,0z" fill="var(--color-accent)"/>
@@ -58,7 +58,7 @@ const t = getTranslations(lang);
       <div class="language-hint-popup-mobile">
         <p class="language-hint-message">{t.languageHint.message}</p>
       </div>
-    </div>
+    </div> -->
   </div>
 </BaseLayout>
 
