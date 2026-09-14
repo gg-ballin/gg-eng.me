@@ -15,6 +15,12 @@
   overflow: hidden;
 }
 
+.reveal-content:has([data-page-heading]) {
+  display: block;
+  width: 100%;
+  overflow: visible;
+}
+
 .reveal-mask {
   position: absolute;
   inset: 0;

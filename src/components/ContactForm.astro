@@ -1,20 +1,25 @@
 ---
 import { getTranslations, type Language } from '@/i18n/translations';
+import '../styles/segmented-control.css';
 
 interface Props {
   lang: Language;
 }
 
 const { lang } = Astro.props;
-const t = getTranslations(lang).contact.form;
+const contactT = getTranslations(lang).contact;
+const t = contactT.form;
 
 // Get Turnstile site key in frontmatter (server-side) to pass to client script
 const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
 ---
 
-<form id="contact-form" class="contact-form">
+<form id="contact-form" class="contact-form" data-intent="cv">
+  <input type="hidden" id="contact-intent" name="intent" value="cv" />
+  <input type="hidden" id="project-type" name="projectType" value="" />
+
   <div class="form-group">
-    <label for="name" class="form-label">{t.name} *</label>
+    <label for="name" class="form-label">{t.name} <span class="form-required" aria-hidden="true">*</span></label>
     <input
       type="text"
       id="name"
@@ -27,7 +32,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
   </div>
 
   <div class="form-group">
-    <label for="email" class="form-label">{t.email} *</label>
+    <label for="email" class="form-label">{t.email} <span class="form-required" aria-hidden="true">*</span></label>
     <input
       type="email"
       id="email"
@@ -39,8 +44,8 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
     <span class="error-message" id="email-error"></span>
   </div>
 
-  <div class="form-group">
-    <label for="company" class="form-label">{t.company} *</label>
+  <div class="form-group intent-field intent-field--cv" data-intent-field="cv">
+    <label for="company" class="form-label">{t.company} <span class="form-required" aria-hidden="true">*</span></label>
     <input
       type="text"
       id="company"
@@ -50,6 +55,54 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
       class="form-input"
     />
     <span class="error-message" id="company-error"></span>
+  </div>
+
+  <div class="form-group intent-field intent-field--freelance" data-intent-field="freelance" hidden>
+    <span class="form-label" id="project-type-label">{contactT.projectType.label} <span class="form-required" aria-hidden="true">*</span></span>
+    <div
+      class="segmented-control segmented-control--project-type"
+      id="project-type-switcher"
+      role="radiogroup"
+      aria-labelledby="project-type-label"
+      data-has-selection="false"
+      data-position="0"
+    >
+      <div class="segmented-control__indicator" aria-hidden="true"></div>
+
+      <button
+        type="button"
+        class="segmented-control__option"
+        role="radio"
+        aria-checked="false"
+        data-project-type="mobile"
+      >
+        <span class="segmented-control__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+            <line x1="12" y1="18" x2="12.01" y2="18"></line>
+          </svg>
+        </span>
+        <span>{contactT.projectType.mobile}</span>
+      </button>
+
+      <button
+        type="button"
+        class="segmented-control__option"
+        role="radio"
+        aria-checked="false"
+        data-project-type="web"
+      >
+        <span class="segmented-control__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="2" y1="12" x2="22" y2="12"></line>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+          </svg>
+        </span>
+        <span>{contactT.projectType.web}</span>
+      </button>
+    </div>
+    <span class="error-message" id="projectType-error"></span>
   </div>
 
   <!-- Honeypot field -->
@@ -70,7 +123,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
   </div>
 
   <button type="submit" class="submit-btn" id="submit-btn">
-    <span id="submit-text">{t.submit}</span>
+    <span id="submit-text">{contactT.intents.cv.submit}</span>
   </button>
 
   <div class="form-message" id="form-message"></div>
@@ -96,6 +149,10 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
     text-transform: uppercase;
     letter-spacing: 0.05em;
     margin-bottom: 0.5rem;
+  }
+
+  .form-required {
+    color: var(--color-required);
   }
 
   .form-input,
@@ -224,9 +281,17 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
   #turnstile-form-group {
     display: none;
   }
+
+  .intent-field[hidden] {
+    display: none !important;
+  }
+
+  .segmented-control--project-type {
+    margin-top: 0.5rem;
+  }
 </style>
 
-<script define:vars={{ t, lang, turnstileSiteKey }}>
+<script define:vars={{ t, contactT, lang, turnstileSiteKey }}>
   // Wait for DOM to be ready
   (function() {
     const form = document.getElementById('contact-form');
@@ -239,10 +304,106 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
     const formMessage = document.getElementById('form-message');
     const turnstileTokenInput = document.getElementById('turnstile-token');
     const turnstileError = document.getElementById('turnstile-error');
+    const intentInput = document.getElementById('contact-intent');
+    const projectTypeInput = document.getElementById('project-type');
+    const projectTypeSwitcher = document.getElementById('project-type-switcher');
+    const companyInput = document.getElementById('company');
+    const companyField = document.querySelector('[data-intent-field="cv"]');
+    const freelanceField = document.querySelector('[data-intent-field="freelance"]');
     
     if (!submitBtn || !submitText || !formMessage) {
       return;
     }
+
+    const getIntent = () => {
+      const value = intentInput?.value || form.dataset.intent || 'cv';
+      return value === 'freelance' ? 'freelance' : 'cv';
+    };
+
+    const getSubmitLabel = (intent = getIntent()) =>
+      intent === 'freelance' ? contactT.intents.freelance.submit : contactT.intents.cv.submit;
+
+    const getSuccessLabel = (intent = getIntent()) =>
+      intent === 'freelance' ? contactT.intents.freelance.success : contactT.intents.cv.success;
+
+    const applyIntentUi = (intent) => {
+      form.dataset.intent = intent;
+      if (intentInput) intentInput.value = intent;
+
+      if (companyField instanceof HTMLElement) {
+        companyField.hidden = intent !== 'cv';
+      }
+      if (freelanceField instanceof HTMLElement) {
+        freelanceField.hidden = intent !== 'freelance';
+      }
+      if (companyInput instanceof HTMLInputElement) {
+        companyInput.required = intent === 'cv';
+      }
+
+      if (submitText && !submitBtn.disabled) {
+        submitText.textContent = getSubmitLabel(intent);
+      }
+    };
+
+    const resetProjectType = () => {
+      if (projectTypeInput) projectTypeInput.value = '';
+      if (!projectTypeSwitcher) return;
+
+      projectTypeSwitcher.setAttribute('data-has-selection', 'false');
+      projectTypeSwitcher.setAttribute('data-position', '0');
+      projectTypeSwitcher.querySelectorAll('[role="radio"]').forEach((option) => {
+        option.setAttribute('aria-checked', 'false');
+      });
+
+      const projectTypeError = document.getElementById('projectType-error');
+      if (projectTypeError) {
+        projectTypeError.textContent = '';
+        projectTypeError.style.display = 'none';
+      }
+    };
+
+    const setProjectType = (projectType) => {
+      if (!projectTypeSwitcher || !projectTypeInput) return;
+
+      projectTypeInput.value = projectType;
+      const index = projectType === 'web' ? 1 : 0;
+      projectTypeSwitcher.setAttribute('data-has-selection', 'true');
+      projectTypeSwitcher.setAttribute('data-position', String(index));
+
+      projectTypeSwitcher.querySelectorAll('[role="radio"]').forEach((option) => {
+        const isSelected = option.getAttribute('data-project-type') === projectType;
+        option.setAttribute('aria-checked', isSelected ? 'true' : 'false');
+      });
+
+      const projectTypeError = document.getElementById('projectType-error');
+      if (projectTypeError) {
+        projectTypeError.textContent = '';
+        projectTypeError.style.display = 'none';
+      }
+    };
+
+    if (projectTypeSwitcher) {
+      projectTypeSwitcher.querySelectorAll('[role="radio"]').forEach((option) => {
+        option.addEventListener('click', () => {
+          const projectType = option.getAttribute('data-project-type');
+          if (projectType === 'mobile' || projectType === 'web') {
+            setProjectType(projectType);
+          }
+        });
+      });
+    }
+
+    document.addEventListener('contact:intent-change', (event) => {
+      const intent = event.detail?.intent;
+      if (intent === 'cv' || intent === 'freelance') {
+        applyIntentUi(intent);
+        if (intent === 'cv') {
+          resetProjectType();
+        }
+      }
+    });
+
+    applyIntentUi(getIntent());
     
     // Disable submit button initially if Turnstile is configured
     // It will be enabled after Turnstile successfully loads
@@ -258,12 +419,12 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
     const saveFormData = () => {
       const nameInput = document.getElementById('name');
       const emailInput = document.getElementById('email');
-      const companyInput = document.getElementById('company');
       
       const formData = {
         name: nameInput?.value || '',
         email: emailInput?.value || '',
         company: companyInput?.value || '',
+        projectType: projectTypeInput?.value || '',
       };
       sessionStorage.setItem(FORM_STORAGE_KEY, JSON.stringify(formData));
     };
@@ -276,11 +437,13 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
           const formData = JSON.parse(savedData);
           const nameInput = document.getElementById('name');
           const emailInput = document.getElementById('email');
-          const companyInput = document.getElementById('company');
           
           if (nameInput && formData.name) nameInput.value = formData.name;
           if (emailInput && formData.email) emailInput.value = formData.email;
           if (companyInput && formData.company) companyInput.value = formData.company;
+          if (formData.projectType === 'mobile' || formData.projectType === 'web') {
+            setProjectType(formData.projectType);
+          }
         }
       } catch (e) {
         // Silently fail - form data restoration is not critical
@@ -446,7 +609,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
                     // Enable submit button now that Turnstile is loaded
                     if (submitBtn) {
                       submitBtn.disabled = false;
-                      submitText.textContent = t.submit;
+                      submitText.textContent = getSubmitLabel();
                     }
                   },
                   'error-callback': (error) => {
@@ -513,7 +676,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
               // Enable submit button now that Turnstile is loaded
               if (submitBtn) {
                 submitBtn.disabled = false;
-                submitText.textContent = t.submit;
+                submitText.textContent = getSubmitLabel();
               }
             },
             'error-callback': (error) => {
@@ -542,6 +705,8 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
     // Attach form submit handler
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
+
+      const intent = getIntent();
       
       // Clear previous errors
       document.querySelectorAll('.error-message').forEach(el => {
@@ -551,6 +716,18 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
       formMessage.textContent = '';
       formMessage.className = 'form-message';
       formMessage.style.display = 'none';
+
+      if (intent === 'freelance') {
+        const projectType = projectTypeInput?.value || '';
+        if (projectType !== 'mobile' && projectType !== 'web') {
+          const projectTypeError = document.getElementById('projectType-error');
+          if (projectTypeError) {
+            projectTypeError.textContent = contactT.projectType.required;
+            projectTypeError.style.display = 'block';
+          }
+          return;
+        }
+      }
       
       // Check if Turnstile token is present (only if Turnstile is enabled)
       const turnstileToken = turnstileTokenInput?.value || '';
@@ -578,7 +755,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
         }
         // Re-enable submit button since we're returning early
         submitBtn.disabled = false;
-        submitText.textContent = t.submit;
+        submitText.textContent = getSubmitLabel(intent);
         return;
       }
       
@@ -590,7 +767,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
         }
         // Re-enable submit button since we're returning early
         submitBtn.disabled = false;
-        submitText.textContent = t.submit;
+        submitText.textContent = getSubmitLabel(intent);
         return;
       }
       
@@ -600,17 +777,28 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
       
       // Get form data
       const formData = new FormData(form);
-      const data = {
+      const baseData = {
         name: formData.get('name'),
         email: formData.get('email'),
-        company: formData.get('company') || '',
         language: lang,
         website: formData.get('website') || '', // Honeypot
         turnstileToken: turnstileToken || 'disabled',
       };
+
+      const data = intent === 'freelance'
+        ? {
+            ...baseData,
+            projectType: formData.get('projectType'),
+          }
+        : {
+            ...baseData,
+            company: formData.get('company') || '',
+          };
+
+      const endpoint = intent === 'freelance' ? '/api/freelance-inquiry' : '/api/request-cv';
       
       try {
-        const response = await fetch('/api/request-cv', {
+        const response = await fetch(endpoint, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data),
@@ -657,10 +845,14 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
         }
         
         if (result.success) {
-          formMessage.textContent = t.success;
+          formMessage.textContent = getSuccessLabel(intent);
           formMessage.className = 'form-message success';
           formMessage.style.display = 'block';
           form.reset();
+          applyIntentUi(intent);
+          if (intent === 'freelance') {
+            resetProjectType();
+          }
           
           // Clear saved form data after successful submission
           clearFormData();
@@ -717,7 +909,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
         }
       } finally {
         submitBtn.disabled = false;
-        submitText.textContent = t.submit;
+        submitText.textContent = getSubmitLabel(getIntent());
       }
     });
   })();

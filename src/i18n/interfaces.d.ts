@@ -96,12 +96,16 @@ export interface Translations {
     viewDetail: string;
     backToFreelance: string;
     backToBio: string;
+    back: string;
     bannerLabel: string;
     bannerDescription: string;
     bannerCta: string;
     bioCta: string;
     sidebarSummary: string;
     sidebarPlatforms: string;
+    sidebarPlatformMobile: string;
+    sidebarPlatformWeb: string;
+    sidebarPlatformReact: string;
     sidebarModalities: string;
     sidebarModalitiesList: string;
     sidebarStack: string;
@@ -120,8 +124,28 @@ export interface Translations {
     title: string;
     description: string;
     heading: string;
-    requestCvTitle: string;
-    requestCvDescription: string;
+    intents: {
+      cv: {
+        label: string;
+        title: string;
+        description: string;
+        submit: string;
+        success: string;
+      };
+      freelance: {
+        label: string;
+        title: string;
+        description: string;
+        submit: string;
+        success: string;
+      };
+    };
+    projectType: {
+      label: string;
+      mobile: string;
+      web: string;
+      required: string;
+    };
     form: {
       name: string;
       namePlaceholder: string;
@@ -129,9 +153,7 @@ export interface Translations {
       emailPlaceholder: string;
       company: string;
       companyPlaceholder: string;
-      submit: string;
       submitting: string;
-      success: string;
       error: string;
     };
   };

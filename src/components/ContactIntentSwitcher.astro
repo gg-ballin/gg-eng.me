@@ -1,0 +1,163 @@
+---
+import { getTranslations, type Language } from '@/i18n/translations';
+import '../styles/segmented-control.css';
+
+interface Props {
+  lang: Language;
+}
+
+const { lang } = Astro.props;
+const t = getTranslations(lang).contact.intents;
+---
+
+<div
+  class="segmented-control segmented-control--intent"
+  id="contact-intent-switcher"
+  role="tablist"
+  aria-label="Contact intent"
+  data-has-selection="true"
+  data-position="0"
+>
+  <div class="segmented-control__indicator" aria-hidden="true"></div>
+
+  <button
+    type="button"
+    class="segmented-control__option"
+    role="tab"
+    id="intent-tab-cv"
+    aria-selected="true"
+    aria-controls="contact-intent-panel"
+    data-intent="cv"
+  >
+    <span class="segmented-control__icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+        <polyline points="14 2 14 8 20 8"></polyline>
+        <line x1="16" y1="13" x2="8" y2="13"></line>
+        <line x1="16" y1="17" x2="8" y2="17"></line>
+        <polyline points="10 9 9 9 8 9"></polyline>
+      </svg>
+    </span>
+    <span>{t.cv.label}</span>
+  </button>
+
+  <button
+    type="button"
+    class="segmented-control__option"
+    role="tab"
+    id="intent-tab-freelance"
+    aria-selected="false"
+    aria-controls="contact-intent-panel"
+    data-intent="freelance"
+  >
+    <span class="segmented-control__icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+        <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+      </svg>
+    </span>
+    <span>{t.freelance.label}</span>
+  </button>
+</div>
+
+<script define:vars={{
+  cvTitle: t.cv.title,
+  cvDescription: t.cv.description,
+  freelanceTitle: t.freelance.title,
+  freelanceDescription: t.freelance.description,
+}}>
+  (function () {
+    const INTENT_STORAGE_KEY = 'contact-intent';
+    const switcher = document.getElementById('contact-intent-switcher');
+    if (!switcher) return;
+
+    const tabs = switcher.querySelectorAll('[role="tab"]');
+    const sectionTitle = document.getElementById('contact-section-title');
+    const sectionDescription = document.getElementById('contact-section-description');
+    const form = document.getElementById('contact-form');
+    const intentInput = document.getElementById('contact-intent');
+
+    const copyByIntent = {
+      cv: { title: cvTitle, description: cvDescription },
+      freelance: { title: freelanceTitle, description: freelanceDescription },
+    };
+
+    const parseInitialIntent = () => {
+      const params = new URLSearchParams(window.location.search);
+      const fromUrl = params.get('intent');
+      if (fromUrl === 'freelance' || fromUrl === 'cv') return fromUrl;
+
+      const stored = sessionStorage.getItem(INTENT_STORAGE_KEY);
+      if (stored === 'freelance' || stored === 'cv') return stored;
+
+      return 'cv';
+    };
+
+    const setIntent = (intent, persist = true) => {
+      const index = intent === 'freelance' ? 1 : 0;
+
+      tabs.forEach((tab) => {
+        const isSelected = tab.getAttribute('data-intent') === intent;
+        tab.setAttribute('aria-selected', isSelected ? 'true' : 'false');
+      });
+
+      switcher.setAttribute('data-position', String(index));
+      switcher.setAttribute('data-has-selection', 'true');
+
+      if (sectionTitle) {
+        const titleFromData = sectionTitle.dataset[intent === 'freelance' ? 'titleFreelance' : 'titleCv'];
+        sectionTitle.textContent = titleFromData || copyByIntent[intent]?.title || '';
+      }
+      if (sectionDescription) {
+        const descriptionFromData = sectionDescription.dataset[intent === 'freelance' ? 'descriptionFreelance' : 'descriptionCv'];
+        sectionDescription.textContent = descriptionFromData || copyByIntent[intent]?.description || '';
+      }
+      if (intentInput) {
+        intentInput.value = intent;
+      }
+      if (form) {
+        form.dataset.intent = intent;
+      }
+
+      const panel = document.getElementById('contact-intent-panel');
+      if (panel) {
+        panel.setAttribute(
+          'aria-labelledby',
+          intent === 'freelance' ? 'intent-tab-freelance' : 'intent-tab-cv'
+        );
+      }
+
+      if (persist) {
+        sessionStorage.setItem(INTENT_STORAGE_KEY, intent);
+      }
+
+      document.dispatchEvent(
+        new CustomEvent('contact:intent-change', { detail: { intent } })
+      );
+    };
+
+    tabs.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        const intent = tab.getAttribute('data-intent');
+        if (intent === 'cv' || intent === 'freelance') {
+          setIntent(intent);
+        }
+      });
+    });
+
+    const langSwitcher = document.querySelector('.lang-switcher');
+    langSwitcher?.addEventListener('click', () => {
+      sessionStorage.setItem(INTENT_STORAGE_KEY, intentInput?.value || 'cv');
+    });
+
+    const init = () => setIntent(parseInitialIntent(), false);
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+
+    document.addEventListener('astro:page-load', init);
+  })();
+</script>

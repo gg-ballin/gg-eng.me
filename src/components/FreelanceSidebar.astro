@@ -1,8 +1,8 @@
 ---
 import { getRelativeLocaleUrl } from 'astro:i18n';
-import type { FreelanceEntry, Platform } from '@/lib/freelance-data';
-import PlatformBadge from '@/components/PlatformBadge.astro';
+import type { FreelanceEntry } from '@/lib/freelance-data';
 import SkillIconLink from '@/components/SkillIconLink.astro';
+import TechIconLink from '@/components/TechIconLink.astro';
 import { getFreelanceSkillIconConfigs } from '@/lib/freelance-data';
 import type { Language } from '@/i18n/translations';
 import { getTranslations } from '@/i18n/translations';
@@ -14,9 +14,9 @@ interface Props {
 
 const { lang, entries } = Astro.props;
 const t = getTranslations(lang).freelance;
-const contactPath = getRelativeLocaleUrl(lang, 'contact');
+const contactPath = `${getRelativeLocaleUrl(lang, 'contact')}?intent=freelance`;
 
-const platforms = [...new Set(entries.flatMap((entry) => entry.platforms))] as Platform[];
+const reactNativeIcon = getFreelanceSkillIconConfigs(['REACT NATIVE'])[0];
 
 const skillCounts = new Map<string, number>();
 for (const entry of entries) {
@@ -33,21 +33,45 @@ const topSkills = [...skillCounts.entries()]
 ---
 
 <aside class="freelance-sidebar">
-  <section class="sidebar-block">
+  <section class="sidebar-block sidebar-block--summary">
     <h2 class="sidebar-title">{t.sidebarSummary}</h2>
     <p class="sidebar-count">{t.sidebarProjects.replace('{count}', String(entries.length))}</p>
   </section>
 
-  {platforms.length > 0 && (
-    <section class="sidebar-block">
-      <h2 class="sidebar-title">{t.sidebarPlatforms}</h2>
-      <div class="platform-badges">
-        {platforms.map((platform) => (
-          <PlatformBadge platform={platform} lang={lang} />
-        ))}
+  <a href={contactPath} class="sidebar-cta">
+    {t.sidebarContactCta}
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M5 12h14M13 6l6 6-6 6"/>
+    </svg>
+  </a>
+
+  <section class="sidebar-block">
+    <h2 class="sidebar-title">{t.sidebarPlatforms}</h2>
+    <div class="platform-stacks">
+      <div class="platform-stack-row">
+        <span class="platform-stack-label">{t.sidebarPlatformMobile}</span>
+        <div class="platform-stack-items">
+          {reactNativeIcon && (
+            <SkillIconLink iconConfig={reactNativeIcon} text="React Native" />
+          )}
+        </div>
       </div>
-    </section>
-  )}
+      <div class="platform-stack-row">
+        <span class="platform-stack-label">{t.sidebarPlatformWeb}</span>
+        <div class="platform-stack-items">
+          <TechIconLink
+            href="https://astro.build"
+            title="Astro"
+            iconLight="/assets/icons/tech/astro/astro_logo_dark.svg"
+            iconDark="/assets/icons/tech/astro/astro_logo_light.svg"
+            text="Astro"
+            width={52}
+          />
+          <span class="skill-tag">{t.sidebarPlatformReact}</span>
+        </div>
+      </div>
+    </div>
+  </section>
 
   <section class="sidebar-block">
     <h2 class="sidebar-title">{t.sidebarModalities}</h2>
@@ -68,13 +92,6 @@ const topSkills = [...skillCounts.entries()]
       </div>
     </section>
   )}
-
-  <a href={contactPath} class="sidebar-cta">
-    {t.sidebarContactCta}
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <path d="M5 12h14M13 6l6 6-6 6"/>
-    </svg>
-  </a>
 </aside>
 
 <style>
@@ -86,8 +103,8 @@ const topSkills = [...skillCounts.entries()]
     margin-bottom: 2rem;
   }
 
-  .sidebar-block:last-of-type {
-    margin-bottom: 2.5rem;
+  .sidebar-block--summary {
+    margin-bottom: 1.25rem;
   }
 
   .sidebar-title {
@@ -115,10 +132,32 @@ const topSkills = [...skillCounts.entries()]
     opacity: 0.85;
   }
 
-  .platform-badges {
+  .platform-stacks {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .platform-stack-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+  }
+
+  .platform-stack-label {
+    font-family: var(--font-family-sans);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    opacity: 0.65;
+  }
+
+  .platform-stack-items {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.375rem;
+    align-items: center;
+    gap: 0.5rem;
   }
 
   .sidebar-skills {
@@ -142,14 +181,17 @@ const topSkills = [...skillCounts.entries()]
   .sidebar-cta {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 0.375rem;
-    padding: 0.75rem 1.25rem;
+    width: 100%;
+    margin-bottom: 2rem;
+    padding: 0.875rem 1.25rem;
     font-family: var(--font-family-sans);
     font-size: 0.8125rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    color: var(--color-bg);
+    color: var(--segmented-active-text);
     background-color: var(--color-accent);
     border: 2px solid var(--color-text);
     text-decoration: none;

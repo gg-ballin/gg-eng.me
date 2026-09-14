@@ -15,6 +15,7 @@ interface Props {
 
 const { lang } = Astro.props;
 const t = getTranslations(lang).bio;
+const tNav = getTranslations(lang).nav;
 const freelancePath = appendFreelanceOrigin(getRelativeLocaleUrl(lang, 'freelance'), 'bio');
 
 const [roleMobile, roleWeb, roleProduct] = t.roleDisciplines;
@@ -28,10 +29,15 @@ const descriptionHtml = marked.parse(t.description, { breaks: true }) as string;
   <div class="bio-dots" aria-hidden="true"></div>
   
   <div class="bio-content-wrapper">
-    <div class="relative z-10 mt-8 md:mt-12 bio-main-content">
+    <div class="relative z-10 mt-4 md:mt-12 bio-main-content">
       <Reveal>
-        <h2 class="bio-title font-bold mb-8 leading-tight" style="font-family: var(--font-family-sans);">{t.name}<span class="bio-accent">.</span>
-        </h2>
+        <h1
+          data-page-heading
+          data-sticky-label={tNav.bio}
+          class="bio-title font-bold mb-8 leading-tight"
+          style="font-family: var(--font-family-sans);"
+        >{t.name}<span class="bio-accent">.</span>
+        </h1>
       </Reveal>
       
       <div style="display: flex; flex-direction: column;">

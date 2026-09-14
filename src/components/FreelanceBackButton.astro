@@ -2,6 +2,8 @@
 import type { Language } from '@/i18n/translations';
 import {
   getFreelanceBackLabel,
+  getFreelanceDetailBackLabel,
+  getFreelanceListReturnPath,
   getReturnPathForOrigin,
   resolveFreelanceOrigin,
 } from '@/lib/freelance-navigation';
@@ -11,23 +13,32 @@ interface Props {
   lang: Language;
   fromParam?: string | null;
   slidingDoor?: boolean;
+  /** `origin` = bio/experience (freelance index). `freelance-list` = freelance index (detail pages). */
+  backTarget?: 'origin' | 'freelance-list';
 }
 
-const { lang, fromParam = null, slidingDoor = false } = Astro.props;
+const { lang, fromParam = null, slidingDoor = false, backTarget = 'origin' } = Astro.props;
 const origin = resolveFreelanceOrigin(fromParam);
-const returnPath = getReturnPathForOrigin(lang, origin);
-const label = getFreelanceBackLabel(lang, origin);
+const isFreelanceListTarget = backTarget === 'freelance-list';
+const returnPath = isFreelanceListTarget
+  ? getFreelanceListReturnPath(lang, origin)
+  : getReturnPathForOrigin(lang, origin);
+const label = isFreelanceListTarget
+  ? getFreelanceDetailBackLabel(lang)
+  : getFreelanceBackLabel(lang, origin);
 ---
 
 <a
   href={returnPath}
   class="back-button"
   data-freelance-back
+  data-freelance-back-target={backTarget}
   data-sliding-door-back={slidingDoor || undefined}
   data-sliding-door-back-navigate={slidingDoor ? 'true' : undefined}
   data-list-path={returnPath}
   data-experience-path={returnPath}
   data-return-origin={origin}
+  data-astro-reload={isFreelanceListTarget ? undefined : true}
 >
   <span data-freelance-back-label>← {label}</span>
 </a>

@@ -16,6 +16,11 @@ const { delay = 0 } = Astro.props;
 </span>
 
 <script>
+  function isInViewport(root: HTMLElement): boolean {
+    const rect = root.getBoundingClientRect();
+    return rect.top < window.innerHeight && rect.bottom > 0 && rect.width > 0 && rect.height > 0;
+  }
+
   function initReveal(root: HTMLElement) {
     if (root.dataset.revealInit === 'true') return;
     root.dataset.revealInit = 'true';
@@ -30,21 +35,39 @@ const { delay = 0 } = Astro.props;
       return;
     }
 
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          reveal();
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.1 }
-    );
+    const startReveal = () => {
+      if (isInViewport(root)) {
+        reveal();
+        return;
+      }
 
-    observer.observe(root);
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) {
+            reveal();
+            observer.disconnect();
+          }
+        },
+        { threshold: 0.05, rootMargin: '0px 0px -5% 0px' }
+      );
+
+      observer.observe(root);
+    };
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(startReveal);
+    });
   }
 
   function initAllReveals() {
-    document.querySelectorAll<HTMLElement>('[data-reveal]').forEach(initReveal);
+    document.querySelectorAll<HTMLElement>('[data-reveal]').forEach((root) => {
+      delete root.dataset.revealInit;
+      root.querySelector('.reveal-mask')?.classList.remove('reveal-mask--active');
+    });
+
+    requestAnimationFrame(() => {
+      document.querySelectorAll<HTMLElement>('[data-reveal]').forEach(initReveal);
+    });
   }
 
   initAllReveals();
@@ -57,6 +80,10 @@ const { delay = 0 } = Astro.props;
       void mask.getBoundingClientRect();
       mask.classList.add('reveal-mask--active');
     });
+  });
+
+  document.addEventListener('astro:after-swap', () => {
+    window.setTimeout(initAllReveals, 0);
   });
 
   document.addEventListener('astro:page-load', initAllReveals);

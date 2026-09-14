@@ -8,6 +8,8 @@
 :root {
   --color-bg: #fafafa;
   --color-text: #1a1a1a;
+  --color-required: #dc2626;
+  --segmented-active-text: #1a1a1a;
   --color-border: #e5e5e5;
   --color-code-bg: #f4f4f4;
   --color-pre-bg: #1a1a1a;
@@ -30,6 +32,8 @@
 [data-theme="dark"] {
   --color-bg: #0a0a0a;
   --color-text: #fafafa;
+  --color-required: #f87171;
+  --segmented-active-text: #1a1a1a;
   --color-border: #2a2a2a;
   --color-code-bg: #1a1a1a;
   --color-pre-bg: #fafafa;
@@ -69,6 +73,7 @@ h1, h2, h3, h4, h5, h6 {
 /* Desktop: clear fixed LinkedIn/GitHub pill above main content */
 @media (min-width: 768px) {
   :root {
+    --nav-bar-width: 4rem;
     --site-context-inset-top: calc(max(1.25rem, env(safe-area-inset-top)) + 3.75rem);
   }
 
@@ -135,7 +140,7 @@ h1, h2, h3, h4, h5, h6 {
 @media (min-width: 768px) {
   .sliding-door {
     top: 0;
-    left: 4rem;
+    left: var(--nav-bar-width);
     right: 0;
     bottom: 0;
     padding: 3rem;

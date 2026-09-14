@@ -5,20 +5,25 @@ import PlatformBadge from './PlatformBadge.astro';
 import { getFreelanceSkillIconConfigs } from '@/lib/freelance-data';
 import { getEmployerLogo } from '@/lib/experience/employers';
 import { getTranslations, type Language } from '@/i18n/translations';
-import { getRelativeLocaleUrl } from 'astro:i18n';
+import {
+  getFreelanceDetailPath,
+  resolveFreelanceOrigin,
+} from '@/lib/freelance-navigation';
 
 interface Props {
   entry: FreelanceEntry;
   lang: Language;
+  fromParam?: string | null;
 }
 
 const MAX_VISIBLE_SKILLS = 3;
 
-const { entry, lang } = Astro.props;
+const { entry, lang, fromParam = null } = Astro.props;
 const t = getTranslations(lang).freelance;
 const employerLogo = getEmployerLogo(entry.slug) ?? getEmployerLogo(entry.company);
 const isHighlighted = entry.highlight === true;
-const detailPath = getRelativeLocaleUrl(lang, `freelance/${entry.slug}`);
+const origin = resolveFreelanceOrigin(fromParam);
+const detailPath = getFreelanceDetailPath(lang, entry.slug, origin);
 const visibleSkills = entry.skills.slice(0, MAX_VISIBLE_SKILLS);
 const hiddenSkillCount = Math.max(0, entry.skills.length - MAX_VISIBLE_SKILLS);
 ---
@@ -39,11 +44,6 @@ const hiddenSkillCount = Math.max(0, entry.skills.length - MAX_VISIBLE_SKILLS);
 
     <div class="freelance-header-row">
       <h3 class="freelance-role">{entry.role}</h3>
-      <div class="platform-badges">
-        {entry.platforms.map((platform) => (
-          <PlatformBadge platform={platform} lang={lang} />
-        ))}
-      </div>
     </div>
 
     {(employerLogo || entry.company) && (
@@ -91,7 +91,12 @@ const hiddenSkillCount = Math.max(0, entry.skills.length - MAX_VISIBLE_SKILLS);
         {visibleSkills.map((skill) => {
           const iconConfig = getFreelanceSkillIconConfigs([skill])[0];
           if (iconConfig) {
-            return <SkillIconLink iconConfig={iconConfig} />;
+            return (
+              <SkillIconLink
+                iconConfig={iconConfig}
+                text={iconConfig.id === 'bun' ? undefined : ''}
+              />
+            );
           }
           return <span class="skill-tag">{skill}</span>;
         })}
@@ -102,6 +107,11 @@ const hiddenSkillCount = Math.max(0, entry.skills.length - MAX_VISIBLE_SKILLS);
     )}
 
     <footer class="freelance-footer">
+      <div class="platform-badges">
+        {entry.platforms.map((platform) => (
+          <PlatformBadge platform={platform} lang={lang} />
+        ))}
+      </div>
       <span class="view-detail-cta" aria-hidden="true">
         {t.viewDetail}
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
@@ -110,7 +120,12 @@ const hiddenSkillCount = Math.max(0, entry.skills.length - MAX_VISIBLE_SKILLS);
       </span>
     </footer>
 
-    <a href={detailPath} class="freelance-card-link" data-sliding-door aria-label={`${entry.role} @ ${entry.company}`}></a>
+    <a
+      href={detailPath}
+      class="freelance-card-link"
+      data-freelance-detail-slug={entry.slug}
+      aria-label={`${entry.role} @ ${entry.company}`}
+    ></a>
   </div>
 </article>
 
@@ -195,11 +210,6 @@ const hiddenSkillCount = Math.max(0, entry.skills.length - MAX_VISIBLE_SKILLS);
   }
 
   .freelance-header-row {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 0.75rem;
     margin-bottom: 0.75rem;
   }
 
@@ -298,7 +308,9 @@ const hiddenSkillCount = Math.max(0, entry.skills.length - MAX_VISIBLE_SKILLS);
     padding-top: 1rem;
     border-top: 1px solid color-mix(in srgb, var(--color-text) 20%, transparent);
     display: flex;
-    justify-content: flex-end;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
   }
 
   .freelance-card-link {
@@ -342,10 +354,6 @@ const hiddenSkillCount = Math.max(0, entry.skills.length - MAX_VISIBLE_SKILLS);
       padding-right: 1.75rem;
     }
 
-    .freelance-header-row {
-      flex-direction: column;
-      align-items: flex-start;
-    }
   }
 </style>
 

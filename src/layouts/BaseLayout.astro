@@ -5,6 +5,11 @@ import { useUserAgent } from 'astro-useragent';
 import { APP_VERSION } from '@/lib/version';
 import ScanMeTag from '@/components/ScanMeTag.astro';
 import { EmailService } from '@/lib/emailService';
+import NavRoutePicker from '@/components/NavRoutePicker.astro';
+import { resolveFreelanceOrigin } from '@/lib/freelance-navigation';
+import { ClientRouter } from 'astro:transitions';
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import '../styles/nav-route-picker.css';
 
 interface Props {
   title: string;
@@ -15,18 +20,31 @@ interface Props {
 
 const { title = 'Germán Gomez', description = '', lang, hideSocialLinks = false } = Astro.props;
 const currentPath = Astro.url.pathname;
-const t = getTranslations(lang).nav;
+const siteT = getTranslations(lang);
+const t = siteT.nav;
 const currentYear = getCurrentYear();
 
 // Language switcher & nav paths (prefixed locales)
 const otherLang = lang === 'es' ? 'en' : 'es';
 const switcherPath = currentPath.replace(`/${lang}/`, `/${otherLang}/`);
 
-const bioPath = `/${lang}/`;
+const bioPath = getRelativeLocaleUrl(lang, '/');
 const experiencePath = `/${lang}/experience`;
 const freelancePath = `/${lang}/freelance`;
+const isFreelanceRoute = currentPath.startsWith(freelancePath);
+const freelanceOrigin = resolveFreelanceOrigin(Astro.url.searchParams.get('from'));
+const isBioFreelanceNav = isFreelanceRoute && freelanceOrigin === 'bio';
+const isExperienceFreelanceNav = isFreelanceRoute && freelanceOrigin === 'experience';
+const isBioActive =
+  currentPath === `/${lang}/` ||
+  currentPath === `/${lang}` ||
+  isBioFreelanceNav;
+const isExperienceActive =
+  currentPath.startsWith(experiencePath) ||
+  isExperienceFreelanceNav;
 const isExperienceLikePage =
   currentPath.startsWith(experiencePath) || currentPath.startsWith(freelancePath);
+const freelanceNavLabel = siteT.freelance.heading;
 const blogPath = `/${lang}/blog`;
 const contactPath = `/${lang}/contact`;
 
@@ -67,7 +85,14 @@ if (import.meta.env.DEV) {
 ---
 
 <!doctype html>
-<html lang={lang}>
+<html
+  lang={lang}
+  data-freelance-route={isFreelanceRoute ? 'true' : undefined}
+  data-freelance-origin={isFreelanceRoute ? freelanceOrigin : undefined}
+  data-nav-parent-bio={t.bio}
+  data-nav-parent-experience={t.experience}
+  data-nav-freelance-label={freelanceNavLabel}
+>
   <head>
     <meta charset="UTF-8" />
     <meta name="description" content={description} />
@@ -78,6 +103,46 @@ if (import.meta.env.DEV) {
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
+    <ClientRouter />
+    <script is:inline>
+      // Bio/home nav must always work — index routes are fragile with persisted ClientRouter state.
+      document.addEventListener(
+        'click',
+        (event) => {
+          const target = event.target;
+          if (!(target instanceof Element)) return;
+
+          const link = target.closest('[data-nav-bio-link]');
+          if (!(link instanceof HTMLAnchorElement)) return;
+          if (event.button !== 0) return;
+          if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+
+          const href = link.getAttribute('href');
+          if (!href) return;
+
+          const destination = new URL(href, window.location.href);
+          if (destination.origin !== window.location.origin) return;
+
+          const normalize = (path) =>
+            path.length > 1 && path.endsWith('/') ? path.slice(0, -1) : path;
+          const sameRoute =
+            normalize(destination.pathname) === normalize(window.location.pathname) &&
+            destination.search === window.location.search;
+
+          event.preventDefault();
+          event.stopImmediatePropagation();
+
+          if (sameRoute) {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            document.getElementById('sliding-door')?.scrollTo({ top: 0, behavior: 'smooth' });
+            return;
+          }
+
+          window.location.assign(`${destination.pathname}${destination.search}${destination.hash}`);
+        },
+        true
+      );
+    </script>
     <script is:inline>
       // Theme initialization (runs before page render to prevent flash)
       const theme = localStorage.getItem('theme') || 'dark';
@@ -98,8 +163,10 @@ if (import.meta.env.DEV) {
       <div class="nav-links">
         <a 
           href={bioPath}
-          class={`nav-link nav-link-1 ${(currentPath === `/${lang}/` || currentPath === `/${lang}`) ? 'nav-link-active' : ''}`}
-          aria-label={t.bio}
+          class={`nav-link nav-link-1 ${isBioActive ? 'nav-link-active' : ''} ${isBioFreelanceNav ? 'nav-link--picker-active' : ''}`}
+          aria-label={isBioFreelanceNav ? `${freelanceNavLabel}, ${t.bio}` : t.bio}
+          data-nav-bio-link
+          data-astro-reload
         >
           <span class="nav-icon" aria-hidden="true">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
@@ -108,14 +175,21 @@ if (import.meta.env.DEV) {
             </svg>
           </span>
           <span class="nav-text">
-            <span class="nav-label-desktop">{t.bio}</span>
-            <span class="nav-label-mobile">{t.home}</span>
+            <span class="nav-text--plain nav-label-desktop">{t.bio}</span>
+            <span class="nav-text--plain nav-label-mobile">{t.home}</span>
+            <NavRoutePicker
+              currentLabel={freelanceNavLabel}
+              parentBioLabel={t.bio}
+              parentExperienceLabel={t.experience}
+              initialOrigin={freelanceOrigin}
+              srLabel={`${freelanceNavLabel}, ${t.bio}`}
+            />
           </span>
         </a>
         <a 
           href={experiencePath}
-          class={`nav-link nav-link-2 ${currentPath.startsWith(`/${lang}/experience`) || currentPath.startsWith(`/${lang}/freelance`) ? 'nav-link-active' : ''}`}
-          aria-label={t.experience}
+          class={`nav-link nav-link-2 ${isExperienceActive ? 'nav-link-active' : ''} ${isExperienceFreelanceNav ? 'nav-link--picker-active' : ''}`}
+          aria-label={isExperienceFreelanceNav ? `${freelanceNavLabel}, ${t.experience}` : t.experience}
         >
           <span class="nav-icon" aria-hidden="true">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
@@ -124,7 +198,16 @@ if (import.meta.env.DEV) {
               <path d="M3 12h18"/>
             </svg>
           </span>
-          <span class="nav-text">{t.experience}</span>
+          <span class="nav-text">
+            <span class="nav-text--plain">{t.experience}</span>
+            <NavRoutePicker
+              currentLabel={freelanceNavLabel}
+              parentBioLabel={t.bio}
+              parentExperienceLabel={t.experience}
+              initialOrigin={freelanceOrigin}
+              srLabel={`${freelanceNavLabel}, ${t.experience}`}
+            />
+          </span>
         </a>
         <a 
           href={blogPath}
@@ -171,9 +254,9 @@ if (import.meta.env.DEV) {
           </a>
         </div>
         )}
-        <span class="sticky-page-title" data-sticky-title aria-hidden="true"></span>
+        <span class="sticky-page-title" data-sticky-title transition:persist="header-sticky-title" transition:animate="none" aria-hidden="true"></span>
       </div>
-      <div id="nav-controls-glassy" class="nav-controls-glassy">
+      <div id="nav-controls-glassy" class="nav-controls-glassy" transition:persist="nav-controls" transition:animate="none">
         <div class="nav-controls">
           <button id="theme-toggle" class="nav-control nav-control-1 theme-toggle-btn" aria-label={t.theme}>
             <span id="theme-icon" class="theme-icon-wrapper">
@@ -434,10 +517,16 @@ if (import.meta.env.DEV) {
         const patchFreelanceBackButtons = (root = document) => {
           const stored = sessionStorage.getItem('freelanceReturnTo') || 'experience';
           const pageLang = document.documentElement.lang || 'es';
-          const target =
+          const originTarget =
             stored === 'bio' ? `/${pageLang}/` : `/${pageLang}/experience`;
+          const freelanceListTarget = `/${pageLang}/freelance?from=${stored}`;
 
           root.querySelectorAll('[data-freelance-back]').forEach((el) => {
+            const target =
+              el.dataset.freelanceBackTarget === 'freelance-list'
+                ? freelanceListTarget
+                : originTarget;
+
             el.setAttribute('href', target);
             el.dataset.listPath = target;
             el.dataset.experiencePath = target;
@@ -490,16 +579,37 @@ if (import.meta.env.DEV) {
           isAnimating = false;
         };
 
+        const normalizeDoorHref = (rawHref) => {
+          const url = new URL(rawHref, window.location.origin);
+          const nestedFreelance = url.pathname.match(/^\/(es|en)\/experience\/freelance\/(.+)$/);
+          if (nestedFreelance) {
+            url.pathname = `/${nestedFreelance[1]}/freelance/${nestedFreelance[2]}`;
+          }
+          return `${url.pathname}${url.search}${url.hash}`;
+        };
+
+        const syncLangSwitcherPath = (pathname, search = '') => {
+          const lang = document.documentElement.lang || 'es';
+          const otherLang = lang === 'es' ? 'en' : 'es';
+          const switcherPath = `${pathname.replace(`/${lang}`, `/${otherLang}`)}${search}`;
+          document.querySelectorAll('.lang-switcher').forEach((switcher) => {
+            if (switcher instanceof HTMLAnchorElement) {
+              switcher.setAttribute('href', switcherPath);
+            }
+          });
+        };
+
         const navigateWithDoor = async (href) => {
           if (isAnimating || overlayActive) return;
           isAnimating = true;
 
+          const destination = normalizeDoorHref(href);
           listTitle = document.title;
           listUrl = window.location.href;
 
           try {
-            const response = await fetch(href, { headers: { Accept: 'text/html' } });
-            if (!response.ok) throw new Error(`Failed to fetch ${href}`);
+            const response = await fetch(destination, { headers: { Accept: 'text/html' } });
+            if (!response.ok) throw new Error(`Failed to fetch ${destination}`);
 
             const html = await response.text();
             const doc = new DOMParser().parseFromString(html, 'text/html');
@@ -520,10 +630,11 @@ if (import.meta.env.DEV) {
 
             await waitForDoorTransition();
 
-            history.pushState({ slidingDoor: true }, '', href);
+            history.pushState({ slidingDoor: true }, '', destination);
+            syncLangSwitcherPath(new URL(destination, window.location.origin).pathname, new URL(destination, window.location.origin).search);
             document.title = doc.title || document.title;
           } catch (_) {
-            window.location.assign(href);
+            window.location.assign(destination);
           } finally {
             isAnimating = false;
           }
@@ -539,9 +650,11 @@ if (import.meta.env.DEV) {
 
             if (forceNavigate && listPath) {
               event.preventDefault();
-              const targetPath = backBtn.hasAttribute('data-freelance-back')
-                ? resolveFreelanceReturnPath(listPath)
-                : listPath;
+              const targetPath =
+                backBtn.hasAttribute('data-freelance-back') &&
+                backBtn.dataset.freelanceBackTarget !== 'freelance-list'
+                  ? resolveFreelanceReturnPath(listPath)
+                  : listPath;
               setOverlayUiState(false);
               door.classList.remove('is-visible', 'is-closed');
               door.innerHTML = '';
@@ -568,7 +681,8 @@ if (import.meta.env.DEV) {
           if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
 
           event.preventDefault();
-          navigateWithDoor(link.href);
+          const rawHref = link.getAttribute('href') || link.href;
+          navigateWithDoor(rawHref);
         });
 
         window.addEventListener('popstate', () => {
@@ -581,6 +695,13 @@ if (import.meta.env.DEV) {
     </script>
 
     <script>
+      import { initViewTransitionLifecycle } from '@/lib/view-transition-lifecycle';
+
+      if (!document.documentElement.dataset.vtLifecycleInit) {
+        document.documentElement.dataset.vtLifecycleInit = 'true';
+        initViewTransitionLifecycle();
+      }
+
       const themeToggle = document.getElementById('theme-toggle');
       
       function updateThemeIcons() {
@@ -595,6 +716,9 @@ if (import.meta.env.DEV) {
       
       updateThemeIcons();
       
+      if (!document.documentElement.dataset.themeToggleBound) {
+        document.documentElement.dataset.themeToggleBound = 'true';
+
       themeToggle?.addEventListener('click', () => {
         const currentTheme = document.documentElement.getAttribute('data-theme');
         const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
@@ -614,6 +738,7 @@ if (import.meta.env.DEV) {
         // Retrigger nav-links animation on theme change
         retriggerNavAnimations();
       });
+      }
       
       // Function to retrigger nav animations (init / lang / theme only — not detail back)
       function retriggerNavAnimations() {
@@ -650,22 +775,44 @@ if (import.meta.env.DEV) {
         sessionStorage.removeItem('languageChanging');
       };
 
-      // Retrigger animations when language is changed (only nav-links, not controls)
-      const langSwitcher = document.querySelector('.lang-switcher');
-      langSwitcher?.addEventListener('click', () => {
+      const showLanguageLoading = () => {
         const loadingIndicator = document.getElementById('language-loading');
         if (loadingIndicator) {
           loadingIndicator.style.display = 'flex';
         }
         sessionStorage.setItem('languageChanging', 'true');
+        window.setTimeout(hideLanguageLoading, 4000);
+      };
+
+      if (!document.documentElement.dataset.langSwitcherInit) {
+        document.documentElement.dataset.langSwitcherInit = 'true';
+
+        document.addEventListener(
+          'click',
+          (event) => {
+            const switcher = (event.target as Element | null)?.closest('.lang-switcher');
+            if (!(switcher instanceof HTMLAnchorElement)) return;
+            if (event.button !== 0) return;
+            if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+            showLanguageLoading();
+          },
+          true
+        );
+      }
+
+      document.addEventListener('astro:page-load', () => {
+        hideLanguageLoading();
+        if (sessionStorage.getItem('languageChanging') === 'true') {
+          retriggerNavAnimations();
+        }
       });
+      document.addEventListener('astro:after-swap', hideLanguageLoading);
 
       window.addEventListener('pageshow', hideLanguageLoading);
       window.addEventListener('popstate', hideLanguageLoading);
 
-      const languageChanging = sessionStorage.getItem('languageChanging');
-      if (languageChanging === 'true') {
-        setTimeout(() => {
+      if (sessionStorage.getItem('languageChanging') === 'true') {
+        window.setTimeout(() => {
           hideLanguageLoading();
           retriggerNavAnimations();
         }, 300);
@@ -1061,52 +1208,131 @@ if (import.meta.env.DEV) {
       }
 
       function setupStickyPageTitle() {
-        const sticky = document.querySelector('[data-sticky-title]');
-        if (!sticky) return;
+        let headingObserver = null;
+        let scrollTarget = null;
+        let onScroll = null;
+        let storedLabel = '';
+        /** @type {HTMLElement | null} */
+        let observedSource = null;
+        let overlayActive = false;
 
-        let headingObserver: IntersectionObserver | null = null;
+        const getSticky = () => document.querySelector('[data-sticky-title]');
+        const getPill = () => document.querySelector('[data-header-pill]');
+        const getDoor = () => document.getElementById('sliding-door');
+
+        const getHeaderOffset = () => {
+          const topBar = document.querySelector('.site-top-bar');
+          if (topBar instanceof HTMLElement) {
+            if (getComputedStyle(topBar).display === 'contents') {
+              return 12;
+            }
+            return Math.max(Math.ceil(topBar.getBoundingClientRect().bottom), 48);
+          }
+          return 64;
+        };
+
+        const setPillExpanded = (expanded) => {
+          const sticky = getSticky();
+          const pill = getPill();
+          if (!sticky) return;
+
+          const show = expanded && storedLabel.length > 0;
+          sticky.textContent = storedLabel;
+          sticky.classList.toggle('is-visible', show);
+          sticky.setAttribute('aria-hidden', show ? 'false' : 'true');
+          pill?.classList.toggle('header-context-pill--with-title', show);
+        };
+
+        const isHeadingInView = () => {
+          if (!(observedSource instanceof HTMLElement)) return false;
+
+          const rect = observedSource.getBoundingClientRect();
+          const headerBottom = getHeaderOffset();
+
+          if (overlayActive) {
+            const door = getDoor();
+            const doorRect = door?.getBoundingClientRect();
+            if (!doorRect) return rect.bottom > headerBottom;
+            return rect.bottom > headerBottom && rect.top < doorRect.bottom;
+          }
+
+          return rect.bottom > headerBottom && rect.top < window.innerHeight;
+        };
+
+        const syncVisibility = () => {
+          setPillExpanded(!isHeadingInView());
+        };
+
+        const teardownScroll = () => {
+          if (scrollTarget && onScroll) {
+            scrollTarget.removeEventListener('scroll', onScroll);
+          }
+          scrollTarget = null;
+          onScroll = null;
+        };
 
         const disconnectObserver = () => {
           headingObserver?.disconnect();
           headingObserver = null;
+          teardownScroll();
+          observedSource = null;
+          overlayActive = false;
         };
 
         const bindHeadingSource = () => {
           disconnectObserver();
 
-          const door = document.getElementById('sliding-door');
-          const doorOpen = door?.classList.contains('is-closed') ?? false;
-          const source = doorOpen
+          const door = getDoor();
+          overlayActive = Boolean(
+            door?.classList.contains('is-visible') && door?.classList.contains('is-closed')
+          );
+          const source = overlayActive
             ? door?.querySelector('[data-page-heading]')
             : document.querySelector('main.main-content [data-page-heading]');
 
           if (!(source instanceof HTMLElement)) {
-            sticky.textContent = '';
-            sticky.classList.remove('is-visible');
-            sticky.setAttribute('aria-hidden', 'true');
-            document.querySelector('[data-header-pill]')?.classList.remove('header-context-pill--with-title');
+            storedLabel = '';
+            getSticky()?.replaceChildren();
+            setPillExpanded(false);
             return;
           }
 
-          sticky.textContent = source.textContent?.trim() ?? '';
-          sticky.setAttribute('aria-hidden', 'true');
+          observedSource = source;
+          storedLabel =
+            source.dataset.stickyLabel?.trim() || source.textContent?.trim() || '';
+          const sticky = getSticky();
+          if (sticky) sticky.textContent = storedLabel;
 
+          const headerOffset = getHeaderOffset();
           headingObserver = new IntersectionObserver(
-            ([entry]) => {
-              const visible = !entry.isIntersecting;
-              sticky.classList.toggle('is-visible', visible);
-              sticky.setAttribute('aria-hidden', visible ? 'false' : 'true');
-              document.querySelector('[data-header-pill]')?.classList.toggle('header-context-pill--with-title', visible);
-            },
+            () => syncVisibility(),
             {
-              root: doorOpen ? door : null,
-              rootMargin: '-56px 0px 0px 0px',
-              threshold: 0,
+              root: overlayActive ? door : null,
+              rootMargin: `-${headerOffset}px 0px 0px 0px`,
+              threshold: [0, 0.01, 0.25, 1],
             }
           );
-
           headingObserver.observe(source);
+
+          onScroll = () => syncVisibility();
+          scrollTarget = overlayActive ? door : window;
+          scrollTarget.addEventListener('scroll', onScroll, { passive: true });
+
+          requestAnimationFrame(() => {
+            requestAnimationFrame(syncVisibility);
+          });
         };
+
+        const scheduleBind = (delays = [0, 120, 320]) => {
+          delays.forEach((delay) => window.setTimeout(bindHeadingSource, delay));
+        };
+
+        if (document.documentElement.dataset.stickyTitleInit === 'true') {
+          scheduleBind();
+          return;
+        }
+
+        document.documentElement.dataset.stickyTitleInit = 'true';
 
         bindHeadingSource();
 
@@ -1115,9 +1341,8 @@ if (import.meta.env.DEV) {
           const delay = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 650;
           window.setTimeout(bindHeadingSource, delay);
         });
-        document.addEventListener('astro:page-load', () => {
-          window.setTimeout(bindHeadingSource, 100);
-        });
+        document.addEventListener('astro:page-load', () => scheduleBind());
+        document.addEventListener('astro:after-swap', () => scheduleBind());
       }
 
       if (document.readyState === 'loading') {
@@ -1138,17 +1363,8 @@ if (import.meta.env.DEV) {
           const target = event.target;
           if (!(target instanceof Element)) return;
 
-          const activeNav = target.closest('.nav-link.nav-link-active');
-          if (activeNav instanceof HTMLAnchorElement) {
-            const href = activeNav.getAttribute('href');
-            if (href) {
-              const targetPath = new URL(href, window.location.origin).pathname;
-              if (targetPath === window.location.pathname) {
-                event.preventDefault();
-                scrollToTop();
-                return;
-              }
-            }
+          if (target.closest('.nav-bar a.nav-link')) {
+            return;
           }
 
           if (target.closest('#theme-toggle')) {
@@ -1166,11 +1382,36 @@ if (import.meta.env.DEV) {
         });
       }
     </script>
+    <script>
+      import { initNavFreelanceMorph } from '@/lib/nav-freelance-morph';
+      import { FREELANCE_RETURN_KEY } from '@/lib/freelance-navigation';
+
+      if (!document.documentElement.dataset.navMorphInit) {
+        document.documentElement.dataset.navMorphInit = 'true';
+
+      const html = document.documentElement;
+
+      initNavFreelanceMorph({
+        parentBioLabel: html.dataset.navParentBio ?? 'bio',
+        parentExperienceLabel: html.dataset.navParentExperience ?? 'experience',
+        freelanceNavLabel: html.dataset.navFreelanceLabel ?? 'freelance',
+        storageKey: FREELANCE_RETURN_KEY,
+      });
+      }
+    </script>
   </body>
 </html>
 
 <style is:global>
   @import '../styles/global.css';
+
+  @media (prefers-reduced-motion: no-preference) {
+    ::view-transition-old(root),
+    ::view-transition-new(root) {
+      animation-duration: 0.32s;
+      animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+    }
+  }
   
   /* Ensure full width and prevent horizontal overflow */
   html, body {
@@ -1401,9 +1642,9 @@ if (import.meta.env.DEV) {
     .header-context-pill {
       position: fixed;
       top: max(1.25rem, env(safe-area-inset-top));
-      left: calc(4rem + 1.5rem);
+      left: calc(var(--nav-bar-width) + 1.5rem);
       z-index: 102;
-      max-width: min(28rem, calc(100vw - 4rem - 3rem));
+      max-width: min(28rem, calc(100vw - var(--nav-bar-width) - 3rem));
     }
 
     .site-top-bar.scrolled .header-context-pill {
@@ -1462,7 +1703,10 @@ if (import.meta.env.DEV) {
       right: auto;
       top: 0;
       bottom: auto;
-      width: 4rem;
+      width: var(--nav-bar-width);
+      min-width: var(--nav-bar-width);
+      max-width: var(--nav-bar-width);
+      overflow-x: clip;
       height: 100vh;
       flex-direction: column;
       justify-content: flex-start;
@@ -1525,12 +1769,54 @@ if (import.meta.env.DEV) {
     }
     
     .nav-link {
+      position: relative;
       writing-mode: vertical-rl;
       text-orientation: mixed;
       white-space: nowrap;
       display: block;
       flex-direction: unset;
       gap: 0;
+    }
+
+    .nav-link-1 {
+      z-index: 4;
+      pointer-events: auto;
+      width: 100%;
+      min-height: 3.25rem;
+      padding: 1.25rem 0 1.75rem;
+      margin-top: -1rem;
+      margin-bottom: -1.25rem;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .nav-link-1::before {
+      content: '';
+      position: absolute;
+      top: -0.75rem;
+      bottom: -1.25rem;
+      left: 0;
+      right: 0;
+      z-index: -1;
+    }
+
+    .nav-link-2 { z-index: 3; }
+    .nav-link-3 { z-index: 2; }
+    .nav-link-4 { z-index: 1; }
+
+    /* Picker labels are visual-only — clicks pass through to links above */
+    .nav-link--picker-active .nav-word-picker-host,
+    .nav-link--picker-active .nav-word-picker,
+    .nav-link--picker-active .nav-word-picker__viewport,
+    .nav-link--picker-active .nav-word-picker__track,
+    .nav-link--picker-active .nav-word {
+      pointer-events: none;
+    }
+
+    .nav-link-1.nav-link--picker-active,
+    .nav-link-2.nav-link--picker-active {
+      overflow: visible;
+      contain: layout style;
     }
     
     .site-top-bar {
@@ -1543,7 +1829,9 @@ if (import.meta.env.DEV) {
       right: auto;
       left: 0;
       bottom: 2rem;
-      width: 4rem;
+      width: var(--nav-bar-width);
+      min-width: var(--nav-bar-width);
+      max-width: var(--nav-bar-width);
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -1590,23 +1878,34 @@ if (import.meta.env.DEV) {
   }
 
   @media (max-width: 767px) {
+    .main-content:not(.main-content--detail) {
+      padding-top: calc(max(0.75rem, env(safe-area-inset-top)) + 4.25rem);
+    }
+
     .main-content--detail {
-      padding-top: calc(max(1rem, env(safe-area-inset-top)) + 5.75rem);
+      padding-top: calc(max(0.75rem, env(safe-area-inset-top)) + 4.75rem);
     }
 
     .main-content--detail .back-button {
       margin-top: 0.25rem;
     }
+
+    .main-content :global(.experience-container),
+    .main-content :global(.contact-container),
+    .main-content :global(.freelance-container),
+    .main-content :global(.blog-container) {
+      margin-top: 0;
+    }
   }
   
   @media (min-width: 768px) {
     .main-content {
-      margin-left: 4rem;
+      margin-left: var(--nav-bar-width);
       margin-right: 0;
       padding: 3rem;
       padding-top: 3rem;
       padding-bottom: 3rem;
-      width: calc(100% - 4rem);
+      width: calc(100% - var(--nav-bar-width));
       max-width: none;
     }
 
@@ -1757,7 +2056,7 @@ if (import.meta.env.DEV) {
     }
     
     .nav-link-active {
-      transform: translateX(4px);
+      transform: none;
       opacity: 1;
       color: var(--color-text);
     }
@@ -1767,22 +2066,15 @@ if (import.meta.env.DEV) {
       filter: none;
     }
 
-    .nav-link-active .nav-text {
-      color: var(--color-text);
-    }
-    
-    .nav-link-active .nav-text::before {
-      content: '→';
-      margin-right: 0.57rem;
-      padding-bottom: 4px;
-      color: var(--color-accent);
+    .nav-link-active:not(.nav-link--picker-active) .nav-text {
       display: inline-block;
-      vertical-align: middle;
-      animation: arrowPulseDesktop 1.5s ease-in-out infinite;
-    }
-    
-    .nav-link-active .nav-text {
-      animation: textGlow 2s ease-in-out infinite;
+      padding: 0.25rem 0.125rem;
+      border-radius: 0.4rem;
+      background-color: var(--color-accent);
+      color: var(--segmented-active-text) !important;
+      font-weight: 700;
+      box-shadow: 0 0 12px color-mix(in srgb, var(--color-accent) 45%, transparent);
+      animation: none !important;
     }
   }
   

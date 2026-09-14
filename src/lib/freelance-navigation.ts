@@ -19,11 +19,15 @@ export function resolveFreelanceOrigin(
   return parseFreelanceOrigin(fromParam) ?? 'experience';
 }
 
+export function getHomePath(lang: Language): string {
+  return getRelativeLocaleUrl(lang, '/');
+}
+
 export function getReturnPathForOrigin(
   lang: Language,
   origin: FreelanceOrigin
 ): string {
-  if (origin === 'bio') return getRelativeLocaleUrl(lang, '/');
+  if (origin === 'bio') return getHomePath(lang);
   return getRelativeLocaleUrl(lang, 'experience');
 }
 
@@ -34,6 +38,30 @@ export function getFreelanceBackLabel(
   const t = getTranslations(lang);
   if (origin === 'bio') return t.freelance.backToBio;
   return t.experience.backToExperience;
+}
+
+export function getFreelanceIndexPath(lang: Language): string {
+  return getRelativeLocaleUrl(lang, 'freelance');
+}
+
+export function getFreelanceListReturnPath(
+  lang: Language,
+  origin: FreelanceOrigin
+): string {
+  return appendFreelanceOrigin(getFreelanceIndexPath(lang), origin);
+}
+
+export function getFreelanceDetailPath(
+  lang: Language,
+  slug: string,
+  origin: FreelanceOrigin
+): string {
+  const base = getRelativeLocaleUrl(lang, `freelance/${slug}`).replace(/\/$/, '');
+  return appendFreelanceOrigin(base, origin);
+}
+
+export function getFreelanceDetailBackLabel(lang: Language): string {
+  return getTranslations(lang).freelance.back;
 }
 
 export function appendFreelanceOrigin(href: string, origin: FreelanceOrigin): string {

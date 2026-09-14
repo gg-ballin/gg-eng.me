@@ -62,6 +62,7 @@ export const TECH_ICONS: Record<TechCategory, TechIconConfig[]> = {
       href: 'https://www.cloudflare.com',
       titleKey: 'cloudflare',
       iconLight: '/assets/icons/tech/cloudflare/Cloudflare_Logo.svg',
+      iconDark: '/assets/icons/tech/cloudflare/cloudflare_logo_light.svg',
       width: 85,
     },
     {
@@ -84,7 +85,7 @@ export const TECH_ICONS: Record<TechCategory, TechIconConfig[]> = {
     {
       href: 'https://bun.sh',
       titleKey: 'bun',
-      iconLight: '/assets/icons/tech/npm/Npm_logo.svg',
+      iconLight: '/assets/icons/tech/bun/bun_logo.svg',
       showText: true,
     },
   ],

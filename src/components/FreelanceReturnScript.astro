@@ -1,6 +1,12 @@
 ---
 import type { Language } from '@/i18n/translations';
-import { getFreelanceBackLabel, getReturnPathForOrigin, FREELANCE_RETURN_KEY } from '@/lib/freelance-navigation';
+import {
+  getFreelanceBackLabel,
+  getFreelanceDetailBackLabel,
+  getFreelanceListReturnPath,
+  getReturnPathForOrigin,
+  FREELANCE_RETURN_KEY,
+} from '@/lib/freelance-navigation';
 
 interface Props {
   lang: Language;
@@ -9,27 +15,65 @@ interface Props {
 
 const { lang, fromParam = null } = Astro.props;
 
-const labels = {
-  bio: getFreelanceBackLabel(lang, 'bio'),
-  experience: getFreelanceBackLabel(lang, 'experience'),
+const paths = {
+  originBio: getReturnPathForOrigin(lang, 'bio'),
+  originExperience: getReturnPathForOrigin(lang, 'experience'),
+  freelanceListBio: getFreelanceListReturnPath(lang, 'bio'),
+  freelanceListExperience: getFreelanceListReturnPath(lang, 'experience'),
 };
 
-const paths = {
-  bio: getReturnPathForOrigin(lang, 'bio'),
-  experience: getReturnPathForOrigin(lang, 'experience'),
+const labels = {
+  originBio: getFreelanceBackLabel(lang, 'bio'),
+  originExperience: getFreelanceBackLabel(lang, 'experience'),
+  detail: getFreelanceDetailBackLabel(lang),
 };
 ---
 
-<script define:vars={{ fromParam, labels, paths, storageKey: FREELANCE_RETURN_KEY }}>
+<script define:vars={{ fromParam, paths, labels, storageKey: FREELANCE_RETURN_KEY }}>
+  import { initFreelanceBackHandler } from '@/lib/freelance-back-handler';
+
+  initFreelanceBackHandler();
+
+  /** @param {string} origin */
+  function originReturnPath(origin) {
+    return origin === 'bio' ? paths.originBio : paths.originExperience;
+  }
+
+  /** @param {string} origin */
+  function listReturnPath(origin) {
+    return origin === 'bio' ? paths.freelanceListBio : paths.freelanceListExperience;
+  }
+
+  /** @param {string} origin */
+  function originBackLabel(origin) {
+    return origin === 'bio' ? labels.originBio : labels.originExperience;
+  }
+
+  /** @param {string} baseHref @param {string} origin */
+  function withFreelanceOrigin(baseHref, origin) {
+    const url = new URL(baseHref, window.location.origin);
+    url.searchParams.set('from', origin);
+    return `${url.pathname}${url.search}`;
+  }
+
+  /** @param {string} origin */
   function applyFreelanceReturn(origin) {
     if (origin !== 'bio' && origin !== 'experience') return;
 
     sessionStorage.setItem(storageKey, origin);
 
-    const returnPath = paths[origin];
-    const label = labels[origin];
+    window.dispatchEvent(
+      new CustomEvent('freelance-origin-change', { detail: { origin } })
+    );
 
     document.querySelectorAll('[data-freelance-back]').forEach((el) => {
+      if (!(el instanceof HTMLAnchorElement)) return;
+
+      const isFreelanceListTarget = el.dataset.freelanceBackTarget === 'freelance-list';
+      const returnPath = isFreelanceListTarget
+        ? listReturnPath(origin)
+        : originReturnPath(origin);
+
       el.setAttribute('href', returnPath);
       el.dataset.listPath = returnPath;
       el.dataset.experiencePath = returnPath;
@@ -37,8 +81,18 @@ const paths = {
 
       const labelEl = el.querySelector('[data-freelance-back-label]');
       if (labelEl) {
-        labelEl.textContent = `← ${label}`;
+        labelEl.textContent = isFreelanceListTarget
+          ? `← ${labels.detail}`
+          : `← ${originBackLabel(origin)}`;
       }
+    });
+
+    document.querySelectorAll('[data-freelance-detail-slug]').forEach((el) => {
+      if (!(el instanceof HTMLAnchorElement)) return;
+      const slug = el.dataset.freelanceDetailSlug;
+      if (!slug) return;
+      const base = el.getAttribute('href')?.split('?')[0] || el.pathname;
+      el.setAttribute('href', withFreelanceOrigin(base, origin));
     });
   }
 

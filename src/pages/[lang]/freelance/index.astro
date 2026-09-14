@@ -36,7 +36,7 @@ const freelanceEntries = getFreelanceEntries(lang);
     <div class="freelance-layout">
       <div class="freelance-list freelance-list-animate">
         {freelanceEntries.map((entry) => (
-          <FreelanceEntry entry={entry} lang={lang} />
+          <FreelanceEntry entry={entry} lang={lang} fromParam={fromParam} />
         ))}
       </div>
 

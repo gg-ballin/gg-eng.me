@@ -41,15 +41,15 @@ export const freelanceEntriesEN: FreelanceEntry[] = [
     platforms: ['web'],
     description:
       'B2B corporate apparel landing for a small Argentine business. Lead capture, catalog downloads, and campaign-ready CTAs for WhatsApp and email marketing.',
-    skills: ['TypeScript', 'Tailwind', 'Cursor'],
+    skills: ['Astro', 'Cloudflare', 'Tailwind', 'Cursor', 'Bun'],
     highlight: true,
     details: [
       {
         name: 'texlab.com.ar',
         achievements: [
-          'Mock: Astro + Cloudflare Workers deployment with branch preview URLs.',
-          'Mock: Contact and lead forms wired to Resend for campaign follow-ups.',
-          'Mock: Mobile-first layout optimized for WhatsApp campaign traffic.',
+          'Astro + Cloudflare Workers deployment with branch preview URLs.',
+          'Contact and lead forms wired to Resend for campaign follow-ups.',
+          'Mobile-first layout optimized for WhatsApp campaign traffic.',
         ],
         links: [{ label: 'texlab.com.ar', href: 'https://texlab.com.ar' }],
       },
@@ -106,15 +106,15 @@ export const freelanceEntriesES: FreelanceEntry[] = [
     platforms: ['web'],
     description:
       'Landing B2B de indumentaria corporativa para una pyme argentina. Captación de leads, descarga de catálogo y CTAs listos para campañas de WhatsApp y email.',
-    skills: ['TypeScript', 'Tailwind', 'Cursor'],
+    skills: ['Astro', 'Cloudflare', 'Tailwind', 'Cursor', 'Bun'],
     highlight: true,
     details: [
       {
         name: 'texlab.com.ar',
         achievements: [
-          'Mock: Deploy en Astro + Cloudflare Workers con preview por branch.',
-          'Mock: Formularios de contacto y leads conectados a Resend para seguimiento de campañas.',
-          'Mock: Layout mobile-first optimizado para tráfico desde campañas de WhatsApp.',
+          'Deploy en Astro + Cloudflare Workers con preview por branch.',
+          'Formularios de contacto y leads conectados a Resend para seguimiento de campañas.',
+          'Layout mobile-first optimizado para tráfico desde campañas de WhatsApp.',
         ],
         links: [{ label: 'texlab.com.ar', href: 'https://texlab.com.ar' }],
       },
