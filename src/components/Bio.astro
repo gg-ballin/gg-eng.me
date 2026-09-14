@@ -17,6 +17,8 @@ const { lang } = Astro.props;
 const t = getTranslations(lang).bio;
 const freelancePath = appendFreelanceOrigin(getRelativeLocaleUrl(lang, 'freelance'), 'bio');
 
+const [roleMobile, roleWeb, roleProduct] = t.roleDisciplines;
+
 // Parse markdown - content is from trusted translations, no sanitization needed
 const descriptionHtml = marked.parse(t.description, { breaks: true }) as string;
 
@@ -34,20 +36,22 @@ const descriptionHtml = marked.parse(t.description, { breaks: true }) as string;
       
       <div style="display: flex; flex-direction: column;">
         <Reveal delay={0.2}>
-          <p class="text-2xl md:text-3xl mb-12" set:html={(() => {
-            const words = t.role.split(' ');
-            const parts: string[] = [];
-            words.forEach((word, index) => {
-              if (index > 0) parts.push(' ');
-              const isMobile = word === 'Mobile';
-              parts.push(`<span class="${isMobile ? 'bio-accent' : 'opacity-80'}">${word}</span>`);
-            });
-            return parts.join('');
-          })()} />
+          <p class="bio-role-line text-2xl md:text-3xl">
+            <span class="opacity-80">{t.rolePrefix}</span>
+            <span
+              class="bio-role-rotator"
+              aria-label={t.roleDisciplines.join(', ')}
+            >
+              <span class="bio-accent bio-role-word bio-role-word--mobile">{roleMobile}</span>
+              <span class="bio-accent bio-role-word bio-role-word--web">{roleWeb}</span>
+              <span class="bio-accent bio-role-word bio-role-word--product">{roleProduct}</span>
+            </span>
+            <span class="opacity-80">{t.roleSuffix}</span>
+          </p>
         </Reveal>
         
         <Reveal delay={0.35}>
-          <p class="text-base md:text-lg opacity-70 mb-8 md:mb-12">
+          <p class="bio-location text-base md:text-lg opacity-70 mb-8 md:mb-12">
             {t.location} 🇦🇷
           </p>
         </Reveal>

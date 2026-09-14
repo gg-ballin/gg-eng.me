@@ -25,7 +25,9 @@ export interface Translations {
   // Bio page
   bio: {
     name: string;
-    role: string;
+    rolePrefix: string;
+    roleSuffix: string;
+    roleDisciplines: [string, string, string];
     location: string;
     description: string;
     techExplanation: {
