@@ -28,8 +28,15 @@ export const translations: Record<Language, Translations> = {
       rolePrefix: 'Staff',
       roleSuffix: 'Engineer',
       roleDisciplines: ['Mobile', 'Web', 'Product'],
+      aiRole: 'AI Orchestrator',
       location: 'Buenos Aires, Argentina',
-      description: 'Más de 9 años desarrollando aplicaciones móviles híbridas con React Native, viví la evolución completa del ecosistema: desde los inicios de `expo` (cuándo era difícil renderizar un mapa!) y de `react-native-cli` con Javascript (y sus obsoletos `PropTypes`) hasta los estándares de performance de la era de la Nueva Arquitectura, Fabric. Expo, Typescript, Swift y Kotlin, sintaxis obligatoria que un ingeniero móvil debe dominar para crear aplicaciones, performantes, mantenibles y escalables.',
+      description: 'Diseño flujos, prompts y sistemas de agentes que aceleran el delivery de producto — sin perder el criterio de un Staff Engineer. Más de 9 años en React Native: viví el pasaje de `expo` y `react-native-cli` (cuando renderizar un mapa era un problema) hasta Fabric y la Nueva Arquitectura. `Expo`, `TypeScript`, `Swift` y `Kotlin` son la base; AI es el multiplicador para apps performantes, mantenibles y escalables.',
+      cursorComposer: {
+        caption: 'Esto es todo lo que veo todos los días:',
+        placeholder: 'Plan, Build, / for commands, @ for context',
+        agent: 'Agent',
+        modelsLabel: 'Modelos',
+      },
       techExplanation: {
         intro: 'Este sitio web está construido con:',
         categories: {
@@ -37,7 +44,7 @@ export const translations: Record<Language, Translations> = {
           deployment: 'Deployment Strategy',
           versionControl: 'Version Control',
           packageManager: 'Package Manager',
-          ide: 'IDE',
+          ide: 'AI IDE',
         },
         technologies: {
           astro: 'Astro',
@@ -78,12 +85,16 @@ export const translations: Record<Language, Translations> = {
       freelanceBadge: 'freelance',
       backToExperience: 'Volver a experiencia',
       viewDetail: 'detalle',
+      storeBadges: {
+        appStore: { caption: 'Descárgalo en el', name: 'App Store' },
+        googlePlay: { caption: 'Descargar en', name: 'Google Play' },
+      },
     },
     freelance: {
       title: 'Freelance - Germán Gómez',
       description: 'Trabajo freelance seleccionado en web y mobile.',
       heading: 'freelance',
-      intro: 'Entregas puntuales para clientes en Upwork, Fiverr y contratación directa. Web y mobile.',
+      intro: 'De apps móviles a sitios web y rebuilds full-stack: proyectos donde el scope cambia, el cliente pregunta y hay que estimar, comunicar y entregar. Aprendí a traducir requisitos ambiguos en entregables claros, a cobrar por hora cuando el camino no está cerrado, y a cerrar scopes cuando sí lo está.',
       detail: 'detalle',
       viewDetail: 'detalle',
       backToFreelance: 'Volver a freelance',
@@ -97,9 +108,9 @@ export const translations: Record<Language, Translations> = {
       sidebarPlatforms: 'Plataformas',
       sidebarPlatformMobile: 'Mobile',
       sidebarPlatformWeb: 'Web',
-      sidebarPlatformReact: 'React',
+      sidebarPlatformReact: 'react',
       sidebarModalities: 'Modalidades',
-      sidebarModalitiesList: 'Upwork · Fiverr · Directo',
+      sidebarModalitiesList: 'Por proyecto · Por hora · Upwork · Fiverr · Directo',
       sidebarStack: 'Stack frecuente',
       sidebarContactCta: 'Contacto para proyectos',
       sidebarProjects: '{count} proyectos',
@@ -108,6 +119,10 @@ export const translations: Record<Language, Translations> = {
         web: 'web',
         ios: 'iOS',
         android: 'Android',
+      },
+      engagement: {
+        project: 'Por proyecto',
+        hourly: 'Por hora',
       },
     },
     contact: {
@@ -196,8 +211,15 @@ export const translations: Record<Language, Translations> = {
       rolePrefix: 'Staff',
       roleSuffix: 'Engineer',
       roleDisciplines: ['Mobile', 'Web', 'Product'],
+      aiRole: 'AI Orchestrator',
       location: 'based in Buenos Aires, Argentina',
-      description: '9+ years developing hybrid mobile applications with React Native. I\'ve lived through the ecosystem\'s full evolution: from the early days of `expo` (when rendering a map was a nightmare!) and `react-native-cli` with JavaScript (and its now-obsolete `PropTypes`) to the high-performance standards of the New Architecture era, Fabric.\n\nExpo, TypeScript, Swift, and Kotlin are now the essential stack a mobile engineer must master to build high-performance, maintainable, and scalable applications.',
+      description: 'I design flows, prompts, and agent systems that accelerate product delivery — without losing Staff Engineer judgment. 9+ years in React Native: I lived the shift from early `expo` and `react-native-cli` (when rendering a map was a nightmare) to Fabric and the New Architecture. `Expo`, `TypeScript`, `Swift`, and `Kotlin` are the foundation; AI is the multiplier for high-performance, maintainable, scalable apps.',
+      cursorComposer: {
+        caption: 'This is what I stare at every day:',
+        placeholder: 'Plan, Build, / for commands, @ for context',
+        agent: 'Agent',
+        modelsLabel: 'Models',
+      },
       techExplanation: {
         intro: 'This website is built with:',
         categories: {
@@ -205,7 +227,7 @@ export const translations: Record<Language, Translations> = {
           deployment: 'Deployment Strategy',
           versionControl: 'Version Control',
           packageManager: 'Package Manager',
-          ide: 'IDE',
+          ide: 'AI IDE',
         },
         technologies: {
           astro: 'Astro',
@@ -246,12 +268,16 @@ export const translations: Record<Language, Translations> = {
       freelanceBadge: 'freelance',
       backToExperience: 'Back to experience',
       viewDetail: 'detail',
+      storeBadges: {
+        appStore: { caption: 'Download on the', name: 'App Store' },
+        googlePlay: { caption: 'Get it on', name: 'Google Play' },
+      },
     },
     freelance: {
       title: 'Freelance - Germán Gómez',
       description: 'Selected freelance work across web and mobile.',
       heading: 'freelance',
-      intro: 'On-time delivery for Upwork, Fiverr, and direct clients. Web and mobile.',
+      intro: 'From mobile apps to websites and full-stack rebuilds — work where the scope shifts, the client asks questions, and you still have to estimate, communicate, and ship. I learned to turn fuzzy requirements into clear deliverables, bill hourly when the path is open-ended, and lock scope when it is not.',
       detail: 'detail',
       viewDetail: 'detail',
       backToFreelance: 'Back to freelance',
@@ -265,9 +291,9 @@ export const translations: Record<Language, Translations> = {
       sidebarPlatforms: 'Platforms',
       sidebarPlatformMobile: 'Mobile',
       sidebarPlatformWeb: 'Web',
-      sidebarPlatformReact: 'React',
+      sidebarPlatformReact: 'react',
       sidebarModalities: 'Engagement',
-      sidebarModalitiesList: 'Upwork · Fiverr · Direct',
+      sidebarModalitiesList: 'Project-based · Hourly · Upwork · Fiverr · Direct',
       sidebarStack: 'Common stack',
       sidebarContactCta: 'Contact for projects',
       sidebarProjects: '{count} projects',
@@ -276,6 +302,10 @@ export const translations: Record<Language, Translations> = {
         web: 'web',
         ios: 'iOS',
         android: 'Android',
+      },
+      engagement: {
+        project: 'Project-based',
+        hourly: 'Hourly',
       },
     },
     contact: {

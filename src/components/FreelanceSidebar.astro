@@ -2,7 +2,7 @@
 import { getRelativeLocaleUrl } from 'astro:i18n';
 import type { FreelanceEntry } from '@/lib/freelance-data';
 import SkillIconLink from '@/components/SkillIconLink.astro';
-import TechIconLink from '@/components/TechIconLink.astro';
+import type { ExperienceTechIconConfig } from '@/lib/experience/technologies';
 import { getFreelanceSkillIconConfigs } from '@/lib/freelance-data';
 import type { Language } from '@/i18n/translations';
 import { getTranslations } from '@/i18n/translations';
@@ -17,6 +17,23 @@ const t = getTranslations(lang).freelance;
 const contactPath = `${getRelativeLocaleUrl(lang, 'contact')}?intent=freelance`;
 
 const reactNativeIcon = getFreelanceSkillIconConfigs(['REACT NATIVE'])[0];
+const reactIcon: ExperienceTechIconConfig = {
+  id: 'react',
+  name: 'React',
+  href: 'https://react.dev',
+  iconLight: '/assets/icons/experience/technologies/react_native/react-native_logo.svg',
+  width: 28,
+  showText: true,
+};
+const astroIcon: ExperienceTechIconConfig = {
+  id: 'astro',
+  name: 'Astro',
+  href: 'https://astro.build',
+  iconLight: '/assets/icons/tech/astro/astro_logo_dark.svg',
+  iconDark: '/assets/icons/tech/astro/astro_logo_light.svg',
+  width: 28,
+  showText: true,
+};
 
 const skillCounts = new Map<string, number>();
 for (const entry of entries) {
@@ -30,6 +47,10 @@ const topSkills = [...skillCounts.entries()]
   .sort((a, b) => b[1] - a[1])
   .slice(0, 6)
   .map(([skill]) => skill);
+
+/** PM / docs tools always shown in common stack */
+const pinnedStackSkills = ['Jira', 'Confluence'];
+const stackSkills = [...topSkills, ...pinnedStackSkills];
 ---
 
 <aside class="freelance-sidebar">
@@ -59,15 +80,8 @@ const topSkills = [...skillCounts.entries()]
       <div class="platform-stack-row">
         <span class="platform-stack-label">{t.sidebarPlatformWeb}</span>
         <div class="platform-stack-items">
-          <TechIconLink
-            href="https://astro.build"
-            title="Astro"
-            iconLight="/assets/icons/tech/astro/astro_logo_dark.svg"
-            iconDark="/assets/icons/tech/astro/astro_logo_light.svg"
-            text="Astro"
-            width={52}
-          />
-          <span class="skill-tag">{t.sidebarPlatformReact}</span>
+          <SkillIconLink iconConfig={astroIcon} text="astro" />
+          <SkillIconLink iconConfig={reactIcon} text={t.sidebarPlatformReact} />
         </div>
       </div>
     </div>
@@ -78,11 +92,11 @@ const topSkills = [...skillCounts.entries()]
     <p class="sidebar-text">{t.sidebarModalitiesList}</p>
   </section>
 
-  {topSkills.length > 0 && (
+  {stackSkills.length > 0 && (
     <section class="sidebar-block">
       <h2 class="sidebar-title">{t.sidebarStack}</h2>
       <div class="sidebar-skills">
-        {topSkills.map((skill) => {
+        {stackSkills.map((skill) => {
           const iconConfig = getFreelanceSkillIconConfigs([skill])[0];
           if (iconConfig) {
             return <SkillIconLink iconConfig={iconConfig} />;

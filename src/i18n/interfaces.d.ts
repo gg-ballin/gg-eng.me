@@ -28,8 +28,15 @@ export interface Translations {
     rolePrefix: string;
     roleSuffix: string;
     roleDisciplines: [string, string, string];
+    aiRole: string;
     location: string;
     description: string;
+    cursorComposer: {
+      caption: string;
+      placeholder: string;
+      agent: string;
+      modelsLabel: string;
+    };
     techExplanation: {
       intro: string;
       categories: {
@@ -84,6 +91,10 @@ export interface Translations {
     freelanceBadge: string;
     backToExperience: string;
     viewDetail: string;
+    storeBadges: {
+      appStore: { caption: string; name: string };
+      googlePlay: { caption: string; name: string };
+    };
   };
 
   // Freelance
@@ -116,6 +127,10 @@ export interface Translations {
       web: string;
       ios: string;
       android: string;
+    };
+    engagement: {
+      project: string;
+      hourly: string;
     };
   };
   

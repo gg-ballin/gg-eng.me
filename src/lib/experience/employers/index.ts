@@ -65,6 +65,7 @@ export const EMPLOYER_LOGOS: Record<string, EmployerLogoConfig> = {
     iconLight: '/assets/icons/experience/employers/iPlayMe2/iplayme2.png',
     isPng: true,
     width: 100,
+    showText: false,
   },
   'mecena-selfers': {
     id: 'mecena-selfers',
@@ -72,6 +73,7 @@ export const EMPLOYER_LOGOS: Record<string, EmployerLogoConfig> = {
     iconLight: '/assets/icons/experience/employers/mecena-selfers/mecena_logo.png',
     isPng: true,
     width: 55,
+    showText: true,
   },
   selfers: {
     id: 'selfers',
@@ -79,6 +81,7 @@ export const EMPLOYER_LOGOS: Record<string, EmployerLogoConfig> = {
     iconLight: '/assets/icons/experience/employers/mecena-selfers/selfers_logo_light.svg',
     iconDark: '/assets/icons/experience/employers/mecena-selfers/selfers_logo_dark.svg',
     width: 100,
+    showText: false,
   },
   paisanos: {
     id: 'paisanos',
@@ -87,6 +90,47 @@ export const EMPLOYER_LOGOS: Record<string, EmployerLogoConfig> = {
     iconDark: '/assets/icons/experience/employers/paisanos/paisanos_dark.svg',
     width: 100,
     showText: false,
+  },
+  ccp: {
+    id: 'ccp',
+    name: 'CCP Foods',
+    iconLight: '/assets/icons/experience/employers/ccp/ccp_logo_light.png',
+    iconDark: '/assets/icons/experience/employers/ccp/ccp_logo_dark.png',
+    width: 72,
+    showText: false,
+  },
+  'iac-zona-norte': {
+    id: 'iac-zona-norte',
+    name: 'IAC Zona Norte',
+    iconLight: '/assets/icons/experience/employers/iac-zona-norte/iac_logo_light.png',
+    iconDark: '/assets/icons/experience/employers/iac-zona-norte/iac_logo_dark.png',
+    width: 220,
+    showText: false,
+  },
+  texlab: {
+    id: 'texlab',
+    name: 'texlab',
+    href: 'https://texlab.com.ar',
+    iconLight: '/assets/icons/experience/employers/texlab/texlab_logo_light.svg',
+    iconDark: '/assets/icons/experience/employers/texlab/texlab_logo_dark.svg',
+    width: 120,
+    showText: false,
+  },
+  'power-app': {
+    id: 'power-app',
+    name: 'Power App',
+    iconLight: '/assets/icons/experience/employers/power-app/power_app_logo.png',
+    isPng: true,
+    width: 48,
+    showText: true,
+  },
+  'power-tools': {
+    id: 'power-tools',
+    name: 'Power Tools',
+    iconLight: '/assets/icons/experience/employers/power-tools/power_tools_logo.png',
+    isPng: true,
+    width: 48,
+    showText: true,
   },
 };
 

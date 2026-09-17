@@ -383,6 +383,7 @@ if (import.meta.env.DEV) {
 
     <script>
       import { lockScroll, unlockScroll } from '@/lib/scroll-lock';
+      import { syncLangSwitcherHref } from '@/lib/locale-routing';
 
       (() => {
         const door = document.getElementById('sliding-door');
@@ -588,15 +589,8 @@ if (import.meta.env.DEV) {
           return `${url.pathname}${url.search}${url.hash}`;
         };
 
-        const syncLangSwitcherPath = (pathname, search = '') => {
-          const lang = document.documentElement.lang || 'es';
-          const otherLang = lang === 'es' ? 'en' : 'es';
-          const switcherPath = `${pathname.replace(`/${lang}`, `/${otherLang}`)}${search}`;
-          document.querySelectorAll('.lang-switcher').forEach((switcher) => {
-            if (switcher instanceof HTMLAnchorElement) {
-              switcher.setAttribute('href', switcherPath);
-            }
-          });
+        const syncLangSwitcherPath = (pathname, search = '', hash = '') => {
+          syncLangSwitcherHref(pathname, search, hash);
         };
 
         const navigateWithDoor = async (href) => {
@@ -774,31 +768,6 @@ if (import.meta.env.DEV) {
         }
         sessionStorage.removeItem('languageChanging');
       };
-
-      const showLanguageLoading = () => {
-        const loadingIndicator = document.getElementById('language-loading');
-        if (loadingIndicator) {
-          loadingIndicator.style.display = 'flex';
-        }
-        sessionStorage.setItem('languageChanging', 'true');
-        window.setTimeout(hideLanguageLoading, 4000);
-      };
-
-      if (!document.documentElement.dataset.langSwitcherInit) {
-        document.documentElement.dataset.langSwitcherInit = 'true';
-
-        document.addEventListener(
-          'click',
-          (event) => {
-            const switcher = (event.target as Element | null)?.closest('.lang-switcher');
-            if (!(switcher instanceof HTMLAnchorElement)) return;
-            if (event.button !== 0) return;
-            if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-            showLanguageLoading();
-          },
-          true
-        );
-      }
 
       document.addEventListener('astro:page-load', () => {
         hideLanguageLoading();

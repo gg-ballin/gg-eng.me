@@ -1,3 +1,4 @@
+import { initLangSwitch } from '@/lib/lang-switch';
 import { initNavClientRouting } from '@/lib/nav-client-routing';
 
 /** Keep theme + page animations correct after Astro client navigations. */
@@ -35,6 +36,7 @@ function onClientNavigation(): void {
 export function initViewTransitionLifecycle(): void {
   restoreTheme();
   initNavClientRouting();
+  initLangSwitch();
   document.addEventListener('astro:after-swap', onClientNavigation);
   document.addEventListener('astro:page-load', onClientNavigation);
 }

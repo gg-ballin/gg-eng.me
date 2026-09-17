@@ -1,5 +1,11 @@
 /** Desktop freelance nav morph — smooth enter/leave without re-mounting the sidebar. */
 
+import {
+  isSameRouteDifferentLocale,
+  syncDocumentLocale,
+  syncLangSwitcherHref,
+} from '@/lib/locale-routing';
+
 export type FreelanceOrigin = 'bio' | 'experience';
 
 export interface NavFreelanceMorphConfig {
@@ -15,6 +21,7 @@ const ENTER_MS = 620;
 const LEAVE_MS = 520;
 
 let previousPath = '';
+let pendingNavigationFrom = '';
 let morphing = false;
 
 function isFreelancePath(path: string): boolean {
@@ -389,7 +396,8 @@ function syncNavFromDocument(newDoc: Document, config: NavFreelanceMorphConfig):
     langSwitcher.textContent = newLangSwitcher.textContent;
   }
 
-  document.documentElement.lang = newDoc.documentElement.lang;
+  syncDocumentLocale(window.location.pathname);
+  syncLangSwitcherHref();
 
   const html = document.documentElement;
   const newHtml = newDoc.documentElement;
@@ -405,6 +413,20 @@ async function syncNavForPath(
   const path = window.location.pathname;
   const fromPath = options.fromPath ?? previousPath;
   const animate = options.animate ?? false;
+
+  if (isSameRouteDifferentLocale(fromPath, path)) {
+    syncDocumentLocale(path);
+    syncLangSwitcherHref();
+
+    if (isFreelancePath(path)) {
+      applyPickerIdleState(resolveOrigin(window.location.search, config.storageKey), config);
+    } else {
+      applyIdleExperienceNav(config);
+    }
+
+    previousPath = path;
+    return;
+  }
 
   const enteringFreelance = isFreelancePath(path) && !isFreelancePath(fromPath);
   const leavingFreelance = !isFreelancePath(path) && isFreelancePath(fromPath);
@@ -460,7 +482,7 @@ export function initNavFreelanceMorph(config: NavFreelanceMorphConfig): void {
   runInitial();
 
   document.addEventListener('astro:before-preparation', () => {
-    previousPath = window.location.pathname;
+    pendingNavigationFrom = window.location.pathname;
   });
 
   document.addEventListener('astro:after-swap', (event) => {
@@ -468,7 +490,10 @@ export function initNavFreelanceMorph(config: NavFreelanceMorphConfig): void {
     const newDoc = swapEvent.detail?.newDocument;
     if (newDoc) syncNavFromDocument(newDoc, config);
 
-    void syncNavForPath(config, { animate: true, fromPath: previousPath });
+    const fromPath = pendingNavigationFrom || previousPath;
+    pendingNavigationFrom = '';
+
+    void syncNavForPath(config, { animate: true, fromPath });
   });
 
   window.addEventListener('freelance-origin-change', (event) => {

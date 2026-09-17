@@ -1,7 +1,7 @@
 ---
 import type { ExperienceEntry } from '@/lib/experience-data';
-import SkillIconLink from './SkillIconLink.astro';
 import { getSkillIconConfig } from '@/lib/experience-data';
+import SkillIconLink from './SkillIconLink.astro';
 import { getEmployerLogo } from '@/lib/experience/employers';
 import { getTranslations, type Language } from '@/i18n/translations';
 import { getRelativeLocaleUrl } from 'astro:i18n';
@@ -14,6 +14,7 @@ interface Props {
 const { entry, lang } = Astro.props;
 const t = getTranslations(lang).experience;
 const employerLogo = getEmployerLogo(entry.company);
+const showCompanyText = employerLogo?.showText !== false;
 const isHighlighted = entry.highlight === true;
 const isFreelance = entry.employmentType === 'freelance';
 const detailPath = getRelativeLocaleUrl(lang, `experience/${entry.slug}`);
@@ -97,10 +98,12 @@ const detailPath = getRelativeLocaleUrl(lang, `experience/${entry.slug}`);
           )}
         </div>
       )}
-      <div class="experience-company-row">
-        <p class="experience-company">{entry.company}</p>
-        {isFreelance && <span class="freelance-badge">{t.freelanceBadge}</span>}
-      </div>
+      {(showCompanyText || isFreelance) && (
+        <div class="experience-company-row">
+          {showCompanyText && <p class="experience-company">{entry.company}</p>}
+          {isFreelance && <span class="freelance-badge">{t.freelanceBadge}</span>}
+        </div>
+      )}
     </div>
     <p class="experience-description">{entry.description}</p>
     

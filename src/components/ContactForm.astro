@@ -382,26 +382,105 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
       }
     };
 
-    if (projectTypeSwitcher) {
-      projectTypeSwitcher.querySelectorAll('[role="radio"]').forEach((option) => {
-        option.addEventListener('click', () => {
-          const projectType = option.getAttribute('data-project-type');
-          if (projectType === 'mobile' || projectType === 'web') {
-            setProjectType(projectType);
-          }
+    if (!document.documentElement.dataset.contactProjectTypeBound) {
+      document.documentElement.dataset.contactProjectTypeBound = 'true';
+
+      document.addEventListener('click', (event) => {
+        const target = event.target;
+        if (!(target instanceof Element)) return;
+
+        const option = target.closest('#project-type-switcher [role="radio"]');
+        if (!(option instanceof HTMLElement)) return;
+
+        const projectType = option.getAttribute('data-project-type');
+        if (projectType !== 'mobile' && projectType !== 'web') return;
+
+        const switcher = document.getElementById('project-type-switcher');
+        const projectTypeInput = document.getElementById('project-type');
+        if (!(switcher instanceof HTMLElement) || !(projectTypeInput instanceof HTMLInputElement)) {
+          return;
+        }
+
+        projectTypeInput.value = projectType;
+        const index = projectType === 'web' ? 1 : 0;
+        switcher.setAttribute('data-has-selection', 'true');
+        switcher.setAttribute('data-position', String(index));
+
+        switcher.querySelectorAll('[role="radio"]').forEach((radio) => {
+          const isSelected = radio.getAttribute('data-project-type') === projectType;
+          radio.setAttribute('aria-checked', isSelected ? 'true' : 'false');
         });
+
+        const projectTypeError = document.getElementById('projectType-error');
+        if (projectTypeError instanceof HTMLElement) {
+          projectTypeError.textContent = '';
+          projectTypeError.style.display = 'none';
+        }
       });
     }
 
-    document.addEventListener('contact:intent-change', (event) => {
-      const intent = event.detail?.intent;
-      if (intent === 'cv' || intent === 'freelance') {
-        applyIntentUi(intent);
-        if (intent === 'cv') {
-          resetProjectType();
+    if (!document.documentElement.dataset.contactIntentChangeBound) {
+      document.documentElement.dataset.contactIntentChangeBound = 'true';
+
+      document.addEventListener('contact:intent-change', (event) => {
+        const intent = event.detail?.intent;
+        if (intent !== 'cv' && intent !== 'freelance') return;
+
+        const liveForm = document.getElementById('contact-form');
+        if (!(liveForm instanceof HTMLFormElement)) return;
+
+        const liveIntentInput = document.getElementById('contact-intent');
+        const liveCompanyField = document.querySelector('[data-intent-field="cv"]');
+        const liveFreelanceField = document.querySelector('[data-intent-field="freelance"]');
+        const liveCompanyInput = document.getElementById('company');
+        const liveSubmitBtn = document.getElementById('submit-btn');
+        const liveSubmitText = document.getElementById('submit-text');
+
+        liveForm.dataset.intent = intent;
+        if (liveIntentInput instanceof HTMLInputElement) {
+          liveIntentInput.value = intent;
         }
-      }
-    });
+        if (liveCompanyField instanceof HTMLElement) {
+          liveCompanyField.hidden = intent !== 'cv';
+        }
+        if (liveFreelanceField instanceof HTMLElement) {
+          liveFreelanceField.hidden = intent !== 'freelance';
+        }
+        if (liveCompanyInput instanceof HTMLInputElement) {
+          liveCompanyInput.required = intent === 'cv';
+        }
+        if (
+          liveSubmitText instanceof HTMLElement &&
+          liveSubmitBtn instanceof HTMLButtonElement &&
+          !liveSubmitBtn.disabled
+        ) {
+          liveSubmitText.textContent =
+            intent === 'freelance'
+              ? contactT.intents.freelance.submit
+              : contactT.intents.cv.submit;
+        }
+
+        if (intent === 'cv') {
+          const switcher = document.getElementById('project-type-switcher');
+          const projectTypeInput = document.getElementById('project-type');
+          if (switcher instanceof HTMLElement) {
+            switcher.setAttribute('data-has-selection', 'false');
+            switcher.setAttribute('data-position', '0');
+            switcher.querySelectorAll('[role="radio"]').forEach((option) => {
+              option.setAttribute('aria-checked', 'false');
+            });
+          }
+          if (projectTypeInput instanceof HTMLInputElement) {
+            projectTypeInput.value = '';
+          }
+          const projectTypeError = document.getElementById('projectType-error');
+          if (projectTypeError instanceof HTMLElement) {
+            projectTypeError.textContent = '';
+            projectTypeError.style.display = 'none';
+          }
+        }
+      });
+    }
 
     applyIntentUi(getIntent());
     

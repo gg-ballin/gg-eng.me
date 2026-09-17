@@ -6,20 +6,20 @@ interface Props {
   iconDark?: string;
   text?: string;
   width?: number;
+  height?: number;
 }
 
-const { href, title, iconLight, iconDark, text, width = 45 } = Astro.props;
-const height = 45; // Fixed height
+const { href, title, iconLight, iconDark, text, width = 45, height = 45 } = Astro.props;
 ---
 
 <a href={href} target="_blank" rel="noopener noreferrer" class="tech-icon-link" title={title}>
   {iconDark ? (
     <>
-      <img src={iconLight} alt={title} class="tech-icon tech-icon-light" width={width} height={height} />
-      <img src={iconDark} alt={title} class="tech-icon tech-icon-dark" width={width} height={height} />
+      <img src={iconLight} alt={title} class="tech-icon tech-icon-light" width={width} height={height} style={`height: ${height}px;`} />
+      <img src={iconDark} alt={title} class="tech-icon tech-icon-dark" width={width} height={height} style={`height: ${height}px;`} />
     </>
   ) : (
-    <img src={iconLight} alt={title} class="tech-icon" width={width} height={height} />
+    <img src={iconLight} alt={title} class="tech-icon" width={width} height={height} style={`height: ${height}px;`} />
   )}
   {text && <span class="tech-name">{text}</span>}
 </a>

@@ -1,0 +1,44 @@
+---
+import type { EngagementModel } from '@/lib/freelance-data';
+import type { Language } from '@/i18n/translations';
+import { getTranslations } from '@/i18n/translations';
+
+interface Props {
+  engagement: EngagementModel;
+  lang: Language;
+}
+
+const { engagement, lang } = Astro.props;
+const label = getTranslations(lang).freelance.engagement[engagement];
+---
+
+<span class="engagement-badge" data-engagement={engagement}>
+  {label}
+</span>
+
+<style>
+  .engagement-badge {
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+    font-family: var(--font-family-sans);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 0.25rem 0.625rem;
+    border: 2px solid var(--color-text);
+    color: var(--color-text);
+    line-height: 1.4;
+    background-color: var(--color-bg);
+  }
+
+  .engagement-badge[data-engagement='hourly'] {
+    border-style: dashed;
+  }
+
+  .engagement-badge[data-engagement='project'] {
+    background-color: var(--color-text);
+    color: var(--color-bg);
+  }
+</style>

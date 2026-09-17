@@ -18,7 +18,7 @@
 .reveal-content:has([data-page-heading]) {
   display: block;
   width: 100%;
-  overflow: visible;
+  overflow: hidden;
 }
 
 .reveal-mask {
@@ -29,34 +29,28 @@
   background-color: var(--color-text);
   z-index: 1;
   pointer-events: none;
-  transform: translateX(0);
-  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
+  backface-visibility: hidden;
 }
 
 .reveal-mask--active {
-  animation: revealSlide 0.8s ease-in-out forwards;
+  animation: revealSlide 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
   animation-delay: var(--reveal-delay, 0s);
 }
 
 @keyframes revealSlide {
-  0% {
-    transform: translateX(0);
-    opacity: 1;
+  from {
+    transform: translate3d(0, 0, 0);
   }
-  93% {
-    transform: translateX(-100%);
-    opacity: 1;
-  }
-  100% {
-    transform: translateX(-100%);
-    opacity: 0;
+  to {
+    transform: translate3d(calc(-100% - 1px), 0, 0);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .reveal-mask--active {
     animation: none;
-    transform: translateX(-100%);
-    opacity: 0;
+    transform: translate3d(calc(-100% - 1px), 0, 0);
   }
 }
