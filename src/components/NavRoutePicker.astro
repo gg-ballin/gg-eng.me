@@ -1,0 +1,39 @@
+---
+interface Props {
+  currentLabel: string;
+  parentBioLabel: string;
+  parentExperienceLabel: string;
+  initialOrigin: 'bio' | 'experience';
+  srLabel: string;
+}
+
+const {
+  currentLabel,
+  parentBioLabel,
+  parentExperienceLabel,
+  initialOrigin,
+  srLabel,
+} = Astro.props;
+
+const parentLabel =
+  initialOrigin === 'bio' ? parentBioLabel : parentExperienceLabel;
+---
+
+<span
+  class="nav-word-picker-host"
+  data-nav-word-picker
+  data-origin={initialOrigin}
+  data-parent-bio={parentBioLabel}
+  data-parent-experience={parentExperienceLabel}
+  data-current-label={currentLabel}
+>
+  <span class="nav-word-picker" aria-hidden="true">
+    <span class="nav-word-picker__viewport">
+      <span class="nav-word-picker__track" data-nav-word-track>
+        <span class="nav-word nav-word--parent" data-nav-word-parent>{parentLabel}</span>
+        <span class="nav-word nav-word--current">{currentLabel}</span>
+      </span>
+    </span>
+  </span>
+  <span class="nav-word-picker-sr">{srLabel}</span>
+</span>

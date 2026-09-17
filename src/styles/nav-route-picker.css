@@ -1,0 +1,208 @@
+/* Desktop-only vertical word picker — mobile keeps plain nav labels */
+.nav-word-picker-host {
+  display: none;
+}
+
+.nav-word-picker-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (min-width: 768px) {
+  html[data-freelance-route='true'] .nav-link-active .nav-text {
+    animation: none !important;
+    color: inherit;
+  }
+
+  /* Keep nav-link vertical-rl — do not switch the whole link to horizontal-tb */
+  .nav-link--picker-active .nav-text,
+  .nav-link--picker-entering .nav-text,
+  .nav-link--picker-leaving .nav-text {
+    display: block;
+    position: relative;
+  }
+
+  .nav-link--picker-active .nav-text--plain,
+  .nav-link--picker-entering .nav-text--plain,
+  .nav-link--picker-leaving .nav-text--plain {
+    display: none;
+  }
+
+  .nav-link--picker-active .nav-word-picker-host.is-visible,
+  .nav-link--picker-entering .nav-word-picker-host,
+  .nav-link--picker-leaving .nav-word-picker-host {
+    display: block;
+  }
+
+  .nav-link-1 .nav-word-picker-host {
+    display: none !important;
+  }
+
+  html[data-freelance-route='true'][data-freelance-origin='bio'] .nav-link-1.nav-link--picker-active .nav-word-picker-host.is-visible {
+    display: block !important;
+  }
+
+  .nav-word-picker-host {
+    margin: 0 auto;
+  }
+
+  .nav-word-picker {
+    display: block;
+    line-height: 0;
+  }
+
+  .nav-word-picker__viewport {
+    position: relative;
+    overflow: visible;
+    margin: 0 auto;
+  }
+
+  .nav-word-picker__track {
+    position: relative;
+    display: block;
+    width: 1.25rem;
+    margin: 0 auto;
+    overflow: visible;
+  }
+
+  .nav-link--picker-active .nav-word-picker-host {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+
+  .nav-word {
+    display: block;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    white-space: nowrap;
+    font-family: var(--font-family-sans);
+    font-size: 1rem;
+    font-weight: 600;
+    text-transform: lowercase;
+    letter-spacing: 0.05em;
+    line-height: 1;
+    transition:
+      opacity 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+      color 0.35s ease,
+      background-color 0.45s ease,
+      box-shadow 0.45s ease,
+      padding 0.45s ease,
+      left 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+      top 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  /* Parent (experience/bio) — offset toward nav edge, vertically centered on freelance pill */
+  .nav-word--parent {
+    position: absolute;
+    top: 50%;
+    left: calc(100% + 0.55rem);
+    z-index: 0;
+    opacity: 0.32;
+    transform: translateY(-50%) scale(0.92);
+    transform-origin: center center;
+    font-size: 0.875rem;
+    color: var(--color-text);
+    background-color: transparent;
+    box-shadow: none;
+    padding: 0;
+    pointer-events: none;
+  }
+
+  /* Current (freelance) — same axis as bio/blog/contact */
+  .nav-word--current {
+    position: relative;
+    z-index: 1;
+    padding: 0.25rem 0.125rem;
+    border-radius: 0.4rem;
+    background-color: var(--color-accent);
+    color: var(--segmented-active-text);
+    font-weight: 700;
+    box-shadow: 0 0 12px color-mix(in srgb, var(--color-accent) 45%, transparent);
+    opacity: 1;
+    transform: scale(1);
+    pointer-events: none;
+  }
+
+  /* Enter: parent starts centered as plain pill, then moves toward nav edge */
+  .nav-link--picker-entering .nav-word--parent.is-morph-from-plain {
+    position: relative;
+    left: auto;
+    top: auto;
+    opacity: 1;
+    transform: scale(1);
+    padding: 0.25rem 0.125rem;
+    border-radius: 0.4rem;
+    background-color: var(--color-accent);
+    color: var(--segmented-active-text);
+    font-weight: 700;
+    box-shadow: 0 0 12px color-mix(in srgb, var(--color-accent) 45%, transparent);
+  }
+
+  .nav-link--picker-entering.nav-link--picker-active .nav-word--parent.is-morph-from-plain {
+    position: absolute;
+    top: 50%;
+    left: calc(100% + 0.55rem);
+    opacity: 0.32;
+    transform: translateY(-50%) scale(0.92);
+    font-size: 0.875rem;
+    padding: 0;
+    background-color: transparent;
+    color: var(--color-text);
+    font-weight: 600;
+    box-shadow: none;
+  }
+
+  .nav-link--picker-entering .nav-word--current {
+    opacity: 0;
+    transform: scale(0.96) translateY(0.35rem);
+  }
+
+  .nav-link--picker-entering.nav-link--picker-active .nav-word--current {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+
+  /* Leave: reverse morph back to plain pill slot */
+  .nav-link--picker-leaving .nav-word--current {
+    opacity: 0;
+    transform: scale(0.96) translateY(0.35rem);
+  }
+
+  .nav-link--picker-leaving .nav-word--parent {
+    position: relative;
+    left: auto;
+    top: auto;
+    opacity: 1;
+    transform: scale(1);
+    padding: 0.25rem 0.125rem;
+    border-radius: 0.4rem;
+    background-color: var(--color-accent);
+    color: var(--segmented-active-text);
+    font-weight: 700;
+    box-shadow: 0 0 12px color-mix(in srgb, var(--color-accent) 45%, transparent);
+  }
+
+  html[data-freelance-route='true'] .nav-link-active .nav-word--parent {
+    color: var(--color-text);
+  }
+
+  html[data-freelance-route='true'] .nav-link-active .nav-word--current {
+    color: var(--segmented-active-text);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .nav-word-picker__track,
+    .nav-word {
+      transition: none !important;
+    }
+  }
+}

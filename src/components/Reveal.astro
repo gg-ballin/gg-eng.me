@@ -1,0 +1,20 @@
+---
+import '../styles/reveal.css';
+
+interface Props {
+  delay?: number;
+}
+
+const { delay = 0 } = Astro.props;
+---
+
+<span class="reveal-root" style={`--reveal-delay: ${delay}s`} data-reveal>
+  <span class="reveal-content">
+    <slot />
+    <span class="reveal-mask" aria-hidden="true"></span>
+  </span>
+</span>
+
+<script>
+  import '../scripts/reveal-init.ts';
+</script>

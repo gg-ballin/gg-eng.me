@@ -1,6 +1,9 @@
 ---
 import { getTranslations, type Language } from '../i18n/translations';
-import Reveal from './Reveal';
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import { appendFreelanceOrigin } from '@/lib/freelance-navigation';
+import Reveal from './Reveal.astro';
+import CursorComposer from './CursorComposer.astro';
 import YearProgress from './YearProgress';
 import TechIconLink from './TechIconLink.astro';
 import { TECH_ICONS, type TechCategory } from '../lib/tech-icons';
@@ -13,6 +16,10 @@ interface Props {
 
 const { lang } = Astro.props;
 const t = getTranslations(lang).bio;
+const tNav = getTranslations(lang).nav;
+const freelancePath = appendFreelanceOrigin(getRelativeLocaleUrl(lang, 'freelance'), 'bio');
+
+const [roleMobile, roleWeb, roleProduct] = t.roleDisciplines;
 
 // Parse markdown - content is from trusted translations, no sanitization needed
 const descriptionHtml = marked.parse(t.description, { breaks: true }) as string;
@@ -23,40 +30,64 @@ const descriptionHtml = marked.parse(t.description, { breaks: true }) as string;
   <div class="bio-dots" aria-hidden="true"></div>
   
   <div class="bio-content-wrapper">
-    <div class="relative z-10 mt-12 bio-main-content">
-      <Reveal client:load>
-        <h2 class="bio-title font-bold mb-8 leading-tight" style="font-family: var(--font-family-sans);">{t.name}<span class="bio-accent">.</span>
-        </h2>
+    <div class="relative z-10 mt-4 md:mt-12 bio-main-content">
+      <Reveal>
+        <h1
+          data-page-heading
+          data-sticky-label={tNav.bio}
+          class="bio-title font-bold mb-8 leading-tight"
+          style="font-family: var(--font-family-sans);"
+        >{t.name}<span class="bio-accent">.</span>
+        </h1>
       </Reveal>
       
-      <div style="display: flex; flex-direction: column;">
-        <Reveal client:load delay={0.2}>
-          <p class="text-2xl md:text-3xl mb-12" set:html={(() => {
-            const words = t.role.split(' ');
-            const parts: string[] = [];
-            words.forEach((word, index) => {
-              if (index > 0) parts.push(' ');
-              const isMobile = word === 'Mobile';
-              parts.push(`<span class="${isMobile ? 'bio-accent' : 'opacity-80'}">${word}</span>`);
-            });
-            return parts.join('');
-          })()} />
+      <div class="bio-lead">
+        <Reveal delay={0.2}>
+          <p class="bio-role-line text-2xl md:text-3xl">
+            <span class="opacity-80">{t.rolePrefix}</span>
+            <span
+              class="bio-role-rotator"
+              aria-label={t.roleDisciplines.join(', ')}
+            >
+              <span class="bio-accent bio-role-word bio-role-word--mobile">{roleMobile}</span>
+              <span class="bio-accent bio-role-word bio-role-word--web">{roleWeb}</span>
+              <span class="bio-accent bio-role-word bio-role-word--product">{roleProduct}</span>
+            </span>
+            <span class="opacity-80">{t.roleSuffix}</span>
+          </p>
+        </Reveal>
+
+        <Reveal delay={0.28}>
+          <p class="bio-ai-role text-xl md:text-2xl">
+            <span class="bio-accent">{t.aiRole}</span>
+          </p>
         </Reveal>
         
-        <Reveal client:load delay={0.3}>
-          <p class="text-base md:text-lg opacity-70 mb-8 md:mb-12">
+        <Reveal delay={0.35}>
+          <p class="bio-location text-base md:text-lg opacity-70 mb-8 md:mb-12">
             {t.location} 🇦🇷
           </p>
+        </Reveal>
+
+        <Reveal delay={0.4}>
+          <a href={freelancePath} class="bio-freelance-cta">
+            {t.freelanceCta}
+          </a>
         </Reveal>
       </div>
        
       <div class="description-reveal">
-        <div class="text-lg md:text-xl max-w-2xl mb-12 leading-relaxed opacity-90" set:html={descriptionHtml}></div>
-      
+        <div class="bio-intro-row">
+          <div class="bio-description text-lg md:text-xl mb-12 leading-relaxed opacity-90" set:html={descriptionHtml}></div>
+          <CursorComposer lang={lang} variant="desktop" />
+        </div>
+
+        <CursorComposer lang={lang} variant="mobile" />
         <div class="tech-explanation">
           <p class="text-lg md:text-xl max-w-2xl mb-6 leading-relaxed opacity-90">
             {t.techExplanation.intro}
           </p>
+
           
           <!-- Frontend Technologies -->
           <div class="tech-category mb-6">
@@ -134,7 +165,7 @@ const descriptionHtml = marked.parse(t.description, { breaks: true }) as string;
             </div>
           </div>
           
-          <!-- IDE -->
+          <!-- AI IDE -->
           <div class="tech-category mb-6">
             <h4 class="tech-category-title">{t.techExplanation.categories.ide}</h4>
             <div class="tech-icons">
@@ -162,7 +193,7 @@ const descriptionHtml = marked.parse(t.description, { breaks: true }) as string;
         </div>
       </div>
       <div class="year-progress-wrapper year-progress-sticky">
-        <YearProgress client:load lang={lang} />
+        <YearProgress client:only="react" lang={lang} />
       </div>
     </div>
     

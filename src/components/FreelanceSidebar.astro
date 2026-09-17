@@ -1,0 +1,227 @@
+---
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import type { FreelanceEntry } from '@/lib/freelance-data';
+import SkillIconLink from '@/components/SkillIconLink.astro';
+import type { ExperienceTechIconConfig } from '@/lib/experience/technologies';
+import { getFreelanceSkillIconConfigs } from '@/lib/freelance-data';
+import type { Language } from '@/i18n/translations';
+import { getTranslations } from '@/i18n/translations';
+
+interface Props {
+  lang: Language;
+  entries: FreelanceEntry[];
+}
+
+const { lang, entries } = Astro.props;
+const t = getTranslations(lang).freelance;
+const contactPath = `${getRelativeLocaleUrl(lang, 'contact')}?intent=freelance`;
+
+const reactNativeIcon = getFreelanceSkillIconConfigs(['REACT NATIVE'])[0];
+const reactIcon: ExperienceTechIconConfig = {
+  id: 'react',
+  name: 'React',
+  href: 'https://react.dev',
+  iconLight: '/assets/icons/experience/technologies/react_native/react-native_logo.svg',
+  width: 28,
+  showText: true,
+};
+const astroIcon: ExperienceTechIconConfig = {
+  id: 'astro',
+  name: 'Astro',
+  href: 'https://astro.build',
+  iconLight: '/assets/icons/tech/astro/astro_logo_dark.svg',
+  iconDark: '/assets/icons/tech/astro/astro_logo_light.svg',
+  width: 28,
+  showText: true,
+};
+
+const skillCounts = new Map<string, number>();
+for (const entry of entries) {
+  for (const skill of entry.skills) {
+    const key = skill.toUpperCase();
+    skillCounts.set(key, (skillCounts.get(key) ?? 0) + 1);
+  }
+}
+
+const topSkills = [...skillCounts.entries()]
+  .sort((a, b) => b[1] - a[1])
+  .slice(0, 6)
+  .map(([skill]) => skill);
+
+/** PM / docs tools always shown in common stack */
+const pinnedStackSkills = ['Jira', 'Confluence'];
+const stackSkills = [...topSkills, ...pinnedStackSkills];
+---
+
+<aside class="freelance-sidebar">
+  <section class="sidebar-block sidebar-block--summary">
+    <h2 class="sidebar-title">{t.sidebarSummary}</h2>
+    <p class="sidebar-count">{t.sidebarProjects.replace('{count}', String(entries.length))}</p>
+  </section>
+
+  <a href={contactPath} class="sidebar-cta">
+    {t.sidebarContactCta}
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M5 12h14M13 6l6 6-6 6"/>
+    </svg>
+  </a>
+
+  <section class="sidebar-block">
+    <h2 class="sidebar-title">{t.sidebarPlatforms}</h2>
+    <div class="platform-stacks">
+      <div class="platform-stack-row">
+        <span class="platform-stack-label">{t.sidebarPlatformMobile}</span>
+        <div class="platform-stack-items">
+          {reactNativeIcon && (
+            <SkillIconLink iconConfig={reactNativeIcon} text="React Native" />
+          )}
+        </div>
+      </div>
+      <div class="platform-stack-row">
+        <span class="platform-stack-label">{t.sidebarPlatformWeb}</span>
+        <div class="platform-stack-items">
+          <SkillIconLink iconConfig={astroIcon} text="astro" />
+          <SkillIconLink iconConfig={reactIcon} text={t.sidebarPlatformReact} />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sidebar-block">
+    <h2 class="sidebar-title">{t.sidebarModalities}</h2>
+    <p class="sidebar-text">{t.sidebarModalitiesList}</p>
+  </section>
+
+  {stackSkills.length > 0 && (
+    <section class="sidebar-block">
+      <h2 class="sidebar-title">{t.sidebarStack}</h2>
+      <div class="sidebar-skills">
+        {stackSkills.map((skill) => {
+          const iconConfig = getFreelanceSkillIconConfigs([skill])[0];
+          if (iconConfig) {
+            return <SkillIconLink iconConfig={iconConfig} />;
+          }
+          return <span class="skill-tag">{skill}</span>;
+        })}
+      </div>
+    </section>
+  )}
+</aside>
+
+<style>
+  .freelance-sidebar {
+    width: 100%;
+  }
+
+  .sidebar-block {
+    margin-bottom: 2rem;
+  }
+
+  .sidebar-block--summary {
+    margin-bottom: 1.25rem;
+  }
+
+  .sidebar-title {
+    font-family: var(--font-family-sans);
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-accent);
+    margin-bottom: 1rem;
+  }
+
+  .sidebar-count {
+    font-family: var(--font-family-serif);
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0;
+    line-height: 1.2;
+  }
+
+  .sidebar-text {
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    margin: 0;
+    opacity: 0.85;
+  }
+
+  .platform-stacks {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .platform-stack-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+  }
+
+  .platform-stack-label {
+    font-family: var(--font-family-sans);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    opacity: 0.65;
+  }
+
+  .platform-stack-items {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .sidebar-skills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .skill-tag {
+    font-family: var(--font-family-sans);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.375rem 0.75rem;
+    border: 2px solid var(--color-text);
+    background-color: var(--color-bg);
+    color: var(--color-text);
+  }
+
+  .sidebar-cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+    width: 100%;
+    margin-bottom: 2rem;
+    padding: 0.875rem 1.25rem;
+    font-family: var(--font-family-sans);
+    font-size: 0.8125rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--segmented-active-text);
+    background-color: var(--color-accent);
+    border: 2px solid var(--color-text);
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+
+  .sidebar-cta:hover {
+    transform: translate(2px, -2px);
+    box-shadow: -2px 2px 0 var(--color-text);
+  }
+
+  .sidebar-cta svg {
+    transition: transform 0.2s ease;
+  }
+
+  .sidebar-cta:hover svg {
+    transform: translateX(4px);
+  }
+</style>

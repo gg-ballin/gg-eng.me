@@ -1,0 +1,56 @@
+.reveal-root {
+  position: relative;
+  overflow: visible;
+  display: inline-block;
+  line-height: 0;
+  vertical-align: baseline;
+  isolation: isolate;
+}
+
+.reveal-content {
+  display: inline-block;
+  line-height: normal;
+  vertical-align: baseline;
+  position: relative;
+  overflow: hidden;
+}
+
+.reveal-content:has([data-page-heading]) {
+  display: block;
+  width: 100%;
+  overflow: hidden;
+}
+
+.reveal-mask {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background-color: var(--color-text);
+  z-index: 1;
+  pointer-events: none;
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+.reveal-mask--active {
+  animation: revealSlide 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation-delay: var(--reveal-delay, 0s);
+}
+
+@keyframes revealSlide {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(calc(-100% - 1px), 0, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal-mask--active {
+    animation: none;
+    transform: translate3d(calc(-100% - 1px), 0, 0);
+  }
+}

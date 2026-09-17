@@ -7,6 +7,7 @@ interface ImportMetaEnv {
   readonly TURNSTILE_SECRET_KEY?: string;
   readonly PUBLIC_TURNSTILE_SITE_KEY?: string;
   readonly NEWSLETTER_ENABLED?: string; // 'true' or 'false' as string
+  readonly PUBLIC_APP_VERSION?: string;
 }
 
 interface ImportMeta {

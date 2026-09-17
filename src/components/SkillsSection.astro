@@ -1,18 +1,20 @@
 ---
 import SkillIconLink from './SkillIconLink.astro';
-import { getSkillIconConfig } from '@/lib/experience-data';
+import { getSkillIconConfig, getSkillDocHref, getSoftSkillDocUrl } from '@/lib/experience-data';
 import type { ExperienceTechIconConfig } from '@/lib/experience/technologies';
 
 interface Props {
   title: string;
   skills: string[];
   icon?: string;
-  useIcons?: boolean; // Whether to use icon components
+  useIcons?: boolean;
+  /** Mobile modal: link badges to official documentation */
+  linkBadges?: boolean;
+  lang?: 'es' | 'en';
 }
 
-const { title, skills, icon, useIcons = false } = Astro.props;
+const { title, skills, icon, useIcons = false, linkBadges = false, lang = 'es' } = Astro.props;
 
-// Get icon configs for skills that have icons
 const skillIconConfigs: (ExperienceTechIconConfig | null)[] = useIcons
   ? skills.map((skill) => getSkillIconConfig(skill))
   : [];
@@ -32,15 +34,28 @@ const skillIconConfigs: (ExperienceTechIconConfig | null)[] = useIcons
       skills.map((skill, index) => {
         const iconConfig = skillIconConfigs[index];
         if (iconConfig) {
-          return <SkillIconLink iconConfig={iconConfig} />;
+          const docHref = linkBadges ? getSkillDocHref(skill, lang) : undefined;
+          return <SkillIconLink iconConfig={iconConfig} href={docHref ?? undefined} />;
         }
-        // Fallback to text badge if no icon found
         return <span class="skill-badge">{skill}</span>;
       })
     ) : (
-      skills.map((skill) => (
-        <span class="skill-badge">{skill}</span>
-      ))
+      skills.map((skill) => {
+        const docHref = linkBadges ? getSoftSkillDocUrl(skill, lang) : null;
+        if (docHref) {
+          return (
+            <a
+              href={docHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="skill-badge skill-badge-link"
+            >
+              {skill}
+            </a>
+          );
+        }
+        return <span class="skill-badge">{skill}</span>;
+      })
     )}
   </div>
 </section>
@@ -88,8 +103,14 @@ const skillIconConfigs: (ExperienceTechIconConfig | null)[] = useIcons
     color: var(--color-text);
     transition: all 0.2s ease;
   }
+
+  .skill-badge-link {
+    text-decoration: none;
+    touch-action: manipulation;
+  }
   
-  .skill-badge:hover {
+  .skill-badge:hover,
+  .skill-badge-link:hover {
     background-color: var(--color-accent);
     color: var(--color-bg);
     transform: translate(2px, -2px);
@@ -105,7 +126,8 @@ const skillIconConfigs: (ExperienceTechIconConfig | null)[] = useIcons
       gap: 0.5rem;
     }
     
-    .skill-badge {
+    .skill-badge,
+    .skill-badge-link {
       font-size: 0.8125rem;
       padding: 0.375rem 0.75rem;
     }

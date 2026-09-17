@@ -8,14 +8,16 @@ export interface Translations {
   // Navigation
   nav: {
     bio: string;
+    home: string;
     experience: string;
     blog: string;
     contact: string;
     theme: string;
     recruiterHint: {
-      message: string;
+      audiences: string[];
+      messageAfter: string;
       linkText: string;
-      mobileMessage: string;
+      mobileMessageAfter: string;
       mobileLinkText: string;
     };
   };
@@ -23,9 +25,18 @@ export interface Translations {
   // Bio page
   bio: {
     name: string;
-    role: string;
+    rolePrefix: string;
+    roleSuffix: string;
+    roleDisciplines: [string, string, string];
+    aiRole: string;
     location: string;
     description: string;
+    cursorComposer: {
+      placeholder: string;
+      prompts: [string, string, string];
+      agent: string;
+      modelsLabel: string;
+    };
     techExplanation: {
       intro: string;
       categories: {
@@ -45,11 +56,13 @@ export interface Translations {
         cloudflareKV: string;
         github: string;
         npm: string;
+        bun: string;
         cursor: string;
       };
       whyWebpage: string;
       mobileVsWeb: string;
     };
+    freelanceCta: string;
   };
   
   // Year Progress
@@ -74,6 +87,51 @@ export interface Translations {
     softSkills: string;
     languages: string;
     downloadCv: string;
+    detail: string;
+    freelanceBadge: string;
+    backToExperience: string;
+    viewDetail: string;
+    storeBadges: {
+      appStore: { caption: string; name: string };
+      googlePlay: { caption: string; name: string };
+    };
+  };
+
+  // Freelance
+  freelance: {
+    title: string;
+    description: string;
+    heading: string;
+    intro: string;
+    detail: string;
+    viewDetail: string;
+    backToFreelance: string;
+    backToBio: string;
+    back: string;
+    bannerLabel: string;
+    bannerDescription: string;
+    bannerCta: string;
+    bioCta: string;
+    sidebarSummary: string;
+    sidebarPlatforms: string;
+    sidebarPlatformMobile: string;
+    sidebarPlatformWeb: string;
+    sidebarPlatformReact: string;
+    sidebarModalities: string;
+    sidebarModalitiesList: string;
+    sidebarStack: string;
+    sidebarContactCta: string;
+    sidebarProjects: string;
+    skillsMore: string;
+    platforms: {
+      web: string;
+      ios: string;
+      android: string;
+    };
+    engagement: {
+      project: string;
+      hourly: string;
+    };
   };
   
   // Contact
@@ -81,8 +139,28 @@ export interface Translations {
     title: string;
     description: string;
     heading: string;
-    requestCvTitle: string;
-    requestCvDescription: string;
+    intents: {
+      cv: {
+        label: string;
+        title: string;
+        description: string;
+        submit: string;
+        success: string;
+      };
+      freelance: {
+        label: string;
+        title: string;
+        description: string;
+        submit: string;
+        success: string;
+      };
+    };
+    projectType: {
+      label: string;
+      mobile: string;
+      web: string;
+      required: string;
+    };
     form: {
       name: string;
       namePlaceholder: string;
@@ -90,9 +168,7 @@ export interface Translations {
       emailPlaceholder: string;
       company: string;
       companyPlaceholder: string;
-      submit: string;
       submitting: string;
-      success: string;
       error: string;
     };
   };
@@ -119,6 +195,8 @@ export interface Translations {
   desktopPopup: {
     message: string;
     scanMe: string;
+    minimize: string;
+    open: string;
   };
   
   // Language Switcher Hint

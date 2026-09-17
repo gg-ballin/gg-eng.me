@@ -10,6 +10,10 @@ import pkg from "./package.json" assert { type: "json" };
 // https://astro.build/config
 export default defineConfig({
   output: "server",
+  server: {
+    host: true,
+    port: 4321,
+  },
   adapter: cloudflare({
     imageService: "cloudflare",
     // KV namespace binding (configure in wrangler.toml or Cloudflare dashboard)
@@ -17,6 +21,9 @@ export default defineConfig({
   }),
   integrations: [mdx(), react()],
   vite: {
+    server: {
+      allowedHosts: [".trycloudflare.com"],
+    },
     // @ts-ignore - Tailwind Vite plugin type compatibility with Astro's Vite version
     plugins: [tailwindcss()],
     define: {
@@ -25,6 +32,7 @@ export default defineConfig({
       ),
     },
     resolve: {
+      dedupe: ['react', 'react-dom'],
       alias: {
         "@": fileURLToPath(new URL("./src", import.meta.url)),
         "@/components": fileURLToPath(

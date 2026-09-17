@@ -1,0 +1,67 @@
+---
+import { getTranslations, type Language } from '@/i18n/translations';
+import '../styles/segmented-control.css';
+
+interface Props {
+  lang: Language;
+}
+
+const { lang } = Astro.props;
+const t = getTranslations(lang).contact.intents;
+---
+
+<div
+  class="segmented-control segmented-control--intent"
+  id="contact-intent-switcher"
+  role="tablist"
+  aria-label="Contact intent"
+  data-has-selection="true"
+  data-position="0"
+>
+  <div class="segmented-control__indicator" aria-hidden="true"></div>
+
+  <button
+    type="button"
+    class="segmented-control__option"
+    role="tab"
+    id="intent-tab-cv"
+    aria-selected="true"
+    aria-controls="contact-intent-panel"
+    data-intent="cv"
+  >
+    <span class="segmented-control__icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+        <polyline points="14 2 14 8 20 8"></polyline>
+        <line x1="16" y1="13" x2="8" y2="13"></line>
+        <line x1="16" y1="17" x2="8" y2="17"></line>
+        <polyline points="10 9 9 9 8 9"></polyline>
+      </svg>
+    </span>
+    <span>{t.cv.label}</span>
+  </button>
+
+  <button
+    type="button"
+    class="segmented-control__option"
+    role="tab"
+    id="intent-tab-freelance"
+    aria-selected="false"
+    aria-controls="contact-intent-panel"
+    data-intent="freelance"
+  >
+    <span class="segmented-control__icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+        <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+      </svg>
+    </span>
+    <span>{t.freelance.label}</span>
+  </button>
+</div>
+
+<script>
+  import { initContactIntentSwitcher } from '@/lib/contact-intent-switcher';
+
+  initContactIntentSwitcher();
+</script>

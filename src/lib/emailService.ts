@@ -1,4 +1,4 @@
-import type { ContactFormData } from './validation';
+import type { ContactFormData, FreelanceInquiryData } from './validation';
 import type { Language } from '@/i18n/translations';
 import { CV_BASE64 } from './cv-data';
 
@@ -235,6 +235,166 @@ export class EmailService {
       return { 
         success: false, 
         error: error instanceof Error ? error.message : 'Unknown error' 
+      };
+    }
+  }
+
+  async sendFreelanceInquiryAutoReply(
+    data: FreelanceInquiryData
+  ): Promise<{ success: boolean; error?: string }> {
+    try {
+      const isSpanish = data.language === 'es';
+      const projectLabel = data.projectType === 'mobile'
+        ? (isSpanish ? 'Mobile' : 'Mobile')
+        : (isSpanish ? 'Web' : 'Web');
+
+      const subject = isSpanish
+        ? 'Recibí tu consulta freelance — Germán Gómez'
+        : 'I received your freelance inquiry — Germán Gómez';
+
+      const htmlContent = `
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <meta charset="UTF-8">
+            <style>
+              body { font-family: 'Space Grotesk', Arial, sans-serif; line-height: 1.6; color: #000000; }
+              .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+              h1 { font-family: 'Playfair Display', Georgia, serif; font-size: 24px; }
+              .summary { margin: 20px 0; padding: 16px; border: 2px solid #000000; background: #fafafa; }
+              .footer { margin-top: 30px; padding-top: 20px; border-top: 2px solid #000000; font-size: 14px; }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              <h1>${isSpanish ? `Hola ${escapeHtml(data.name)},` : `Hello ${escapeHtml(data.name)},`}</h1>
+              <p>${isSpanish
+                ? 'Gracias por contactarme. Recibí tu consulta freelance y la revisaré a la brevedad.'
+                : 'Thank you for reaching out. I received your freelance inquiry and will review it shortly.'}</p>
+              <div class="summary">
+                <p><strong>${isSpanish ? 'Tipo de proyecto' : 'Project type'}:</strong> ${escapeHtml(projectLabel)}</p>
+              </div>
+              <p>${isSpanish
+                ? 'Si necesitás ampliar detalles, podés responder a este correo.'
+                : 'If you need to share more details, you can reply to this email.'}</p>
+              <p>${isSpanish ? 'Saludos,' : 'Best regards,'}<br/>
+              <strong>Germán Gómez</strong><br/>
+              Senior Mobile Engineer<br/>
+              Buenos Aires, Argentina</p>
+              <div class="footer">
+                <p style="color: #666; font-size: 12px;">
+                  ${isSpanish
+                    ? 'Este correo fue generado automáticamente desde gg-eng.me'
+                    : 'This email was automatically generated from gg-eng.me'}
+                </p>
+              </div>
+            </div>
+          </body>
+        </html>
+      `;
+
+      const response = await sendEmailViaAPI(this.apiKey, {
+        from: 'German Gómez <noreply@gg-eng.me>',
+        to: [data.email],
+        reply_to: [getPersonalEmail()],
+        subject,
+        html: htmlContent,
+      });
+
+      if (!response.success) {
+        return { success: false, error: response.error };
+      }
+
+      return { success: true };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      };
+    }
+  }
+
+  async sendFreelanceInquiryNotification(
+    data: FreelanceInquiryData
+  ): Promise<{ success: boolean; error?: string }> {
+    try {
+      const personalEmail = getPersonalEmail();
+      const timestamp = new Date().toISOString();
+      const projectLabel = data.projectType === 'mobile' ? 'Mobile' : 'Web';
+      const languageLabel = data.language === 'es' ? 'Spanish' : 'English';
+
+      const subject = `New Freelance Inquiry (${projectLabel}) - gg-eng.me`;
+
+      const htmlContent = `
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <meta charset="UTF-8">
+            <style>
+              body { font-family: 'Space Grotesk', Arial, sans-serif; line-height: 1.6; color: #000000; }
+              .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+              h1 { font-family: 'Playfair Display', Georgia, serif; font-size: 24px; }
+              .info-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+              .info-table td { padding: 10px; border-bottom: 1px solid #ddd; }
+              .info-table td:first-child { font-weight: 600; width: 30%; }
+              .footer { margin-top: 30px; padding-top: 20px; border-top: 2px solid #000000; font-size: 14px; }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              <h1>New Freelance Inquiry</h1>
+              <p>Someone submitted a freelance inquiry through gg-eng.me.</p>
+              <table class="info-table">
+                <tr>
+                  <td>Name:</td>
+                  <td>${escapeHtml(data.name)}</td>
+                </tr>
+                <tr>
+                  <td>Email:</td>
+                  <td><a href="mailto:${escapeHtml(data.email)}">${escapeHtml(data.email)}</a></td>
+                </tr>
+                <tr>
+                  <td>Project type:</td>
+                  <td>${escapeHtml(projectLabel)}</td>
+                </tr>
+                <tr>
+                  <td>Language:</td>
+                  <td>${escapeHtml(languageLabel)}</td>
+                </tr>
+                <tr>
+                  <td>Submitted at:</td>
+                  <td>${new Date(timestamp).toLocaleString()}</td>
+                </tr>
+              </table>
+              <div class="footer">
+                <p style="color: #666; font-size: 12px;">
+                  This is an automated notification from gg-eng.me
+                </p>
+              </div>
+            </div>
+          </body>
+        </html>
+      `;
+
+      const response = await sendEmailViaAPI(this.apiKey, {
+        from: 'German Gómez <noreply@gg-eng.me>',
+        to: [personalEmail],
+        subject,
+        html: htmlContent,
+      });
+
+      if (!response.success) {
+        return {
+          success: false,
+          error: `Failed to send notification to ${personalEmail}: ${response.error}`,
+        };
+      }
+
+      return { success: true };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
       };
     }
   }

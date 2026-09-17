@@ -1,0 +1,115 @@
+---
+import type { Language } from '@/i18n/translations';
+import { getTranslations } from '@/i18n/translations';
+
+interface Props {
+  platform: 'ios' | 'android';
+  href: string;
+  lang: Language;
+}
+
+const { platform, href, lang } = Astro.props;
+const t = getTranslations(lang).experience.storeBadges;
+const copy = platform === 'ios' ? t.appStore : t.googlePlay;
+---
+
+<a
+  class="store-badge"
+  data-platform={platform}
+  href={href}
+  target="_blank"
+  rel="noopener noreferrer"
+  aria-label={`${copy.caption} ${copy.name}`}
+>
+  {platform === 'ios' ? (
+    <svg class="store-badge-icon" viewBox="0 0 24 24" aria-hidden="true" fill="currentColor">
+      <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
+    </svg>
+  ) : (
+    <svg class="store-badge-icon store-badge-icon-play" viewBox="0 0 24 24" aria-hidden="true">
+      <path fill="#00A0FF" d="M3.6 2.2c-.3.2-.5.5-.5.9v17.8c0 .4.2.7.5.9l.1.1 10-10v-.2L3.7 2.1l-.1.1z"/>
+      <path fill="#FFD400" d="M16.6 14.9 13.2 11.5 3.6 21.1c.2.2.5.2.8.1l12.2-6.3z"/>
+      <path fill="#FF3A44" d="M16.6 9.1 4.4 2.8c-.3-.1-.6-.1-.8.1l9.6 9.6 3.4-3.4z"/>
+      <path fill="#00D2B2" d="m13.2 12.5 3.4-3.4 2.7 1.5c1 .5 1 1.4 0 1.9l-2.7 1.5-3.4-1.5z"/>
+    </svg>
+  )}
+  <span class="store-badge-text">
+    <span class="store-badge-caption" data-platform={platform}>{copy.caption}</span>
+    <span class="store-badge-name">{copy.name}</span>
+  </span>
+</a>
+
+<style>
+  .store-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.625rem;
+    min-height: 2.75rem;
+    padding: 0.375rem 0.875rem 0.375rem 0.75rem;
+    border-radius: 0.5rem;
+    border: 1px solid #a6a6a6;
+    background: #000;
+    color: #fff;
+    text-decoration: none;
+    line-height: 1;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+
+  .store-badge:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+  }
+
+  .store-badge-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+    flex-shrink: 0;
+  }
+
+  .store-badge-icon-play {
+    width: 1.625rem;
+    height: 1.625rem;
+  }
+
+  .store-badge-text {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.1rem;
+  }
+
+  .store-badge-caption {
+    font-family: var(--font-family-sans);
+    font-size: 0.5625rem;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    line-height: 1.1;
+    opacity: 0.95;
+  }
+
+  .store-badge-caption[data-platform='android'] {
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-size: 0.5rem;
+  }
+
+  .store-badge-name {
+    font-family: var(--font-family-sans);
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    line-height: 1.15;
+  }
+
+  @media (max-width: 480px) {
+    .store-badge {
+      min-height: 2.5rem;
+      padding: 0.3rem 0.75rem 0.3rem 0.625rem;
+      gap: 0.5rem;
+    }
+
+    .store-badge-name {
+      font-size: 0.875rem;
+    }
+  }
+</style>

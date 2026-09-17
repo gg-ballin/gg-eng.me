@@ -5,6 +5,11 @@ import { useUserAgent } from 'astro-useragent';
 import { APP_VERSION } from '@/lib/version';
 import ScanMeTag from '@/components/ScanMeTag.astro';
 import { EmailService } from '@/lib/emailService';
+import NavRoutePicker from '@/components/NavRoutePicker.astro';
+import { resolveFreelanceOrigin } from '@/lib/freelance-navigation';
+import { ClientRouter } from 'astro:transitions';
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import '../styles/nav-route-picker.css';
 
 interface Props {
   title: string;
@@ -15,15 +20,31 @@ interface Props {
 
 const { title = 'Germán Gomez', description = '', lang, hideSocialLinks = false } = Astro.props;
 const currentPath = Astro.url.pathname;
-const t = getTranslations(lang).nav;
+const siteT = getTranslations(lang);
+const t = siteT.nav;
 const currentYear = getCurrentYear();
 
 // Language switcher & nav paths (prefixed locales)
 const otherLang = lang === 'es' ? 'en' : 'es';
 const switcherPath = currentPath.replace(`/${lang}/`, `/${otherLang}/`);
 
-const bioPath = `/${lang}/`;
+const bioPath = getRelativeLocaleUrl(lang, '/');
 const experiencePath = `/${lang}/experience`;
+const freelancePath = `/${lang}/freelance`;
+const isFreelanceRoute = currentPath.startsWith(freelancePath);
+const freelanceOrigin = resolveFreelanceOrigin(Astro.url.searchParams.get('from'));
+const isBioFreelanceNav = isFreelanceRoute && freelanceOrigin === 'bio';
+const isExperienceFreelanceNav = isFreelanceRoute && freelanceOrigin === 'experience';
+const isBioActive =
+  currentPath === `/${lang}/` ||
+  currentPath === `/${lang}` ||
+  isBioFreelanceNav;
+const isExperienceActive =
+  currentPath.startsWith(experiencePath) ||
+  isExperienceFreelanceNav;
+const isExperienceLikePage =
+  currentPath.startsWith(experiencePath) || currentPath.startsWith(freelancePath);
+const freelanceNavLabel = siteT.freelance.heading;
 const blogPath = `/${lang}/blog`;
 const contactPath = `/${lang}/contact`;
 
@@ -64,7 +85,14 @@ if (import.meta.env.DEV) {
 ---
 
 <!doctype html>
-<html lang={lang}>
+<html
+  lang={lang}
+  data-freelance-route={isFreelanceRoute ? 'true' : undefined}
+  data-freelance-origin={isFreelanceRoute ? freelanceOrigin : undefined}
+  data-nav-parent-bio={t.bio}
+  data-nav-parent-experience={t.experience}
+  data-nav-freelance-label={freelanceNavLabel}
+>
   <head>
     <meta charset="UTF-8" />
     <meta name="description" content={description} />
@@ -75,6 +103,46 @@ if (import.meta.env.DEV) {
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
+    <ClientRouter />
+    <script is:inline>
+      // Bio/home nav must always work — index routes are fragile with persisted ClientRouter state.
+      document.addEventListener(
+        'click',
+        (event) => {
+          const target = event.target;
+          if (!(target instanceof Element)) return;
+
+          const link = target.closest('[data-nav-bio-link]');
+          if (!(link instanceof HTMLAnchorElement)) return;
+          if (event.button !== 0) return;
+          if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+
+          const href = link.getAttribute('href');
+          if (!href) return;
+
+          const destination = new URL(href, window.location.href);
+          if (destination.origin !== window.location.origin) return;
+
+          const normalize = (path) =>
+            path.length > 1 && path.endsWith('/') ? path.slice(0, -1) : path;
+          const sameRoute =
+            normalize(destination.pathname) === normalize(window.location.pathname) &&
+            destination.search === window.location.search;
+
+          event.preventDefault();
+          event.stopImmediatePropagation();
+
+          if (sameRoute) {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            document.getElementById('sliding-door')?.scrollTo({ top: 0, behavior: 'smooth' });
+            return;
+          }
+
+          window.location.assign(`${destination.pathname}${destination.search}${destination.hash}`);
+        },
+        true
+      );
+    </script>
     <script is:inline>
       // Theme initialization (runs before page render to prevent flash)
       const theme = localStorage.getItem('theme') || 'dark';
@@ -95,73 +163,154 @@ if (import.meta.env.DEV) {
       <div class="nav-links">
         <a 
           href={bioPath}
-          class={`nav-link nav-link-1 hover:opacity-60 transition-opacity ${(currentPath === `/${lang}/` || currentPath === `/${lang}`) ? 'nav-link-active' : ''}`}
+          class={`nav-link nav-link-1 ${isBioActive ? 'nav-link-active' : ''} ${isBioFreelanceNav ? 'nav-link--picker-active' : ''}`}
+          aria-label={isBioFreelanceNav ? `${freelanceNavLabel}, ${t.bio}` : t.bio}
+          data-nav-bio-link
+          data-astro-reload
         >
-          <span class="nav-text">{t.bio}</span>
+          <span class="nav-icon" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="12" cy="8" r="4"/>
+              <path d="M4 20c0-3.3 3.6-6 8-6s8 2.7 8 6"/>
+            </svg>
+          </span>
+          <span class="nav-text">
+            <span class="nav-text--plain nav-label-desktop">{t.bio}</span>
+            <span class="nav-text--plain nav-label-mobile">{t.home}</span>
+            <NavRoutePicker
+              currentLabel={freelanceNavLabel}
+              parentBioLabel={t.bio}
+              parentExperienceLabel={t.experience}
+              initialOrigin={freelanceOrigin}
+              srLabel={`${freelanceNavLabel}, ${t.bio}`}
+            />
+          </span>
         </a>
         <a 
           href={experiencePath}
-          class={`nav-link nav-link-2 hover:opacity-60 transition-opacity ${currentPath.startsWith(`/${lang}/experience`) ? 'nav-link-active' : ''}`}
+          class={`nav-link nav-link-2 ${isExperienceActive ? 'nav-link-active' : ''} ${isExperienceFreelanceNav ? 'nav-link--picker-active' : ''}`}
+          aria-label={isExperienceFreelanceNav ? `${freelanceNavLabel}, ${t.experience}` : t.experience}
         >
-          <span class="nav-text">{t.experience}</span>
+          <span class="nav-icon" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+              <rect x="3" y="7" width="18" height="13" rx="2"/>
+              <path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/>
+              <path d="M3 12h18"/>
+            </svg>
+          </span>
+          <span class="nav-text">
+            <span class="nav-text--plain">{t.experience}</span>
+            <NavRoutePicker
+              currentLabel={freelanceNavLabel}
+              parentBioLabel={t.bio}
+              parentExperienceLabel={t.experience}
+              initialOrigin={freelanceOrigin}
+              srLabel={`${freelanceNavLabel}, ${t.experience}`}
+            />
+          </span>
         </a>
         <a 
           href={blogPath}
-          class={`nav-link nav-link-3 hover:opacity-60 transition-opacity ${currentPath.startsWith(`/${lang}/blog`) ? 'nav-link-active' : ''}`}
+          class={`nav-link nav-link-3 ${currentPath.startsWith(`/${lang}/blog`) ? 'nav-link-active' : ''}`}
+          aria-label={t.blog}
         >
+          <span class="nav-icon" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 20h9"/>
+              <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/>
+            </svg>
+          </span>
           <span class="nav-text">{t.blog}</span>
         </a>
         <a 
           href={contactPath}
-          class={`nav-link nav-link-4 hover:opacity-60 transition-opacity ${currentPath.startsWith(`/${lang}/contact`) ? 'nav-link-active' : ''}`}
+          class={`nav-link nav-link-4 ${currentPath.startsWith(`/${lang}/contact`) ? 'nav-link-active' : ''}`}
           id="contact-nav-link"
+          aria-label={t.contact}
         >
+          <span class="nav-icon" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+              <rect x="3" y="5" width="18" height="14" rx="2"/>
+              <path d="m3 7 9 6 9-6"/>
+            </svg>
+          </span>
           <span class="nav-text">{t.contact}</span>
         </a>
       </div>
-      <div id="nav-controls-glassy" class="nav-controls-glassy">
-      <div class="nav-controls">
-        <button id="theme-toggle" class="nav-control nav-control-1 theme-toggle-btn" aria-label={t.theme}>
-          <span id="theme-icon" class="theme-icon-wrapper">
-            <svg id="theme-icon-sun" class="theme-icon theme-icon-sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-              <circle cx="12" cy="12" r="4" fill="currentColor"/>
-              <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+    </nav>
+    <header class={`site-top-bar ${hideSocialLinks ? 'site-top-bar--detail' : ''}`}>
+      <div class="header-context-pill" data-header-pill>
+        {!hideSocialLinks && (
+        <div class="social-links-container">
+          <a href="https://www.linkedin.com/in/german-gomez-781040152/" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="LinkedIn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+              <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
             </svg>
-            <svg id="theme-icon-moon" class="theme-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </a>
+          <a href="https://github.com/gg-ballin" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="GitHub">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
             </svg>
-          </span>
-        </button>
-        <a href={switcherPath} class="nav-control nav-control-2 lang-switcher">{otherLang}</a>
+          </a>
+        </div>
+        )}
+        <span class="sticky-page-title" data-sticky-title transition:persist="header-sticky-title" transition:animate="none" aria-hidden="true"></span>
+      </div>
+      <div id="nav-controls-glassy" class="nav-controls-glassy" transition:persist="nav-controls" transition:animate="none">
+        <div class="nav-controls">
+          <button id="theme-toggle" class="nav-control nav-control-1 theme-toggle-btn" aria-label={t.theme}>
+            <span id="theme-icon" class="theme-icon-wrapper">
+              <svg id="theme-icon-sun" class="theme-icon theme-icon-sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <circle cx="12" cy="12" r="4" fill="currentColor"/>
+                <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+              </svg>
+              <svg id="theme-icon-moon" class="theme-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+              </svg>
+            </span>
+          </button>
+          <a href={switcherPath} class="nav-control nav-control-2 lang-switcher">{otherLang}</a>
         </div>
       </div>
-    </nav>
+    </header>
     <!-- Language Change Loading Indicator -->
     <div id="language-loading" class="language-loading" style="display: none;" aria-hidden="true">
       <div class="language-loading-spinner"></div>
     </div>
-    <main class="main-content">
-      <!-- Social Links -->
-      {!hideSocialLinks && (
-      <div class="social-links-container">
-        <a href="https://www.linkedin.com/in/german-gomez-781040152/" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="LinkedIn">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-            <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
-          </svg>
-        </a>
-        <a href="https://github.com/gg-ballin" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="GitHub">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-          </svg>
-        </a>
-      </div>
-      )}
+    <!-- Sliding door: detail content rides in one-way (R→L / T→B) -->
+    <div id="sliding-door" class="sliding-door" aria-hidden="true"></div>
+    <main class={`main-content ${hideSocialLinks ? 'main-content--detail' : ''}`}>
       <slot />
     </main>
     
     <!-- Desktop Detection Popup with QR Code -->
-    <div id="desktop-popup" class={`desktop-popup ${!isDesktopBrowser || currentPath.startsWith(`/${lang}/experience`) ? 'desktop-popup-hidden' : ''}`} role="dialog" aria-labelledby="desktop-popup-message" aria-hidden="true" data-is-desktop={isDesktopBrowser ? 'true' : 'false'}>
+    <div id="desktop-popup" class={`desktop-popup ${!isDesktopBrowser || isExperienceLikePage ? 'desktop-popup-hidden' : ''}`} role="dialog" aria-labelledby="desktop-popup-message" aria-hidden="true" data-is-desktop={isDesktopBrowser ? 'true' : 'false'}>
       <div class="desktop-popup-content">
+        <button
+          type="button"
+          id="desktop-popup-size-toggle"
+          class="desktop-popup-size-toggle"
+          aria-label={getTranslations(lang).desktopPopup.minimize}
+          data-label-minimize={getTranslations(lang).desktopPopup.minimize}
+          data-label-open={getTranslations(lang).desktopPopup.open}
+          aria-pressed="false"
+          aria-controls="desktop-popup"
+        >
+          <svg class="desktop-popup-icon-shrink" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="4 14 10 14 10 20"/>
+            <polyline points="20 10 14 10 14 4"/>
+            <line x1="14" y1="10" x2="21" y2="3"/>
+            <line x1="3" y1="21" x2="10" y2="14"/>
+          </svg>
+          <svg class="desktop-popup-icon-expand" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="15 3 21 3 21 9"/>
+            <polyline points="9 21 3 21 3 15"/>
+            <line x1="21" y1="3" x2="14" y2="10"/>
+            <line x1="3" y1="21" x2="10" y2="14"/>
+          </svg>
+          <span class="desktop-popup-size-label desktop-popup-size-label-minimize">{getTranslations(lang).desktopPopup.minimize}</span>
+          <span class="desktop-popup-size-label desktop-popup-size-label-open">{getTranslations(lang).desktopPopup.open}</span>
+        </button>
         <p id="desktop-popup-message" class="desktop-popup-message">
           {getTranslations(lang).desktopPopup.message}
         </p>
@@ -175,17 +324,25 @@ if (import.meta.env.DEV) {
     </div>
     
     <!-- Recruiter Hint Popup with QR Code -->
-    {!currentPath.startsWith(`/${lang}/contact`) && !currentPath.startsWith(`/${lang}/experience`) && (
+    {!currentPath.startsWith(`/${lang}/contact`) && !isExperienceLikePage && (
       <div id="recruiter-hint-popup" class="recruiter-hint-popup" role="dialog" aria-labelledby="recruiter-hint-message" aria-hidden="true">
         <div class="recruiter-hint-popup-content">
           <p id="recruiter-hint-message" class="recruiter-hint-popup-message">
             <span class="recruiter-hint-desktop">
-              {getTranslations(lang).nav.recruiterHint.message}{' '}
+              👋{' '}
+              <span
+                class="recruiter-audience"
+                data-audiences={JSON.stringify(getTranslations(lang).nav.recruiterHint.audiences)}
+              >{getTranslations(lang).nav.recruiterHint.audiences[0]}</span>{getTranslations(lang).nav.recruiterHint.messageAfter}{' '}
               <a href={contactPath} class="recruiter-hint-link">{getTranslations(lang).nav.recruiterHint.linkText}</a>.
             </span>
             <span class="recruiter-hint-mobile">
-              {getTranslations(lang).nav.recruiterHint.mobileMessage}{' '}
-              <span class="recruiter-hint-mobile-text">{getTranslations(lang).nav.recruiterHint.mobileLinkText}</span>.
+              👋{' '}
+              <span
+                class="recruiter-audience"
+                data-audiences={JSON.stringify(getTranslations(lang).nav.recruiterHint.audiences)}
+              >{getTranslations(lang).nav.recruiterHint.audiences[0]}</span>{getTranslations(lang).nav.recruiterHint.mobileMessageAfter}{' '}
+              <a href={contactPath} class="recruiter-hint-mobile-text">{getTranslations(lang).nav.recruiterHint.mobileLinkText}</a>.
             </span>
           </p>
         </div>
@@ -193,7 +350,7 @@ if (import.meta.env.DEV) {
       </div>
     )}
     
-    <footer class={`footer ${currentPath.startsWith(`/${lang}/experience`) ? 'footer-experience' : ''}`}>
+    <footer class={`footer ${isExperienceLikePage ? 'footer-experience' : ''}`}>
       {!hideSocialLinks && (
       <div class="social-links-container-footer">
         <a href="https://www.linkedin.com/in/german-gomez-781040152/" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="LinkedIn">
@@ -225,6 +382,320 @@ if (import.meta.env.DEV) {
     </footer>
 
     <script>
+      import { lockScroll, unlockScroll } from '@/lib/scroll-lock';
+      import { syncLangSwitcherHref } from '@/lib/locale-routing';
+
+      (() => {
+        const door = document.getElementById('sliding-door');
+        if (!door) return;
+
+        const DURATION_MS = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+          ? 0
+          : 600;
+        let isAnimating = false;
+        let overlayActive = false;
+        let listTitle = document.title;
+        let listUrl = window.location.href;
+        let detailPopHandler = null;
+
+        const topBar = document.querySelector('.site-top-bar');
+        const topBarIsDetailLayout = topBar?.classList.contains('site-top-bar--detail') ?? false;
+
+        const waitForDoorTransition = () =>
+          new Promise((resolve) => {
+            if (DURATION_MS === 0) {
+              resolve();
+              return;
+            }
+            let done = false;
+            const finish = (event) => {
+              if (event && event.target !== door) return;
+              if (done) return;
+              done = true;
+              door.removeEventListener('transitionend', finish);
+              resolve();
+            };
+            door.addEventListener('transitionend', finish);
+            window.setTimeout(() => finish(), DURATION_MS + 80);
+          });
+
+        const DETAIL_STYLE_MARKERS = [
+          'experience-detail',
+          '.detail-',
+          '.back-button',
+          '.project-',
+          'employer-logo',
+          'article-',
+          '.prose',
+        ];
+
+        const isDetailStyleText = (cssText) =>
+          DETAIL_STYLE_MARKERS.some((marker) => cssText.includes(marker));
+
+        const clearInjectedPageStyles = () => {
+          document
+            .querySelectorAll('[data-sliding-door-style="true"]')
+            .forEach((el) => el.remove());
+        };
+
+        /**
+         * Prod builds extract page CSS to <link rel="stylesheet">; astro dev keeps
+         * it in <style>. Sliding-door only fetches HTML — inject both so detail
+         * styles apply in Cloudflare Pages the same way they do locally.
+         */
+        const injectPageStyles = (doc) => {
+          clearInjectedPageStyles();
+
+          const existingHrefs = new Set(
+            [...document.querySelectorAll('link[rel="stylesheet"]')].map((link) => link.href)
+          );
+
+          const pendingSheets = [];
+
+          doc.querySelectorAll('link[rel="stylesheet"]').forEach((linkEl) => {
+            const href = linkEl.getAttribute('href');
+            if (!href) return;
+            const absoluteHref = new URL(href, window.location.origin).href;
+            if (existingHrefs.has(absoluteHref)) return;
+
+            const clone = document.createElement('link');
+            clone.rel = 'stylesheet';
+            clone.href = absoluteHref;
+            clone.setAttribute('data-sliding-door-style', 'true');
+            pendingSheets.push(
+              new Promise((resolve) => {
+                clone.addEventListener('load', resolve, { once: true });
+                clone.addEventListener('error', resolve, { once: true });
+              })
+            );
+            document.head.appendChild(clone);
+          });
+
+          doc.querySelectorAll('style').forEach((styleEl) => {
+            const cssText = styleEl.textContent || '';
+            if (!isDetailStyleText(cssText)) return;
+            const clone = styleEl.cloneNode(true);
+            clone.setAttribute('data-sliding-door-style', 'true');
+            document.head.appendChild(clone);
+          });
+
+          return Promise.all(pendingSheets);
+        };
+
+        const prepareDetailContent = (mainEl) => {
+          mainEl.querySelectorAll('.experience-detail-animate, .article-animate').forEach((el) => {
+            el.classList.remove('experience-detail-animate', 'article-animate');
+            el.style.opacity = '1';
+          });
+        };
+
+        const setOverlayUiState = (active) => {
+          overlayActive = active;
+          document.documentElement.classList.toggle('sliding-door-open', active);
+          if (topBar) {
+            if (active) {
+              topBar.classList.add('site-top-bar--detail');
+            } else if (!topBarIsDetailLayout) {
+              topBar.classList.remove('site-top-bar--detail');
+            }
+          }
+          if (active) {
+            lockScroll('sliding-door');
+          } else {
+            unlockScroll('sliding-door');
+          }
+          document.dispatchEvent(new CustomEvent('sliding-door:change', { detail: { active } }));
+        };
+
+        const resolveFreelanceReturnPath = (fallbackPath) => {
+          const stored = sessionStorage.getItem('freelanceReturnTo');
+          const pageLang = document.documentElement.lang || 'es';
+          if (stored === 'bio') return `/${pageLang}/`;
+          if (stored === 'experience') return `/${pageLang}/experience`;
+          return fallbackPath;
+        };
+
+        const patchFreelanceBackButtons = (root = document) => {
+          const stored = sessionStorage.getItem('freelanceReturnTo') || 'experience';
+          const pageLang = document.documentElement.lang || 'es';
+          const originTarget =
+            stored === 'bio' ? `/${pageLang}/` : `/${pageLang}/experience`;
+          const freelanceListTarget = `/${pageLang}/freelance?from=${stored}`;
+
+          root.querySelectorAll('[data-freelance-back]').forEach((el) => {
+            const target =
+              el.dataset.freelanceBackTarget === 'freelance-list'
+                ? freelanceListTarget
+                : originTarget;
+
+            el.setAttribute('href', target);
+            el.dataset.listPath = target;
+            el.dataset.experiencePath = target;
+            el.dataset.returnOrigin = stored;
+          });
+        };
+
+        /** Full-page detail only (not overlay). Browser back → list */
+        const setupFullPageBackGuard = () => {
+          if (detailPopHandler) {
+            window.removeEventListener('popstate', detailPopHandler);
+            detailPopHandler = null;
+          }
+
+          const backButton = document.querySelector('main.main-content [data-sliding-door-back]');
+          const listPath = backButton?.dataset?.listPath || backButton?.dataset?.experiencePath;
+          if (!listPath || overlayActive) return;
+
+          history.pushState({ experienceDetailGuard: true }, '', window.location.href);
+          detailPopHandler = () => {
+            window.location.replace(listPath);
+          };
+          window.addEventListener('popstate', detailPopHandler);
+        };
+
+        const openDoorOverlay = async (listPath) => {
+          if (!overlayActive || isAnimating) return;
+          isAnimating = true;
+
+          door.classList.remove('is-closed');
+          await waitForDoorTransition();
+
+          door.classList.remove('is-visible');
+          door.innerHTML = '';
+          door.setAttribute('aria-hidden', 'true');
+          door.scrollTop = 0;
+          clearInjectedPageStyles();
+          setOverlayUiState(false);
+
+          document.title = listTitle;
+
+          const target = listPath || listUrl;
+          if (target) {
+            const targetHref = new URL(target, window.location.origin).href;
+            if (window.location.href !== targetHref) {
+              history.replaceState({ slidingDoor: false }, '', target);
+            }
+          }
+
+          isAnimating = false;
+        };
+
+        const normalizeDoorHref = (rawHref) => {
+          const url = new URL(rawHref, window.location.origin);
+          const nestedFreelance = url.pathname.match(/^\/(es|en)\/experience\/freelance\/(.+)$/);
+          if (nestedFreelance) {
+            url.pathname = `/${nestedFreelance[1]}/freelance/${nestedFreelance[2]}`;
+          }
+          return `${url.pathname}${url.search}${url.hash}`;
+        };
+
+        const syncLangSwitcherPath = (pathname, search = '', hash = '') => {
+          syncLangSwitcherHref(pathname, search, hash);
+        };
+
+        const navigateWithDoor = async (href) => {
+          if (isAnimating || overlayActive) return;
+          isAnimating = true;
+
+          const destination = normalizeDoorHref(href);
+          listTitle = document.title;
+          listUrl = window.location.href;
+
+          try {
+            const response = await fetch(destination, { headers: { Accept: 'text/html' } });
+            if (!response.ok) throw new Error(`Failed to fetch ${destination}`);
+
+            const html = await response.text();
+            const doc = new DOMParser().parseFromString(html, 'text/html');
+            const newMain = doc.querySelector('main.main-content');
+            if (!newMain) throw new Error('No main.main-content in response');
+
+            prepareDetailContent(newMain);
+            await injectPageStyles(doc);
+
+            door.innerHTML = newMain.innerHTML;
+            patchFreelanceBackButtons(door);
+            door.setAttribute('aria-hidden', 'false');
+            door.classList.add('is-visible');
+            door.scrollTop = 0;
+            void door.offsetWidth;
+            door.classList.add('is-closed');
+            setOverlayUiState(true);
+
+            await waitForDoorTransition();
+
+            history.pushState({ slidingDoor: true }, '', destination);
+            syncLangSwitcherPath(new URL(destination, window.location.origin).pathname, new URL(destination, window.location.origin).search);
+            document.title = doc.title || document.title;
+          } catch (_) {
+            window.location.assign(destination);
+          } finally {
+            isAnimating = false;
+          }
+        };
+
+        setupFullPageBackGuard();
+
+        document.addEventListener('click', (event) => {
+          const backBtn = event.target?.closest?.('[data-sliding-door-back]');
+          if (backBtn) {
+            const listPath = backBtn.dataset.listPath || backBtn.dataset.experiencePath;
+            const forceNavigate = backBtn.dataset.slidingDoorBackNavigate === 'true';
+
+            if (forceNavigate && listPath) {
+              event.preventDefault();
+              const targetPath =
+                backBtn.hasAttribute('data-freelance-back') &&
+                backBtn.dataset.freelanceBackTarget !== 'freelance-list'
+                  ? resolveFreelanceReturnPath(listPath)
+                  : listPath;
+              setOverlayUiState(false);
+              door.classList.remove('is-visible', 'is-closed');
+              door.innerHTML = '';
+              clearInjectedPageStyles();
+              window.location.assign(targetPath);
+              return;
+            }
+
+            if (overlayActive) {
+              event.preventDefault();
+              if (history.state && history.state.slidingDoor) {
+                history.back();
+              } else {
+                openDoorOverlay(listPath);
+              }
+              return;
+            }
+          }
+
+          const link = event.target?.closest?.('a[data-sliding-door]');
+          if (!link || !link.href) return;
+          if (event.defaultPrevented) return;
+          if (event.button !== 0) return;
+          if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+
+          event.preventDefault();
+          const rawHref = link.getAttribute('href') || link.href;
+          navigateWithDoor(rawHref);
+        });
+
+        window.addEventListener('popstate', () => {
+          if (history.state?.slidingDoor) return;
+          if (overlayActive) {
+            openDoorOverlay(listUrl);
+          }
+        });
+      })();
+    </script>
+
+    <script>
+      import { initViewTransitionLifecycle } from '@/lib/view-transition-lifecycle';
+
+      if (!document.documentElement.dataset.vtLifecycleInit) {
+        document.documentElement.dataset.vtLifecycleInit = 'true';
+        initViewTransitionLifecycle();
+      }
+
       const themeToggle = document.getElementById('theme-toggle');
       
       function updateThemeIcons() {
@@ -239,6 +710,9 @@ if (import.meta.env.DEV) {
       
       updateThemeIcons();
       
+      if (!document.documentElement.dataset.themeToggleBound) {
+        document.documentElement.dataset.themeToggleBound = 'true';
+
       themeToggle?.addEventListener('click', () => {
         const currentTheme = document.documentElement.getAttribute('data-theme');
         const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
@@ -255,16 +729,12 @@ if (import.meta.env.DEV) {
         // Dispatch custom event for theme change
         window.dispatchEvent(new CustomEvent('themeChange', { detail: { theme: newTheme } }));
         
-        // Retrigger nav-links animation on theme change (nav-controls won't re-animate due to nav-control-animated class)
+        // Retrigger nav-links animation on theme change
         retriggerNavAnimations();
       });
+      }
       
-      // Also listen for theme change events from other sources
-      window.addEventListener('themeChange', () => {
-        retriggerNavAnimations();
-      });
-      
-      // Function to retrigger nav animations
+      // Function to retrigger nav animations (init / lang / theme only — not detail back)
       function retriggerNavAnimations() {
         const html = document.documentElement;
         html.classList.remove('play-nav-animation');
@@ -291,42 +761,31 @@ if (import.meta.env.DEV) {
         markControlsAnimated();
       }, 1200);
       
-      // Retrigger animations when language is changed (only nav-links, not controls)
-      const langSwitcher = document.querySelector('.lang-switcher');
-      langSwitcher?.addEventListener('click', () => {
-        // Show loading indicator
+      const hideLanguageLoading = () => {
         const loadingIndicator = document.getElementById('language-loading');
         if (loadingIndicator) {
-          loadingIndicator.style.display = 'flex';
+          loadingIndicator.style.display = 'none';
         }
-        // Store flag that language is being changed
-        sessionStorage.setItem('languageChanging', 'true');
-      });
-      
-      // Check if language was just changed on page load
-      const languageChanging = sessionStorage.getItem('languageChanging');
-      if (languageChanging === 'true') {
-        // Hide loading indicator
-        const loadingIndicator = document.getElementById('language-loading');
-        if (loadingIndicator) {
-          setTimeout(() => {
-            loadingIndicator.style.display = 'none';
-          }, 300);
-        }
-        // Clear the flag
         sessionStorage.removeItem('languageChanging');
-        // Trigger animation after a short delay to ensure page is loaded
-        setTimeout(() => {
+      };
+
+      document.addEventListener('astro:page-load', () => {
+        hideLanguageLoading();
+        if (sessionStorage.getItem('languageChanging') === 'true') {
           retriggerNavAnimations();
-        }, 100);
-      }
-      
-      // Also retrigger on browser back/forward navigation
-      window.addEventListener('popstate', () => {
-        setTimeout(() => {
-          retriggerNavAnimations();
-        }, 100);
+        }
       });
+      document.addEventListener('astro:after-swap', hideLanguageLoading);
+
+      window.addEventListener('pageshow', hideLanguageLoading);
+      window.addEventListener('popstate', hideLanguageLoading);
+
+      if (sessionStorage.getItem('languageChanging') === 'true') {
+        window.setTimeout(() => {
+          hideLanguageLoading();
+          retriggerNavAnimations();
+        }, 300);
+      }
       
       // Desktop detection popup (using server-side detection from astro-useragent)
       function showDesktopPopup() {
@@ -341,7 +800,7 @@ if (import.meta.env.DEV) {
         }
         
         // Don't show on experience page
-        if (window.location.pathname.includes('/experience')) {
+        if (window.location.pathname.includes('/experience') || window.location.pathname.includes('/freelance')) {
           if (import.meta.env.DEV) {
             console.log('[Desktop Popup] On experience page, skipping');
           }
@@ -383,8 +842,35 @@ if (import.meta.env.DEV) {
         setTimeout(() => {
           popup.setAttribute('aria-hidden', 'false');
           popup.classList.add('desktop-popup-visible');
+
+          // Restore compact preference
+          if (localStorage.getItem('desktop-popup-compact') === 'true') {
+            setDesktopPopupCompact(true);
+          }
         }, 1500);
       }
+
+      function setDesktopPopupCompact(compact) {
+        const popup = document.getElementById('desktop-popup');
+        const toggle = document.getElementById('desktop-popup-size-toggle');
+        if (!popup || !toggle) return;
+
+        popup.classList.toggle('is-compact', compact);
+        toggle.classList.toggle('is-docked-out', compact);
+        toggle.setAttribute('aria-pressed', compact ? 'true' : 'false');
+        toggle.setAttribute(
+          'aria-label',
+          compact ? (toggle.dataset.labelOpen || 'open') : (toggle.dataset.labelMinimize || 'minimize')
+        );
+        localStorage.setItem('desktop-popup-compact', compact ? 'true' : 'false');
+      }
+
+      document.getElementById('desktop-popup-size-toggle')?.addEventListener('click', (event) => {
+        event.stopPropagation();
+        const popup = document.getElementById('desktop-popup');
+        if (!popup) return;
+        setDesktopPopupCompact(!popup.classList.contains('is-compact'));
+      });
       
       // Recruiter hint popup - position near contact nav link on mobile, bottom right on desktop
       function showRecruiterHintPopup() {
@@ -396,7 +882,7 @@ if (import.meta.env.DEV) {
         }
         
         // Don't show on experience page
-        if (window.location.pathname.includes('/experience')) {
+        if (window.location.pathname.includes('/experience') || window.location.pathname.includes('/freelance')) {
           return;
         }
         
@@ -449,12 +935,53 @@ if (import.meta.env.DEV) {
           positionPopup(); // Position before showing
           popup.setAttribute('aria-hidden', 'false');
           popup.classList.add('recruiter-hint-popup-visible');
+          startRecruiterAudienceRotation();
           
           // Reposition after a brief delay to ensure layout is stable
           setTimeout(() => {
             positionPopup();
           }, 100);
         }, 2000);
+      }
+
+      function startRecruiterAudienceRotation() {
+        const nodes = document.querySelectorAll('.recruiter-audience');
+        if (!nodes.length) return;
+
+        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const intervalMs = reduceMotion ? 4000 : 2800;
+        const swapMs = reduceMotion ? 0 : 320;
+
+        nodes.forEach((node) => {
+          let audiences = [];
+          try {
+            audiences = JSON.parse(node.getAttribute('data-audiences') || '[]');
+          } catch (_) {
+            audiences = [];
+          }
+          if (!Array.isArray(audiences) || audiences.length < 2) return;
+
+          let index = 0;
+          window.setInterval(() => {
+            const next = (index + 1) % audiences.length;
+            if (swapMs === 0) {
+              index = next;
+              node.textContent = audiences[index];
+              return;
+            }
+
+            node.classList.add('is-exiting');
+            window.setTimeout(() => {
+              index = next;
+              node.textContent = audiences[index];
+              node.classList.remove('is-exiting');
+              node.classList.add('is-entering');
+              window.setTimeout(() => {
+                node.classList.remove('is-entering');
+              }, swapMs);
+            }, swapMs);
+          }, intervalMs);
+        });
       }
       
       // QR code shake animation - shake entire popup
@@ -598,27 +1125,26 @@ if (import.meta.env.DEV) {
       
       // Glassy effect for nav controls on scroll (mobile only)
       function setupGlassyNavControls() {
+        const topBar = document.querySelector('.site-top-bar');
         const glassyWrapper = document.getElementById('nav-controls-glassy');
-        if (!glassyWrapper) return;
+        if (!topBar && !glassyWrapper) return;
         
         let scrollTimeout: ReturnType<typeof setTimeout> | null = null;
         
         function handleScroll() {
-          if (!glassyWrapper) return;
-          
+          const scrollY = window.scrollY || document.documentElement.scrollTop;
+          const door = document.getElementById('sliding-door');
+          const doorScrollY = door?.classList.contains('is-closed') ? door.scrollTop : 0;
+          const isScrolled = scrollY > 24 || doorScrollY > 24;
+
           if (window.innerWidth >= 768) {
-            // Desktop: always show (no glassy effect needed)
-            glassyWrapper.classList.remove('scrolled');
+            topBar?.classList.toggle('scrolled', isScrolled);
+            glassyWrapper?.classList.remove('scrolled');
             return;
           }
-          
-          // Mobile: show glassy effect when scrolled
-          const scrollY = window.scrollY || document.documentElement.scrollTop;
-          if (scrollY > 50) {
-            glassyWrapper.classList.add('scrolled');
-          } else {
-            glassyWrapper.classList.remove('scrolled');
-          }
+
+          topBar?.classList.toggle('scrolled', isScrolled);
+          glassyWrapper?.classList.toggle('scrolled', isScrolled);
         }
         
         // Initial check
@@ -631,6 +1157,8 @@ if (import.meta.env.DEV) {
           }
           scrollTimeout = setTimeout(handleScroll, 10);
         }, { passive: true });
+
+        document.getElementById('sliding-door')?.addEventListener('scroll', handleScroll, { passive: true });
         
         // Handle resize
         window.addEventListener('resize', handleScroll, { passive: true });
@@ -647,12 +1175,212 @@ if (import.meta.env.DEV) {
       } else {
         setupGlassyNavControls();
       }
+
+      function setupStickyPageTitle() {
+        let headingObserver = null;
+        let scrollTarget = null;
+        let onScroll = null;
+        let storedLabel = '';
+        /** @type {HTMLElement | null} */
+        let observedSource = null;
+        let overlayActive = false;
+
+        const getSticky = () => document.querySelector('[data-sticky-title]');
+        const getPill = () => document.querySelector('[data-header-pill]');
+        const getDoor = () => document.getElementById('sliding-door');
+
+        const getHeaderOffset = () => {
+          const topBar = document.querySelector('.site-top-bar');
+          if (topBar instanceof HTMLElement) {
+            if (getComputedStyle(topBar).display === 'contents') {
+              return 12;
+            }
+            return Math.max(Math.ceil(topBar.getBoundingClientRect().bottom), 48);
+          }
+          return 64;
+        };
+
+        const setPillExpanded = (expanded) => {
+          const sticky = getSticky();
+          const pill = getPill();
+          if (!sticky) return;
+
+          const show = expanded && storedLabel.length > 0;
+          sticky.textContent = storedLabel;
+          sticky.classList.toggle('is-visible', show);
+          sticky.setAttribute('aria-hidden', show ? 'false' : 'true');
+          pill?.classList.toggle('header-context-pill--with-title', show);
+        };
+
+        const isHeadingInView = () => {
+          if (!(observedSource instanceof HTMLElement)) return false;
+
+          const rect = observedSource.getBoundingClientRect();
+          const headerBottom = getHeaderOffset();
+
+          if (overlayActive) {
+            const door = getDoor();
+            const doorRect = door?.getBoundingClientRect();
+            if (!doorRect) return rect.bottom > headerBottom;
+            return rect.bottom > headerBottom && rect.top < doorRect.bottom;
+          }
+
+          return rect.bottom > headerBottom && rect.top < window.innerHeight;
+        };
+
+        const syncVisibility = () => {
+          setPillExpanded(!isHeadingInView());
+        };
+
+        const teardownScroll = () => {
+          if (scrollTarget && onScroll) {
+            scrollTarget.removeEventListener('scroll', onScroll);
+          }
+          scrollTarget = null;
+          onScroll = null;
+        };
+
+        const disconnectObserver = () => {
+          headingObserver?.disconnect();
+          headingObserver = null;
+          teardownScroll();
+          observedSource = null;
+          overlayActive = false;
+        };
+
+        const bindHeadingSource = () => {
+          disconnectObserver();
+
+          const door = getDoor();
+          overlayActive = Boolean(
+            door?.classList.contains('is-visible') && door?.classList.contains('is-closed')
+          );
+          const source = overlayActive
+            ? door?.querySelector('[data-page-heading]')
+            : document.querySelector('main.main-content [data-page-heading]');
+
+          if (!(source instanceof HTMLElement)) {
+            storedLabel = '';
+            getSticky()?.replaceChildren();
+            setPillExpanded(false);
+            return;
+          }
+
+          observedSource = source;
+          storedLabel =
+            source.dataset.stickyLabel?.trim() || source.textContent?.trim() || '';
+          const sticky = getSticky();
+          if (sticky) sticky.textContent = storedLabel;
+
+          const headerOffset = getHeaderOffset();
+          headingObserver = new IntersectionObserver(
+            () => syncVisibility(),
+            {
+              root: overlayActive ? door : null,
+              rootMargin: `-${headerOffset}px 0px 0px 0px`,
+              threshold: [0, 0.01, 0.25, 1],
+            }
+          );
+          headingObserver.observe(source);
+
+          onScroll = () => syncVisibility();
+          scrollTarget = overlayActive ? door : window;
+          scrollTarget.addEventListener('scroll', onScroll, { passive: true });
+
+          requestAnimationFrame(() => {
+            requestAnimationFrame(syncVisibility);
+          });
+        };
+
+        const scheduleBind = (delays = [0, 120, 320]) => {
+          delays.forEach((delay) => window.setTimeout(bindHeadingSource, delay));
+        };
+
+        if (document.documentElement.dataset.stickyTitleInit === 'true') {
+          scheduleBind();
+          return;
+        }
+
+        document.documentElement.dataset.stickyTitleInit = 'true';
+
+        bindHeadingSource();
+
+        window.addEventListener('resize', bindHeadingSource, { passive: true });
+        document.addEventListener('sliding-door:change', () => {
+          const delay = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 650;
+          window.setTimeout(bindHeadingSource, delay);
+        });
+        document.addEventListener('astro:page-load', () => scheduleBind());
+        document.addEventListener('astro:after-swap', () => scheduleBind());
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', setupStickyPageTitle);
+      } else {
+        setupStickyPageTitle();
+      }
+
+      function scrollToTop() {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        document.getElementById('sliding-door')?.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
+      if (!document.documentElement.dataset.scrollToTopInit) {
+        document.documentElement.dataset.scrollToTopInit = 'true';
+
+        document.addEventListener('click', (event) => {
+          const target = event.target;
+          if (!(target instanceof Element)) return;
+
+          if (target.closest('.nav-bar a.nav-link')) {
+            return;
+          }
+
+          if (target.closest('#theme-toggle')) {
+            if ((window.scrollY || document.documentElement.scrollTop) > 0) {
+              scrollToTop();
+            }
+            return;
+          }
+
+          if (target.closest('.site-top-bar') && !target.closest('a[target="_blank"]') && !target.closest('.lang-switcher')) {
+            if ((window.scrollY || document.documentElement.scrollTop) > 0) {
+              scrollToTop();
+            }
+          }
+        });
+      }
+    </script>
+    <script>
+      import { initNavFreelanceMorph } from '@/lib/nav-freelance-morph';
+      import { FREELANCE_RETURN_KEY } from '@/lib/freelance-navigation';
+
+      if (!document.documentElement.dataset.navMorphInit) {
+        document.documentElement.dataset.navMorphInit = 'true';
+
+      const html = document.documentElement;
+
+      initNavFreelanceMorph({
+        parentBioLabel: html.dataset.navParentBio ?? 'bio',
+        parentExperienceLabel: html.dataset.navParentExperience ?? 'experience',
+        freelanceNavLabel: html.dataset.navFreelanceLabel ?? 'freelance',
+        storageKey: FREELANCE_RETURN_KEY,
+      });
+      }
     </script>
   </body>
 </html>
 
 <style is:global>
   @import '../styles/global.css';
+
+  @media (prefers-reduced-motion: no-preference) {
+    ::view-transition-old(root),
+    ::view-transition-new(root) {
+      animation-duration: 0.32s;
+      animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+    }
+  }
   
   /* Ensure full width and prevent horizontal overflow */
   html, body {
@@ -661,7 +1389,7 @@ if (import.meta.env.DEV) {
     overflow-x: hidden;
   }
   
-  /* Mobile-first: bottom tab bar */
+  /* Mobile-first: bottom tab bar — glossy glass */
   .nav-bar {
     position: fixed;
     left: 0;
@@ -675,9 +1403,13 @@ if (import.meta.env.DEV) {
     justify-content: space-around;
     padding: 0.75rem 0.5rem;
     padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
-    background-color: var(--color-nav-bg);
-    border-top: 1px solid var(--color-border);
+    /* Near-opaque: Android Chrome often skips backdrop-filter, so translucent fills look invisible. */
+    background-color: color-mix(in srgb, var(--color-nav-bg) 94%, transparent);
+    backdrop-filter: blur(18px) saturate(1.7);
+    -webkit-backdrop-filter: blur(18px) saturate(1.7);
+    border-top: 1px solid color-mix(in srgb, var(--color-text) 10%, transparent);
     box-shadow: 
+      inset 0 1px 0 rgba(255, 255, 255, 0.45),
       0 -4px 12px rgba(99, 102, 241, 0.15),
       0 -2px 4px var(--color-accent);
     animation: navGlowPulseMobile 3s ease-in-out infinite;
@@ -685,7 +1417,10 @@ if (import.meta.env.DEV) {
   }
   
   [data-theme="dark"] .nav-bar {
+    background-color: color-mix(in srgb, var(--color-nav-bg) 96%, transparent);
+    border-top: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent);
     box-shadow: 
+      inset 0 1px 0 rgba(255, 255, 255, 0.08),
       0 -4px 12px rgba(0, 255, 136, 0.2),
       0 -2px 4px var(--color-accent);
     animation: navGlowPulseMobileDark 3s ease-in-out infinite;
@@ -694,11 +1429,13 @@ if (import.meta.env.DEV) {
   @keyframes navGlowPulseMobile {
     0%, 100% {
       box-shadow: 
+        inset 0 1px 0 rgba(255, 255, 255, 0.45),
         0 -4px 12px rgba(99, 102, 241, 0.15),
         0 -2px 4px var(--color-accent);
     }
     50% {
       box-shadow: 
+        inset 0 1px 0 rgba(255, 255, 255, 0.35),
         0 -4px 12px rgba(99, 102, 241, 0.08),
         0 -2px 2px var(--color-accent);
     }
@@ -707,11 +1444,13 @@ if (import.meta.env.DEV) {
   @keyframes navGlowPulseMobileDark {
     0%, 100% {
       box-shadow: 
+        inset 0 1px 0 rgba(255, 255, 255, 0.08),
         0 -4px 12px rgba(0, 255, 136, 0.2),
         0 -2px 4px var(--color-accent);
     }
     50% {
       box-shadow: 
+        inset 0 1px 0 rgba(255, 255, 255, 0.05),
         0 -4px 12px rgba(0, 255, 136, 0.1),
         0 -2px 2px var(--color-accent);
     }
@@ -743,13 +1482,154 @@ if (import.meta.env.DEV) {
   }
   
   .nav-controls-glassy {
-    position: fixed;
-    top: 1.5rem;
-    right: 1rem;
-    left: auto;
-    z-index: 100;
-    padding: 0.5rem;
+    position: static;
+    z-index: 1;
+    padding: 0;
     border-radius: 0.75rem;
+  }
+
+  .site-top-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 101;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 0.75rem;
+    min-height: 3.5rem;
+    padding:
+      max(0.75rem, env(safe-area-inset-top))
+      max(1rem, env(safe-area-inset-right))
+      0.75rem
+      max(1rem, env(safe-area-inset-left));
+    pointer-events: none;
+  }
+
+  .header-context-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    min-width: 0;
+    max-width: 100%;
+    padding: 0.3125rem 0.5rem;
+    border-radius: 9999px;
+    border: 1px solid color-mix(in srgb, var(--color-text) 14%, transparent);
+    background-color: color-mix(in srgb, var(--color-nav-bg) 78%, transparent);
+    backdrop-filter: blur(16px) saturate(1.6);
+    -webkit-backdrop-filter: blur(16px) saturate(1.6);
+    box-shadow:
+      inset 0 1px 0 color-mix(in srgb, var(--color-text) 10%, transparent),
+      0 4px 16px color-mix(in srgb, var(--color-bg) 35%, transparent);
+    isolation: isolate;
+    transition:
+      background-color 0.25s ease,
+      border-color 0.25s ease,
+      box-shadow 0.25s ease,
+      padding 0.25s ease;
+  }
+
+  .header-context-pill--with-title {
+    padding-right: 0.875rem;
+  }
+
+  .sticky-page-title {
+    min-width: 0;
+    max-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family: var(--font-family-sans);
+    font-size: 0.875rem;
+    font-weight: 700;
+    text-transform: lowercase;
+    letter-spacing: 0.02em;
+    color: var(--color-text);
+    opacity: 0;
+    padding: 0;
+    border-left: 1px solid transparent;
+    margin-left: 0;
+    transform: none;
+    transition:
+      opacity 0.2s ease,
+      max-width 0.25s ease,
+      padding 0.25s ease,
+      margin 0.25s ease,
+      border-color 0.25s ease;
+    pointer-events: none;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .sticky-page-title.is-visible {
+    opacity: 1;
+    max-width: min(14rem, 42vw);
+    padding-left: 0.625rem;
+    margin-left: 0.125rem;
+    border-left-color: color-mix(in srgb, var(--color-text) 22%, transparent);
+  }
+
+  .site-top-bar:not(:has(.social-links-container)) .header-context-pill {
+    padding-left: 0.875rem;
+  }
+
+  .site-top-bar:not(:has(.social-links-container)) .sticky-page-title.is-visible {
+    max-width: min(18rem, 52vw);
+    padding-left: 0;
+    margin-left: 0;
+    border-left-color: transparent;
+  }
+
+  .site-top-bar--detail .header-context-pill:not(.header-context-pill--with-title) {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  @media (max-width: 767px) {
+    .site-top-bar.scrolled .header-context-pill,
+    .site-top-bar.site-top-bar--detail .header-context-pill {
+      background-color: color-mix(in srgb, var(--color-nav-bg) 88%, transparent);
+      border-color: color-mix(in srgb, var(--color-accent) 24%, transparent);
+      box-shadow:
+        inset 0 1px 0 color-mix(in srgb, var(--color-text) 12%, transparent),
+        0 4px 16px color-mix(in srgb, var(--color-accent) 14%, transparent);
+    }
+
+    [data-theme='dark'] .site-top-bar.scrolled .header-context-pill,
+    [data-theme='dark'] .site-top-bar.site-top-bar--detail .header-context-pill {
+      box-shadow:
+        inset 0 1px 0 color-mix(in srgb, var(--color-text) 10%, transparent),
+        0 4px 16px rgba(0, 255, 136, 0.14);
+    }
+  }
+
+  .site-top-bar > * {
+    pointer-events: auto;
+  }
+
+  @media (min-width: 768px) {
+    .header-context-pill {
+      position: fixed;
+      top: max(1.25rem, env(safe-area-inset-top));
+      left: calc(var(--nav-bar-width) + 1.5rem);
+      z-index: 102;
+      max-width: min(28rem, calc(100vw - var(--nav-bar-width) - 3rem));
+    }
+
+    .site-top-bar.scrolled .header-context-pill {
+      background-color: color-mix(in srgb, var(--color-nav-bg) 88%, transparent);
+      border-color: color-mix(in srgb, var(--color-accent) 22%, transparent);
+      box-shadow:
+        inset 0 1px 0 color-mix(in srgb, var(--color-text) 12%, transparent),
+        0 6px 20px color-mix(in srgb, var(--color-accent) 12%, transparent);
+    }
+
+    [data-theme='dark'] .site-top-bar.scrolled .header-context-pill {
+      box-shadow:
+        inset 0 1px 0 color-mix(in srgb, var(--color-text) 10%, transparent),
+        0 6px 20px rgba(0, 255, 136, 0.14);
+    }
   }
   
   .nav-controls-glassy::before {
@@ -769,7 +1649,7 @@ if (import.meta.env.DEV) {
   }
   
   .nav-controls-glassy.scrolled::before {
-    opacity: 1;
+    opacity: 0;
   }
   
   .nav-controls {
@@ -793,16 +1673,20 @@ if (import.meta.env.DEV) {
       right: auto;
       top: 0;
       bottom: auto;
-      width: 4rem;
+      width: var(--nav-bar-width);
+      min-width: var(--nav-bar-width);
+      max-width: var(--nav-bar-width);
+      overflow-x: clip;
       height: 100vh;
       flex-direction: column;
       justify-content: flex-start;
       align-items: center;
       padding: 2rem 0;
       border-top: none;
-      border-right: 1px solid var(--color-border);
-      background-color: rgba(0, 0, 0, 0.02);
-      backdrop-filter: blur(8px);
+      border-right: 1px solid var(--color-nav-edge);
+      background-color: var(--color-nav-bg);
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
       box-shadow: 
         4px 0 12px rgba(99, 102, 241, 0.15),
         2px 0 4px var(--color-accent);
@@ -810,7 +1694,7 @@ if (import.meta.env.DEV) {
     }
     
     [data-theme="dark"] .nav-bar {
-      background-color: rgba(255, 255, 255, 0.02);
+      background-color: var(--color-nav-bg);
       box-shadow: 
         4px 0 12px rgba(0, 255, 136, 0.2),
         2px 0 4px var(--color-accent);
@@ -855,18 +1739,74 @@ if (import.meta.env.DEV) {
     }
     
     .nav-link {
+      position: relative;
       writing-mode: vertical-rl;
       text-orientation: mixed;
       white-space: nowrap;
       display: block;
+      flex-direction: unset;
+      gap: 0;
+    }
+
+    .nav-link-1 {
+      z-index: 4;
+      pointer-events: auto;
+      width: 100%;
+      min-height: 3.25rem;
+      padding: 1.25rem 0 1.75rem;
+      margin-top: -1rem;
+      margin-bottom: -1.25rem;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .nav-link-1::before {
+      content: '';
+      position: absolute;
+      top: -0.75rem;
+      bottom: -1.25rem;
+      left: 0;
+      right: 0;
+      z-index: -1;
+    }
+
+    .nav-link-2 { z-index: 3; }
+    .nav-link-3 { z-index: 2; }
+    .nav-link-4 { z-index: 1; }
+
+    /* Picker labels are visual-only — clicks pass through to links above */
+    .nav-link--picker-active .nav-word-picker-host,
+    .nav-link--picker-active .nav-word-picker,
+    .nav-link--picker-active .nav-word-picker__viewport,
+    .nav-link--picker-active .nav-word-picker__track,
+    .nav-link--picker-active .nav-word {
+      pointer-events: none;
+    }
+
+    .nav-link-1.nav-link--picker-active,
+    .nav-link-2.nav-link--picker-active {
+      overflow: visible;
+      contain: layout style;
     }
     
+    .site-top-bar {
+      display: contents;
+    }
+
     .nav-controls-glassy {
-      position: static;
+      position: fixed;
       top: auto;
       right: auto;
-      left: auto;
-      padding: 0.5rem;
+      left: 0;
+      bottom: 2rem;
+      width: var(--nav-bar-width);
+      min-width: var(--nav-bar-width);
+      max-width: var(--nav-bar-width);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0;
+      z-index: 101;
     }
     
     .nav-controls-glassy::before {
@@ -897,6 +1837,7 @@ if (import.meta.env.DEV) {
     margin-left: 0;
     margin-right: 0;
     padding: 1.5rem;
+    padding-top: calc(max(1rem, env(safe-area-inset-top)) + 5.25rem);
     padding-bottom: 5rem;
     min-height: 100vh;
     background-color: var(--color-bg);
@@ -905,64 +1846,126 @@ if (import.meta.env.DEV) {
     max-width: 100%;
     box-sizing: border-box;
   }
+
+  @media (max-width: 767px) {
+    .main-content:not(.main-content--detail) {
+      padding-top: calc(max(0.75rem, env(safe-area-inset-top)) + 4.25rem);
+    }
+
+    .main-content--detail {
+      padding-top: calc(max(0.75rem, env(safe-area-inset-top)) + 4.75rem);
+    }
+
+    .main-content--detail .back-button {
+      margin-top: 0.25rem;
+    }
+
+    .main-content :global(.experience-container),
+    .main-content :global(.contact-container),
+    .main-content :global(.freelance-container),
+    .main-content :global(.blog-container) {
+      margin-top: 0;
+    }
+  }
   
   @media (min-width: 768px) {
     .main-content {
-      margin-left: 4rem;
+      margin-left: var(--nav-bar-width);
       margin-right: 0;
       padding: 3rem;
+      padding-top: 3rem;
       padding-bottom: 3rem;
-      width: calc(100% - 4rem);
+      width: calc(100% - var(--nav-bar-width));
       max-width: none;
+    }
+
+    .main-content:not(.main-content--detail) {
+      padding-top: var(--site-context-inset-top);
     }
   }
   
   .nav-link {
     display: inline-flex;
+    flex-direction: column;
     align-items: center;
+    justify-content: center;
+    gap: 0.2rem;
     font-size: 1rem;
     letter-spacing: 0.05em;
     text-transform: lowercase;
-    font-weight: 700;
-    color: var(--color-accent);
+    font-weight: 600;
+    color: var(--color-text);
+    opacity: 0.38;
     text-decoration: none;
     position: relative;
-    transition: all 0.2s ease;
+    transition: color 0.2s ease, opacity 0.2s ease, transform 0.2s ease;
+    min-width: 3.25rem;
+    padding: 0.25rem 0.35rem 0.15rem;
+  }
+
+  .nav-link .nav-icon {
+    color: var(--color-text);
+    opacity: 0.55;
+    transition: color 0.2s ease, opacity 0.2s ease, filter 0.2s ease;
+  }
+
+  .nav-link .nav-text {
+    color: var(--color-text);
+    opacity: 0.55;
+    transition: color 0.2s ease, opacity 0.2s ease;
+  }
+
+  .nav-link:hover:not(.nav-link-active) {
+    opacity: 0.62;
+  }
+
+  .nav-link:hover:not(.nav-link-active) .nav-icon,
+  .nav-link:hover:not(.nav-link-active) .nav-text {
+    opacity: 0.72;
   }
   
+  /* Mobile-first: icon + label in the bottom tab bar */
   .nav-text {
-    font-size: 1.25rem;
+    display: block;
+    font-size: 0.625rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: lowercase;
+    line-height: 1.1;
     position: relative;
   }
+
+  .nav-label-desktop {
+    display: none;
+  }
+
+  .nav-label-mobile {
+    display: inline;
+  }
   
-  /* Active nav link - Mobile: Elevated + color change + arrow + animation */
+  .nav-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  /* Active nav link - Mobile: accent + indicator + elevation */
   .nav-link-active {
+    opacity: 1;
     transform: translateY(-4px);
-    color: var(--color-text);
-  }
-  
-  .nav-link-active .nav-text::before {
-    content: '→';
-    margin-right: 0.5rem;
     color: var(--color-accent);
-    display: inline-block;
-    vertical-align: middle;
-    animation: arrowPulseMobile 1.5s ease-in-out infinite;
   }
-  
+
+  .nav-link-active .nav-icon {
+    color: var(--color-accent);
+    opacity: 1;
+    filter: drop-shadow(0 0 6px var(--color-accent));
+  }
+
   .nav-link-active .nav-text {
-    animation: textGlow 2s ease-in-out infinite;
-  }
-  
-  @keyframes arrowPulseMobile {
-    0%, 100% {
-      transform: translateX(0);
-      opacity: 1;
-    }
-    50% {
-      transform: translateX(4px);
-      opacity: 0.7;
-    }
+    color: var(--color-accent);
+    opacity: 1;
+    font-weight: 700;
   }
   
   @keyframes arrowPulseDesktop {
@@ -989,29 +1992,59 @@ if (import.meta.env.DEV) {
   @media (min-width: 768px) {
     .nav-link {
       font-size: 0.875rem;
+      opacity: 0.55;
+      min-width: auto;
+      padding: 0;
+    }
+
+    .nav-link .nav-icon,
+    .nav-link .nav-text {
+      opacity: 1;
+    }
+    
+    /* Desktop: text labels in the vertical sidebar, no icons */
+    .nav-icon {
+      display: none;
     }
     
     .nav-text {
+      display: inline;
       font-size: 1rem;
+    }
+
+    .nav-label-desktop {
+      display: inline;
+    }
+
+    .nav-label-mobile {
+      display: none;
+    }
+
+    .nav-link {
+      flex-direction: row;
+      gap: 0;
     }
     
     .nav-link-active {
-      transform: translateX(4px);
+      transform: none;
+      opacity: 1;
       color: var(--color-text);
     }
-    
-    .nav-link-active .nav-text::before {
-      content: '→';
-      margin-right: 0.57rem;
-      padding-bottom: 4px;
-      color: var(--color-accent);
-      display: inline-block;
-      vertical-align: middle;
-      animation: arrowPulseDesktop 1.5s ease-in-out infinite;
+
+    .nav-link-active .nav-icon {
+      color: var(--color-text);
+      filter: none;
     }
-    
-    .nav-link-active .nav-text {
-      animation: textGlow 2s ease-in-out infinite;
+
+    .nav-link-active:not(.nav-link--picker-active) .nav-text {
+      display: inline-block;
+      padding: 0.25rem 0.125rem;
+      border-radius: 0.4rem;
+      background-color: var(--color-accent);
+      color: var(--segmented-active-text) !important;
+      font-weight: 700;
+      box-shadow: 0 0 12px color-mix(in srgb, var(--color-accent) 45%, transparent);
+      animation: none !important;
     }
   }
   
@@ -1110,58 +2143,46 @@ if (import.meta.env.DEV) {
   }
   
   .social-links-container {
-    position: absolute;
-    top: 1.5rem;
-    left: 1rem;
-    display: none; /* Hide on mobile */
-    gap: 1rem;
-    z-index: 50;
-  }
-  
-  @media (min-width: 768px) {
-    .social-links-container {
-      display: flex; /* Show on desktop */
-    }
+    position: static;
+    display: flex;
+    align-items: center;
+    gap: 0.125rem;
+    z-index: 1;
+    flex-shrink: 0;
   }
   
   .social-links-container-footer {
-    display: flex;
-    justify-content: center;
-    gap: 1rem;
-    margin-bottom: 1rem;
-  }
-  
-  @media (min-width: 768px) {
-    .social-links-container-footer {
-      display: none; /* Hide on desktop */
-    }
+    display: none;
   }
   
   .social-link {
     color: var(--color-text);
-    transition: color 0.3s ease, transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    transition: color 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
     display: flex;
     align-items: center;
     justify-content: center;
-    opacity: 0.6;
+    width: 2rem;
+    height: 2rem;
+    opacity: 1;
+    border: none;
+    border-radius: 9999px;
+    background: transparent;
+    -webkit-font-smoothing: antialiased;
   }
   
   .social-link:hover {
     color: var(--color-accent);
-    transform: scale(1.15);
-    opacity: 1;
+    background: color-mix(in srgb, var(--color-accent) 14%, transparent);
+    transform: scale(1.06);
   }
   
   .social-link:active {
-    transform: scale(0.95);
+    transform: scale(0.96);
   }
   
   .social-link svg {
-    transition: filter 0.3s ease;
-  }
-  
-  .social-link:hover svg {
-    filter: drop-shadow(0 0 8px var(--color-accent));
+    display: block;
+    flex-shrink: 0;
   }
   
   /* Desktop-only nav animations (sidebar as it was) */
@@ -1305,11 +2326,12 @@ if (import.meta.env.DEV) {
     }
   }
   
-  /* Desktop Popup */
+  /* Desktop Popup — top-right (original) */
   .desktop-popup {
     position: fixed;
     top: 1.5rem;
     right: 1rem;
+    bottom: auto;
     transform: translateY(-100px);
     max-width: calc(100% - 2rem);
     width: 100%;
@@ -1318,7 +2340,8 @@ if (import.meta.env.DEV) {
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55), 
-                transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+                transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55),
+                max-width 0.35s ease;
     visibility: hidden;
     display: none; /* Hidden by default on mobile */
   }
@@ -1359,11 +2382,101 @@ if (import.meta.env.DEV) {
     border: 2px solid var(--color-accent);
     border-radius: 1rem;
     padding: 1.5rem;
+    padding-bottom: 3.25rem;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
     position: relative;
     display: flex;
     flex-direction: column;
     gap: 1rem;
+    overflow: visible;
+    transition: padding 0.25s ease, gap 0.25s ease;
+  }
+
+  /* Toggle docked on the popup card bottom-right corner */
+  .desktop-popup-size-toggle {
+    position: absolute;
+    right: 0.55rem;
+    bottom: 0.55rem;
+    z-index: 3;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.3rem;
+    width: auto;
+    min-height: 2rem;
+    padding: 0.3rem 0.5rem;
+    border: 2px solid var(--color-text);
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    cursor: pointer;
+    font-family: var(--font-family-sans);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-transform: lowercase;
+    line-height: 1;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  .desktop-popup-size-toggle:hover {
+    background-color: var(--color-accent);
+    color: var(--color-bg);
+  }
+
+  .desktop-popup-icon-expand,
+  .desktop-popup-size-label-open {
+    display: none;
+  }
+
+  .desktop-popup.is-compact .desktop-popup-icon-shrink,
+  .desktop-popup.is-compact .desktop-popup-size-label-minimize,
+  .desktop-popup-size-toggle.is-docked-out .desktop-popup-icon-shrink,
+  .desktop-popup-size-toggle.is-docked-out .desktop-popup-size-label-minimize {
+    display: none;
+  }
+
+  .desktop-popup.is-compact .desktop-popup-icon-expand,
+  .desktop-popup.is-compact .desktop-popup-size-label-open,
+  .desktop-popup-size-toggle.is-docked-out .desktop-popup-icon-expand,
+  .desktop-popup-size-toggle.is-docked-out .desktop-popup-size-label-open {
+    display: inline-block;
+  }
+
+  .desktop-popup-size-label {
+    white-space: nowrap;
+  }
+
+  .desktop-popup.is-compact {
+    max-width: 168px;
+  }
+
+  .desktop-popup.is-compact .desktop-popup-content {
+    padding: 0.65rem 0.65rem 3rem;
+    gap: 0.4rem;
+  }
+
+  .desktop-popup.is-compact .desktop-popup-message {
+    display: none;
+  }
+
+  .desktop-popup.is-compact .desktop-popup-qr-container {
+    margin-top: 0;
+    margin-bottom: 0.35rem;
+    gap: 0.35rem;
+  }
+
+  .desktop-popup.is-compact .qr-code-frame {
+    padding: 0.3rem;
+  }
+
+  .desktop-popup.is-compact .qr-code {
+    width: 120px;
+    height: 120px;
+  }
+
+  .desktop-popup.is-compact :global(.scan-me-tag) {
+    font-size: 0.65rem;
+    padding: 0.25rem 0.65rem;
   }
   
   [data-theme="dark"] .desktop-popup-content {
@@ -1408,6 +2521,7 @@ if (import.meta.env.DEV) {
     .desktop-popup {
       top: 2rem;
       right: 2rem;
+      bottom: auto;
       transform: translateY(-100px);
       max-width: 400px;
     }
@@ -1452,21 +2566,29 @@ if (import.meta.env.DEV) {
   
   .recruiter-hint-popup-visible {
     opacity: 1 !important;
-    pointer-events: all !important;
+    /* Keep scroll gestures free; only CTA links capture clicks */
+    pointer-events: none !important;
     visibility: visible !important;
     display: block !important;
+  }
+
+  .recruiter-hint-popup-visible .recruiter-hint-link,
+  .recruiter-hint-popup-visible .recruiter-hint-mobile-text {
+    pointer-events: auto;
   }
   
   .recruiter-hint-popup-content {
     background-color: var(--color-bg);
     border: 2px solid var(--color-accent);
     border-radius: 1rem;
-    padding: 1rem 1.25rem;
+    padding: 0.75rem 1rem;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
     position: relative;
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+    width: max-content;
+    max-width: min(22rem, calc(100vw - 2rem));
   }
   
   [data-theme="dark"] .recruiter-hint-popup-content {
@@ -1484,12 +2606,12 @@ if (import.meta.env.DEV) {
   
   .recruiter-hint-popup-message {
     margin: 0;
-    font-size: clamp(0.875rem, 1.2vw + 0.5rem, 1.125rem);
-    line-height: 1.5;
+    font-size: clamp(0.8125rem, 1vw + 0.5rem, 1rem);
+    line-height: 1.4;
     color: var(--color-text);
     font-weight: 600;
-    text-align: center;
-    white-space: nowrap;
+    text-align: left;
+    white-space: normal;
   }
   
   .recruiter-hint-link {
@@ -1584,6 +2706,8 @@ if (import.meta.env.DEV) {
     
     .recruiter-hint-mobile-text {
       color: var(--color-text);
+      text-decoration: underline;
+      text-underline-offset: 2px;
     }
   }
   
@@ -1595,6 +2719,33 @@ if (import.meta.env.DEV) {
     
     .recruiter-hint-mobile {
       display: none;
+    }
+  }
+
+  .recruiter-audience {
+    display: inline;
+    transition: opacity 0.28s ease;
+  }
+
+  .recruiter-audience.is-exiting {
+    opacity: 0;
+  }
+
+  .recruiter-audience.is-entering {
+    opacity: 0;
+    animation: recruiterAudienceIn 0.28s ease forwards;
+  }
+
+  @keyframes recruiterAudienceIn {
+    to {
+      opacity: 1;
+    }
+  }
+
+  /* Clear scroll space under fixed recruiter bubble + bottom nav (mobile) */
+  @media (max-width: 767px) {
+    body:has(.recruiter-hint-popup-visible) .main-content {
+      padding-bottom: calc(max(0.75rem, env(safe-area-inset-bottom)) + 4.5rem + 7.5rem);
     }
   }
   

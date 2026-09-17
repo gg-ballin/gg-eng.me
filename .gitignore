@@ -33,3 +33,6 @@ src/lib/cv-data.ts
 
 # Lock files (generated per architecture)
 package-lock.json
+
+# Local scratchpad (machine-only context)
+LOCAL.md

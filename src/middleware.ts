@@ -88,7 +88,9 @@ export const onRequest = defineMiddleware(async (context, next) => {
       "base-uri 'self'",
       "form-action 'self'",
       "object-src 'none'",
-      "upgrade-insecure-requests",
+      // upgrade-insecure-requests breaks LAN testing (http://<ip>:4321): browsers
+      // upgrade every asset/navigation to https against a plain-http dev server
+      ...(isDev ? [] : ['upgrade-insecure-requests']),
     ].join('; ')
   );
   
