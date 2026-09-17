@@ -32,8 +32,12 @@ export const translations: Record<Language, Translations> = {
       location: 'Buenos Aires, Argentina',
       description: 'Diseño flujos, prompts y sistemas de agentes que aceleran el delivery de producto — sin perder el criterio de un Staff Engineer. Más de 9 años en React Native: viví el pasaje de `expo` y `react-native-cli` (cuando renderizar un mapa era un problema) hasta Fabric y la Nueva Arquitectura. `Expo`, `TypeScript`, `Swift` y `Kotlin` son la base; AI es el multiplicador para apps performantes, mantenibles y escalables.',
       cursorComposer: {
-        caption: 'Esto es todo lo que veo todos los días:',
         placeholder: 'Plan, Build, / for commands, @ for context',
+        prompts: [
+          'no cometas errores',
+          'implementá estas 25 pantallas',
+          'dame 3 ideas para hacerme rico 😁',
+        ],
         agent: 'Agent',
         modelsLabel: 'Modelos',
       },
@@ -215,8 +219,12 @@ export const translations: Record<Language, Translations> = {
       location: 'based in Buenos Aires, Argentina',
       description: 'I design flows, prompts, and agent systems that accelerate product delivery — without losing Staff Engineer judgment. 9+ years in React Native: I lived the shift from early `expo` and `react-native-cli` (when rendering a map was a nightmare) to Fabric and the New Architecture. `Expo`, `TypeScript`, `Swift`, and `Kotlin` are the foundation; AI is the multiplier for high-performance, maintainable, scalable apps.',
       cursorComposer: {
-        caption: 'This is what I stare at every day:',
         placeholder: 'Plan, Build, / for commands, @ for context',
+        prompts: [
+          'make no mistakes',
+          'implement this 25 screens',
+          'give me 3 ideas to make me rich 😁',
+        ],
         agent: 'Agent',
         modelsLabel: 'Models',
       },

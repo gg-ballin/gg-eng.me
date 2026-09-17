@@ -63,9 +63,16 @@ const models = [
   class={`bio-cursor-composer bio-cursor-composer--${variant}`}
   aria-label={`${modes.map((mode) => mode.label).join(', ')}; ${t.modelsLabel}: ${models.map((model) => model.label).join(', ')}`}
 >
-  <p class="bio-cursor-caption">{t.caption}</p>
   <div class="bio-cursor-shell">
-    <div class="bio-cursor-placeholder">{t.placeholder}</div>
+    <p
+      class="bio-cursor-placeholder"
+      data-bio-cursor-typewriter
+      data-prompts={JSON.stringify(t.prompts)}
+      aria-live="polite"
+    >
+      <span class="bio-cursor-typewriter-text"></span>
+      <span class="bio-cursor-caret" aria-hidden="true"></span>
+    </p>
 
     <div class="bio-cursor-toolbar">
       <div class="bio-cursor-pills">
@@ -205,6 +212,10 @@ const models = [
 </style>
 
 <script>
+  type TypewriterHandle = { stop: () => void };
+
+  const typewriterHandles = new WeakMap<HTMLElement, TypewriterHandle>();
+
   function measureBioCursorModes() {
     document.querySelectorAll('[data-bio-cursor-mode]').forEach((modeEl) => {
       if (!(modeEl instanceof HTMLElement)) return;
@@ -234,7 +245,90 @@ const models = [
     });
   }
 
+  function parsePrompts(raw: string | undefined): string[] {
+    if (!raw) return [];
+    try {
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed)
+        ? parsed.filter((item): item is string => typeof item === 'string' && item.length > 0)
+        : [];
+    } catch {
+      return [];
+    }
+  }
+
+  function startTypewriter(el: HTMLElement): TypewriterHandle {
+    const textEl = el.querySelector('.bio-cursor-typewriter-text');
+    const prompts = parsePrompts(el.dataset.prompts);
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (!(textEl instanceof HTMLElement) || !prompts.length) {
+      return { stop: () => undefined };
+    }
+
+    if (reduceMotion) {
+      textEl.textContent = prompts[0] ?? '';
+      return { stop: () => undefined };
+    }
+
+    let promptIndex = 0;
+    let charIndex = 0;
+    let deleting = false;
+    let timer: number | undefined;
+    let stopped = false;
+
+    const TYPE_MS = 42;
+    const DELETE_MS = 24;
+    const HOLD_MS = 1600;
+    const GAP_MS = 420;
+
+    const tick = () => {
+      if (stopped) return;
+      const prompt = prompts[promptIndex] ?? '';
+
+      if (!deleting) {
+        charIndex = Math.min(charIndex + 1, prompt.length);
+        textEl.textContent = prompt.slice(0, charIndex);
+        if (charIndex === prompt.length) {
+          deleting = true;
+          timer = window.setTimeout(tick, HOLD_MS);
+          return;
+        }
+        timer = window.setTimeout(tick, TYPE_MS);
+        return;
+      }
+
+      charIndex = Math.max(charIndex - 1, 0);
+      textEl.textContent = prompt.slice(0, charIndex);
+      if (charIndex === 0) {
+        deleting = false;
+        promptIndex = (promptIndex + 1) % prompts.length;
+        timer = window.setTimeout(tick, GAP_MS);
+        return;
+      }
+      timer = window.setTimeout(tick, DELETE_MS);
+    };
+
+    timer = window.setTimeout(tick, 500);
+
+    return {
+      stop: () => {
+        stopped = true;
+        if (timer !== undefined) window.clearTimeout(timer);
+      },
+    };
+  }
+
+  function initTypewriters() {
+    document.querySelectorAll('[data-bio-cursor-typewriter]').forEach((node) => {
+      if (!(node instanceof HTMLElement)) return;
+      typewriterHandles.get(node)?.stop();
+      typewriterHandles.set(node, startTypewriter(node));
+    });
+  }
+
   const run = () => {
+    initTypewriters();
     if (document.fonts?.ready) {
       document.fonts.ready.then(measureBioCursorModes);
     } else {

@@ -32,8 +32,8 @@ export interface Translations {
     location: string;
     description: string;
     cursorComposer: {
-      caption: string;
       placeholder: string;
+      prompts: [string, string, string];
       agent: string;
       modelsLabel: string;
     };
