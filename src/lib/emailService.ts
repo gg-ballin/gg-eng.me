@@ -279,7 +279,7 @@ export class EmailService {
                 : 'If you need to share more details, you can reply to this email.'}</p>
               <p>${isSpanish ? 'Saludos,' : 'Best regards,'}<br/>
               <strong>Germán Gómez</strong><br/>
-              Senior Mobile Engineer<br/>
+              Staff Engineer<br/>
               Buenos Aires, Argentina</p>
               <div class="footer">
                 <p style="color: #666; font-size: 12px;">
@@ -513,13 +513,13 @@ export class EmailService {
       ? `
         <p>Saludos,<br/>
         <strong>Germán Gómez</strong><br/>
-        Senior Mobile Engineer<br/>
+        Staff Engineer<br/>
         Buenos Aires, Argentina</p>
       `
       : `
         <p>Best regards,<br/>
         <strong>Germán Gómez</strong><br/>
-        Senior Mobile Engineer<br/>
+        Staff Engineer<br/>
         Buenos Aires, Argentina</p>
       `;
     

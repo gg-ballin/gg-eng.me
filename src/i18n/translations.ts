@@ -5,8 +5,8 @@ export type Language = 'es' | 'en';
 export const translations: Record<Language, Translations> = {
   es: {
     seo: {
-      title: 'Germán Gómez - Senior Mobile Engineer',
-      description: 'Portfolio de Germán Gómez, Senior Mobile Engineer en Buenos Aires, Argentina.',
+      title: 'Germán Gómez - Staff Engineer',
+      description: 'Portfolio de Germán Gómez, Staff Engineer en Buenos Aires, Argentina.',
     },
     nav: {
       bio: 'bio',
@@ -192,8 +192,8 @@ export const translations: Record<Language, Translations> = {
   },
   en: {
     seo: {
-      title: 'Germán Gómez - Senior Mobile Engineer',
-      description: 'Portfolio of Germán Gómez, Senior Mobile Engineer based in Buenos Aires, Argentina.',
+      title: 'Germán Gómez - Staff Engineer',
+      description: 'Portfolio of Germán Gómez, Staff Engineer based in Buenos Aires, Argentina.',
     },
     nav: {
       bio: 'bio',
