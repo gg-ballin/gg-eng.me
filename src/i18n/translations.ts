@@ -164,6 +164,13 @@ export const translations: Record<Language, Translations> = {
         companyPlaceholder: 'Tu empresa o institución',
         submitting: 'Enviando...',
         error: 'Error al enviar. Intenta de nuevo.',
+        captcha: {
+          verifying: 'Verificando...',
+          failed: 'No pudimos verificar que no eres un bot. Si usas VPN, prueba desactivarla o reintenta.',
+          timeout: 'La verificación expiró. Reintenta para continuar.',
+          required: 'Completa la verificación antes de enviar.',
+          retry: 'Reintentar',
+        },
       },
     },
     footer: {
@@ -351,6 +358,13 @@ export const translations: Record<Language, Translations> = {
         companyPlaceholder: 'Your company or institution',
         submitting: 'Sending...',
         error: 'Error sending. Please try again.',
+        captcha: {
+          verifying: 'Verifying...',
+          failed: "We couldn't verify you're not a bot. If you're on a VPN, try disabling it or retry.",
+          timeout: 'Verification expired. Retry to continue.',
+          required: 'Complete the verification before submitting.',
+          retry: 'Retry',
+        },
       },
     },
     footer: {

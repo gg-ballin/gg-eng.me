@@ -27,14 +27,6 @@ export function setContactIntent(intent: ContactIntent, persist = true): void {
   switcher.setAttribute('data-position', String(index));
   switcher.setAttribute('data-has-selection', 'true');
 
-  const sectionTitle = document.getElementById('contact-section-title');
-  if (sectionTitle) {
-    const key = intent === 'freelance' ? 'titleFreelance' : 'titleCv';
-    if (sectionTitle.dataset[key]) {
-      sectionTitle.textContent = sectionTitle.dataset[key] ?? '';
-    }
-  }
-
   const sectionDescription = document.getElementById('contact-section-description');
   if (sectionDescription) {
     const key = intent === 'freelance' ? 'descriptionFreelance' : 'descriptionCv';

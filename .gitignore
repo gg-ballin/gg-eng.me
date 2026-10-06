@@ -23,6 +23,9 @@ pnpm-debug.log*
 # jetbrains setting folder
 .idea/
 
+# VS Code / Cursor workspace files
+*.code-workspace
+
 # Cloudflare
 .wrangler/
 .dev.vars

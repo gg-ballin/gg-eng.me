@@ -170,6 +170,13 @@ export interface Translations {
       companyPlaceholder: string;
       submitting: string;
       error: string;
+      captcha: {
+        verifying: string;
+        failed: string;
+        timeout: string;
+        required: string;
+        retry: string;
+      };
     };
   };
   
