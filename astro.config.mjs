@@ -6,6 +6,7 @@ import mdx from "@astrojs/mdx";
 import react from "@astrojs/react";
 import { fileURLToPath } from "node:url";
 import pkg from "./package.json" assert { type: "json" };
+import devQr from "./src/integrations/dev-qr.ts";
 
 // https://astro.build/config
 export default defineConfig({
@@ -19,7 +20,7 @@ export default defineConfig({
     // KV namespace binding (configure in wrangler.toml or Cloudflare dashboard)
     // The namespace will be available as locals.runtime.env.NEWSLETTER_KV
   }),
-  integrations: [mdx(), react()],
+  integrations: [mdx(), react(), devQr()],
   vite: {
     server: {
       allowedHosts: [".trycloudflare.com"],
