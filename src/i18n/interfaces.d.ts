@@ -172,10 +172,15 @@ export interface Translations {
       error: string;
       captcha: {
         verifying: string;
-        failed: string;
         timeout: string;
         required: string;
         retry: string;
+        errors: {
+          challenge: string;
+          config: string;
+          browser: string;
+          network: string;
+        };
       };
     };
   };

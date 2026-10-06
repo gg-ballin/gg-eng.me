@@ -546,6 +546,20 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
       syncSubmitState();
     };
 
+    /** Maps Turnstile client-side error codes (developers.cloudflare.com/turnstile/troubleshooting/client-side-errors) to user copy. */
+    const getCaptchaErrorMessage = (code) => {
+      const value = String(code ?? '');
+      if (value.startsWith('script_load')) return t.captcha.errors.network;
+      if (value.startsWith('1106')) return t.captcha.timeout;
+      if (['110500', '110510', '200010', '200100'].includes(value)) {
+        return `${t.captcha.errors.browser} (${value})`;
+      }
+      if (value.startsWith('110') || /^10[2-6]\d{3}$/.test(value)) {
+        return `${t.captcha.errors.config} (${value})`;
+      }
+      return value ? `${t.captcha.errors.challenge} (${value})` : t.captcha.errors.challenge;
+    };
+
     const setCaptchaError = (message) => {
       captchaState = 'error';
       if (turnstileTokenInput) turnstileTokenInput.value = '';
@@ -616,9 +630,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
         },
         'expired-callback': () => setCaptchaLoading(),
         'timeout-callback': () => setCaptchaError(t.captcha.timeout),
-        'error-callback': (code) => {
-          setCaptchaError(`${t.captcha.failed} (${code})`);
-        },
+        'error-callback': (code) => setCaptchaError(getCaptchaErrorMessage(code)),
       });
     };
 
@@ -634,7 +646,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
         .then(renderTurnstile)
         .catch((error) => {
           const reason = error instanceof Error ? error.message : 'render_error';
-          setCaptchaError(`${t.captcha.failed} (${reason})`);
+          setCaptchaError(getCaptchaErrorMessage(reason));
         });
     };
 
