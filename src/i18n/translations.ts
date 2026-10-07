@@ -164,6 +164,18 @@ export const translations: Record<Language, Translations> = {
         companyPlaceholder: 'Tu empresa o institución',
         submitting: 'Enviando...',
         error: 'Error al enviar. Intenta de nuevo.',
+        captcha: {
+          verifying: 'Verificando...',
+          timeout: 'La verificación expiró. Reintenta para continuar.',
+          required: 'Completa la verificación antes de enviar.',
+          retry: 'Reintentar',
+          errors: {
+            challenge: 'No pudimos verificar que no eres un bot. Si usas VPN, prueba desactivarla y reintenta.',
+            config: 'La verificación de seguridad no está disponible en este dominio.',
+            browser: 'Tu navegador no pudo completar la verificación. Actualízalo, revisa la fecha y hora del dispositivo o prueba con otro navegador.',
+            network: 'No se pudo cargar la verificación. Revisa tu conexión o desactiva bloqueadores de contenido y reintenta.',
+          },
+        },
       },
     },
     footer: {
@@ -351,6 +363,18 @@ export const translations: Record<Language, Translations> = {
         companyPlaceholder: 'Your company or institution',
         submitting: 'Sending...',
         error: 'Error sending. Please try again.',
+        captcha: {
+          verifying: 'Verifying...',
+          timeout: 'Verification expired. Retry to continue.',
+          required: 'Complete the verification before submitting.',
+          retry: 'Retry',
+          errors: {
+            challenge: "We couldn't verify you're not a bot. If you're on a VPN, try disabling it and retry.",
+            config: 'Security verification is not available on this domain.',
+            browser: "Your browser couldn't complete the verification. Update it, check your device's date and time, or try another browser.",
+            network: "The verification couldn't load. Check your connection or disable content blockers and retry.",
+          },
+        },
       },
     },
     footer: {

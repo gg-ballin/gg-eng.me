@@ -28,12 +28,6 @@ const t = getTranslations(lang);
     <section class="contact-section" id="contact-intent-panel" role="tabpanel" aria-labelledby="intent-tab-cv">
       <ContactIntentSwitcher lang={lang} />
 
-      <h2
-        class="section-title"
-        id="contact-section-title"
-        data-title-cv={t.contact.intents.cv.title}
-        data-title-freelance={t.contact.intents.freelance.title}
-      >{t.contact.intents.cv.title}</h2>
       <p
         class="section-description"
         id="contact-section-description"
@@ -102,17 +96,6 @@ const t = getTranslations(lang);
     }
   }
 
-  .section-title {
-    font-family: var(--font-family-sans);
-    font-size: 1.5rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin-bottom: 1rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 3px solid var(--color-text);
-  }
-
   .section-description {
     font-size: 1.125rem;
     line-height: 1.6;
@@ -162,10 +145,6 @@ const t = getTranslations(lang);
   @media (max-width: 768px) {
     .page-title {
       font-size: 2rem;
-    }
-
-    .section-title {
-      font-size: 1.25rem;
     }
 
     .section-description {
